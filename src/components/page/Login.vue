@@ -14,7 +14,7 @@
                     </el-input>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    <el-button type="primary" @click="login">登录</el-button>
                 </div>
                 <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
@@ -23,6 +23,11 @@
 </template>
 
 <script>
+    // import postJsonRequest from '../../main.js';
+    // import postRequest from '../../main.js';
+    // import getRequest from '../../main.js';
+    import $ from 'jquery';
+    import {postJsonRequest,postRequest,getRequest} from '../../main.js';
     export default {
         data: function(){
             return {
@@ -50,6 +55,27 @@
                         console.log('error submit!!');
                         return false;
                     }
+                });
+            },
+            login(){
+                postRequest("/api/public/login",{
+                    username:this.ruleForm.username,
+                    password:this.ruleForm.password
+                }).then((result) => {
+                   console.log(result.data);
+                   if(result.data.code === 200){
+                       this.$router.push("/dashboard");
+                   }else{
+                       this.open6();
+                   }
+                }).catch(e =>{
+                    console.log(e)
+                })
+            },
+              open6() {
+                this.$notify.error({
+                title: '错误',
+                message: '登录失败'
                 });
             }
         }
