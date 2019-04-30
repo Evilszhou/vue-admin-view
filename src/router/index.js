@@ -7,7 +7,7 @@ export default new Router({
     routes: [
         {
             path: '/',
-            redirect: '/dashboard'
+            redirect: '/login'
         },
         {
             path: '/',
@@ -18,6 +18,12 @@ export default new Router({
                     path: '/dashboard',
                     component: resolve => require(['../components/page/Dashboard.vue'], resolve),
                     meta: { title: '系统首页' }
+                },
+                {
+                    path:"/user",
+                    component:resolve => require(['../components/page/User.vue'],resolve),
+                    meta:{title:"用户管理"}
+
                 },
                 {
                     path: '/icon',
@@ -96,6 +102,11 @@ export default new Router({
                     path: '/403',
                     component: resolve => require(['../components/page/403.vue'], resolve),
                     meta: { title: '403' }
+                },
+                {
+                    path:"/test",
+                    component: resolve => require(['../components/page/test.vue'],resolve),
+                    meta:{title:"测试"}
                 }
             ]
         },

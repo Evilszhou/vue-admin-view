@@ -44,6 +44,12 @@
                         title: '系统首页'
                     },
                     {
+                        icon:'el-icon-lx-people',
+                        index:"user",
+                        title:"用户管理"
+
+                    },
+                    {
                         icon: 'el-icon-lx-cascades',
                         index: 'table',
                         title: '基础表格'
@@ -157,7 +163,7 @@
         width: 0;
     }
     .sidebar-el-menu:not(.el-menu--collapse){
-        width: 250px;
+        width: 200px;
     }
     .sidebar > ul {
         height:100%;
