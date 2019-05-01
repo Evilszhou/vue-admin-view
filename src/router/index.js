@@ -26,6 +26,12 @@ export default new Router({
 
                 },
                 {
+                    path:"/log",
+                    component:resolve => require(['../components/page/Log.vue'],resolve),
+                    meta:{title:"日志管理"}
+
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }
