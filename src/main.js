@@ -90,7 +90,7 @@ export const postRequest = (url, params) => {
 }
 
 
-export const getRequest = (url, data = '') => {
+export const getRequest = (url, data) => {
   return axios({
     method: 'get',
     params: data,
