@@ -62,10 +62,12 @@
                     username:this.ruleForm.username,
                     password:this.ruleForm.password
                 }).then((result) => {
-                   console.log(result.data);
+                    console.log(result);
+                //    console.log(result.data.msg);
                    if(result.data.code === 200){
+                       localStorage.setItem("token",result.data.data);
                        this.$router.push("/dashboard");
-                   }else{
+                   }else if(result === undefined){
                        this.open6();
                    }
                 }).catch(e =>{
