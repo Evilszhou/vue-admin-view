@@ -26,23 +26,35 @@ const i18n = new VueI18n({
 
 axios.interceptors.request.use(config => {
     config.headers.token = localStorage.getItem("token");
+    console.log("token:"+config.headers.token)
     return config;
 },error => {
     console.log('加载超时');
     return Promise.reject(error);
 })
+let that = this;
+window.bus  = new Vue();
 
 
-axios.interceptors.response.use(response => {
-    if(response.data.code === 200){
-        localStorage.setItem("token",response.data.data);
-    }else if(response.data.code === 401){
-        this.$router.push("/permission")
-    }
-    return response;
-},error => {
-    console.log("加载失败");
-})
+// axios.interceptors.response.use(response => {
+//     console.log(response.data.msg)
+//     console.log(response.data.msg  == "登陆成功")
+//     if(response.data.msg == "登录成功"){
+//         console.log("hahah")
+//         console.log(localStorage.getItem("token")) 
+//     }else if(response.data.code === 401){
+//         window.bus.$router.replace("/login")
+//     }else{
+//         return response;
+       
+//     }
+    
+// },error => {
+     
+//     console.log("加载失败");
+//     return Promise.reject(error)
+
+// })
 
 export const postJsonRequest = (url,params) => {
     return axios({
@@ -85,6 +97,12 @@ export const getRequest = (url, data = '') => {
     url: url,
   });
 }
+
+
+// router.beforeEach((to,from,next) => {
+    
+    
+// })
 //使用钩子函数对路由进行权限跳转
 // router.beforeEach((to, from, next) => {
 //     const role = localStorage.getItem('ms_username');
