@@ -12,13 +12,15 @@
         <el-col :span="4"><el-input v-model="userName" placeholder="操作者"></el-input></el-col>
         <el-col :span="4"><el-input v-model="opName" placeholder="操作记录"></el-input></el-col>
         <el-col :span="8">
-            <el-date-picker
-              v-model="time"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            ></el-date-picker>
+
+    <el-date-picker
+      v-model="time"
+      type="daterange"
+      range-separator="至"
+      start-placeholder="开始日期"
+      end-placeholder="结束日期">
+    </el-date-picker>
+
         </el-col>
         <el-col :span="4"><el-input v-model="opLabel" placeholder="操作类型"></el-input></el-col> 
         <el-col :span="3">

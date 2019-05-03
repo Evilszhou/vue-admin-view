@@ -32,6 +32,12 @@ export default new Router({
 
                 },
                 {
+                    path:"/document",
+                    component:resolve => require(['../components/page/Document.vue'],resolve),
+                    meta:{title:"文件管理"}
+
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }
