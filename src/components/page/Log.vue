@@ -9,20 +9,26 @@
     </div>
     <div class="container">
       <el-row :gutter="20">
-        <el-col :span="4"><el-input v-model="userName" placeholder="操作者"></el-input></el-col>
-        <el-col :span="4"><el-input v-model="opName" placeholder="操作记录"></el-input></el-col>
-        <el-col :span="8">
-            <el-date-picker
-              v-model="time"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            ></el-date-picker>
+        <el-col :span="4">
+          <el-input v-model="userName" placeholder="操作者"></el-input>
         </el-col>
-        <el-col :span="4"><el-input v-model="opLabel" placeholder="操作类型"></el-input></el-col> 
+        <el-col :span="4">
+          <el-input v-model="opName" placeholder="操作记录"></el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-date-picker
+            v-model="time"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          ></el-date-picker>
+        </el-col>
+        <el-col :span="4">
+          <el-input v-model="opLabel" placeholder="操作类型"></el-input>
+        </el-col>
         <el-col :span="3">
-            <el-button type="primary" @click="getLogsBySearchParam">查询</el-button>
+          <el-button type="primary" @click="getLogsBySearchParam">查询</el-button>
         </el-col>
       </el-row>
       <el-table
@@ -72,7 +78,7 @@
 <script>
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
-import { isNull } from 'util';
+import { isNull } from "util";
 
 export default {
   methods: {
@@ -134,7 +140,7 @@ export default {
         opName: this.opName,
         opLabel: this.opLabel,
         startTime: this.startTime,
-        endTime: this.endTime,
+        endTime: this.endTime
       })
         .then(result => {
           if (result.data.code === 200) {
@@ -152,34 +158,34 @@ export default {
   },
   watch: {
     userName(val) {
-      if(val != ""){
+      if (val != "") {
         this.userName = val;
-        console.log("userName"+this.userName)
+        console.log("userName" + this.userName);
       }
     },
-    opName(val){
-      if(val != ""){
+    opName(val) {
+      if (val != "") {
         this.opName = val;
-        console.log("opName"+this.opName)
+        console.log("opName" + this.opName);
       }
     },
-    opLabel(val){
-      if(val != ""){
+    opLabel(val) {
+      if (val != "") {
         this.opLabel = val;
-        console.log("opLabel"+this.opLabel)
-        console.log(this.time[0])
-        console.log(this.time[1])
+        console.log("opLabel" + this.opLabel);
+        console.log(this.time[0]);
+        console.log(this.time[1]);
       }
     },
-    time(val){
-      if(!isNull(val)){
-        if(!isNull(val[0]) && !isNull(val[1])){
+    time(val) {
+      if (!isNull(val)) {
+        if (!isNull(val[0]) && !isNull(val[1])) {
           this.startTime = moment(val[0]).format("YYYY-MM-DD HH:mm:ss");
           this.endTime = moment(val[1]).format("YYYY-MM-DD HH:mm:ss");
         }
-      } 
+      }
       console.log(this.startTime);
-      console.log(this.endTime) 
+      console.log(this.endTime);
     }
   },
 
@@ -223,7 +229,7 @@ export default {
   background: #f0f9eb;
 }
 
- /* .el-row {
+/* .el-row {
     margin-bottom: 20px;
 
   }
