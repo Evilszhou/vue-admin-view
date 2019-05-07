@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button @click="send"></el-button>
+        <el-button @click="send">测试</el-button>
     </div>
 </template>
 <script>

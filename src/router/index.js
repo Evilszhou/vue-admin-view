@@ -32,6 +32,17 @@ export default new Router({
 
                 },
                 {
+                    path:"/tags",
+                    component:resolve => require(['../components/page/Tags.vue'],resolve),
+                    meta:{title:"标签管理"}
+                },
+                {
+                    path:"/file",
+                    component:resolve => require(['../components/page/File.vue'],resolve),
+                    meta:{title:"文件管理"}
+
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }

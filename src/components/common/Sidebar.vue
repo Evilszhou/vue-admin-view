@@ -54,6 +54,15 @@
                         index:"log",
                         title:"日志管理"
 
+                    },{
+                        icon:"el-icon-lx-file",
+                        index:"file",
+                        title:"文件管理"
+                    },
+                    {
+                        icon:"el-icon-lx-tag",
+                        index:"tags",
+                        title:"标签管理"
                     },
                     {
                         icon: 'el-icon-lx-cascades',

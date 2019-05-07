@@ -1,4 +1,4 @@
-<template>
+ <template>
     <div class="login-wrap">
         <div class="ms-login">
             <div class="ms-title">后台管理系统</div>
@@ -69,6 +69,8 @@
                        this.$router.push("/dashboard");
                    }else if(result === undefined){
                        this.open6();
+                   }else if(result.data.code == -100){
+                       this.open7();
                    }
                 }).catch(e =>{
                     console.log(e)
@@ -78,6 +80,12 @@
                 this.$notify.error({
                 title: '错误',
                 message: '登录失败'
+                });
+            },
+            open7(){
+                   this.$notify.error({
+                title: '错误',
+                message: '用户被锁定'
                 });
             }
         }
