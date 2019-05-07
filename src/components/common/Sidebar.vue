@@ -64,6 +64,18 @@
                         index:"tags",
                         title:"标签管理"
                     },
+                     {
+                        icon:'el-icon-lx-edit',
+                        index:"document",
+                        title:"文件管理"
+
+                    },
+                     {
+                        icon:'el-icon-lx-edit',
+                        index:"department",
+                        title:"机构管理"
+
+                    },
                     {
                         icon: 'el-icon-lx-cascades',
                         index: 'table',

@@ -37,9 +37,15 @@ export default new Router({
                     meta:{title:"标签管理"}
                 },
                 {
-                    path:"/file",
-                    component:resolve => require(['../components/page/File.vue'],resolve),
+                    path:"/document",
+                    component:resolve => require(['../components/page/Document.vue'],resolve),
                     meta:{title:"文件管理"}
+
+                },
+                {
+                    path:"/department",
+                    component:resolve => require(['../components/page/Department.vue'],resolve),
+                    meta:{title:"组织机构管理"}
 
                 },
                 {
