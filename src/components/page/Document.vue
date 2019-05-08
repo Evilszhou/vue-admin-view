@@ -17,32 +17,33 @@
               class="el-menu-vertical-demo"
               @open="handleOpen"
               @close="handleClose"
+              default-openeds='[1]'
             >
               <el-submenu index="1">
                 <template slot="title">
                   <i class="el-icon-location"></i>
                   <span>文件分类</span>
                 </template>
-                <el-menu-item-group>                 
-                  <el-menu-item index="1-1" @click="fitterDoc('txt')">txt文档</el-menu-item>
-                  <el-menu-item index="1-2">word文档</el-menu-item>
-                  <el-menu-item index="1-3">excel文档</el-menu-item>
-                  <el-menu-item index="1-4">pdf文档</el-menu-item>
-                  <el-menu-item index="1-5">ppt文档</el-menu-item>
-                  <el-menu-item index="1-6">图片文档</el-menu-item>
-                  <el-menu-item index="1-7">压缩文档</el-menu-item>
+                <el-menu-item-group>
+                  <el-menu-item index="1-1" @click="fitterDoc('')">全部文档</el-menu-item>
+                  <el-menu-item index="1-2" @click="fitterDoc('txt')">txt文档</el-menu-item>
+                  <el-menu-item index="1-3" @click="fitterDoc('word')">word文档</el-menu-item>
+                  <el-menu-item index="1-4" @click="fitterDoc('xls')">excel文档</el-menu-item>
+                  <el-menu-item index="1-5" @click="fitterDoc('pdf')">pdf文档</el-menu-item>
+                  <el-menu-item index="1-6" @click="fitterDoc('ppt')">ppt文档</el-menu-item>
+                  <el-menu-item index="1-7" @click="fitterDoc('img')">图片文档</el-menu-item>
+                  <el-menu-item index="1-8" @click="fitterDoc('compressDoc')">压缩文档</el-menu-item>
                 </el-menu-item-group>
-                
               </el-submenu>
-              <el-menu-item index="2">
+              <!-- <el-menu-item index="2">
                 <i class="el-icon-menu"></i>
                 <span slot="title">导航二</span>
-              </el-menu-item>
-              <el-menu-item index="3" disabled>
+              </el-menu-item> -->
+              <!-- <el-menu-item index="3" disabled>
                 <i class="el-icon-document"></i>
                 <span slot="title">导航三</span>
-              </el-menu-item>
-              <el-menu-item index="4">
+              </el-menu-item>-->
+              <!-- <el-menu-item index="4">
                 <i class="el-icon-setting"></i>
                 <span slot="title">导航四</span>
               </el-menu-item>
@@ -53,7 +54,7 @@
               <el-menu-item index="6">
                 <i class="el-icon-setting"></i>
                 <span slot="title">导航四</span>
-              </el-menu-item>
+              </el-menu-item> -->
               <el-menu-item index="7">
                 <i class="el-icon-setting"></i>
                 <span @click="toUploadPage" slot="title">上传文件</span>
@@ -64,7 +65,7 @@
             <div class="document-search">
               <el-row :gutter="20">
                 <el-col :span="4">
-                  <el-input placeholder="文件名"></el-input>
+                  <el-input v-model="docSearchName" placeholder="文件名"></el-input>
                 </el-col>
                 <el-col :span="10">
                   <el-date-picker
@@ -76,16 +77,24 @@
                   ></el-date-picker>
                 </el-col>
                 <el-col :span="4">
-                  <el-input placeholder="操作类型"></el-input>
+                  <el-cascader placeholder="输入标签" :options="docLabels" filterable change-on-select></el-cascader>
                 </el-col>
                 <el-col :span="3">
-                  <!-- <el-button type="primary" @click="getLogsBySearchParam">查询</el-button> -->
+                  <el-cascader
+                    placeholder="输入部门"
+                    :options="departments"
+                    filterable
+                    change-on-select
+                  ></el-cascader>
                 </el-col>
-                <el-col :span="1">
+                <el-col :span="3">
+                  <el-button type="primary" @click="getDocsBySearchParam">查询</el-button>
+                </el-col>
+                <!-- <el-col :span="1">
                   <svg class="icon" style="margin:0;font-size:10px" aria-hidden="true">
                     <use xlink:href="#icon-drxx07"></use>
                   </svg>
-                </el-col>
+                </el-col>-->
               </el-row>
             </div>
             <div class="document-display">
@@ -98,7 +107,7 @@
               <el-checkbox-group v-model="checkList">
                 <el-checkbox
                   class="document-display-item"
-                  v-for="item in items"
+                  v-for="item in fitterItems"
                   :key="item.id"
                   :label="item.id"
                 >
@@ -110,6 +119,7 @@
                       <use v-if="item.type=='ppt'" xlink:href="#icon-ppt2"></use>
                       <use v-if="item.type=='word'" xlink:href="#icon-WORD"></use>
                       <use v-if="item.type=='img'" xlink:href="#icon-tupian"></use>
+                      <use v-if="item.type=='compressDoc'" xlink:href="#icon-tupian"></use>
                     </svg>
                   </div>
                   <div class="document-display-fileName">{{item.fileName}}</div>
@@ -148,7 +158,7 @@
                   v-for="tag in dynamicTags"
                   closable
                   :disable-transitions="true"
-                  @close="handleClose(tag)"
+                  @close="openMessageBox('是否删除标签',tag)"
                 >{{tag}}</el-tag>
                 <el-input
                   class="input-new-tag"
@@ -177,7 +187,7 @@ import { isNull } from "util";
 export default {
   methods: {
     toUploadPage() {
-      this.$router.push({path:'Upload'});
+      this.$router.push({ path: "Upload" });
     },
     selectDocument(item) {
       console.log(item);
@@ -193,13 +203,16 @@ export default {
       //   }
       // }
     },
-    handleCheckAllChange() {},
+    handleCheckAllChange(val) {
+      this.checkList = val ? this.allCheckList : [];
+      this.isIndeterminate = false;
+    },
     handleOpen() {},
     handleClose() {},
 
-    handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-    },
+    // handleClose(tag) {
+    //   this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    // },
 
     showInput() {
       this.inputVisible = true;
@@ -216,25 +229,72 @@ export default {
       this.inputVisible = false;
       this.inputValue = "";
     },
-    fitterDoc(type){
+    fitterDoc(type) {
+      this.checkList = [];
       let item = this.items;
-      console.log("changdu"+item.length);
-      let num = item.length;
-      for(let i=0;i<item.length;i++){
-        
-       
-        if(this.items[i].type != type){
-          // console.log("第"+i);
-         
-          console.log( item.splice(i,1))
+      let newItem = [];
+      if (type == "") {
+        this.fitterItems = this.items;
+      } else {
+        for (let i = 0; i < item.length; i++) {
+          if (item[i].type == type) {
+            newItem.push(item[i]);
+          }
         }
+        this.fitterItems = newItem;
       }
-      console.log(this.items.length);
+    },
+    getDocsBySearchParam() {
+      this.checkList = [];
+      let item = this.fitterItems;
+      let newItem = [];
+      if (this.docSearchName == "") {
+        // this.fitterItems = this.items;
+      } else {
+        for (let i = 0; i < item.length; i++) {
+          if (item[i].fileName.indexOf(this.docSearchName) != -1) {
+            newItem.push(item[i]);
+          }
+        }
+        this.fitterItems = newItem;
+        this.docSearchName = '';
+      }
+    },
+     openMessageBox(title,label) {
+        this.$confirm(title, '是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.dynamicTags.splice(this.dynamicTags.indexOf(label), 1);
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      }
+    
+  },
+  watch: {
+    docSearchName(val) {
+      if (val != "") {
+        this.docSearchName = val;
+        console.log("docSearchName" + this.docSearchName);
+      }
     }
   },
-  watch: {},
 
-  mounted() {},
+  mounted() {
+    this.fitterItems = this.items;
+    for (let i = 0; i < this.items.length; i++) {
+      this.allCheckList.push(this.items[i].id);
+    }
+  },
   data() {
     return {
       dynamicTags: ["标签一", "标签二", "标签三"],
@@ -266,7 +326,9 @@ export default {
           tags: ["eee"]
         }
       ],
-      checkList: ["1", "3"],
+      fitterItems: [],
+      checkList: [],
+      allCheckList: [],
       selectDocumentInfo: {
         id: "2",
         fileName: "部门综测",
@@ -275,7 +337,329 @@ export default {
       },
       checkAll: false,
       isIndeterminate: true,
-      time: []
+      time: [],
+      docSearchName: "",
+      docLabels: [
+        {
+          value: "shujuwenjian",
+          label: "数据文件",
+          children: [
+            {
+              value: "shejiyuanze",
+              label: "报表",
+              children: [
+                {
+                  value: "yizhi",
+                  label: "财务报表"
+                },
+                {
+                  value: "fankui",
+                  label: "公司财政"
+                },
+                {
+                  value: "xiaolv",
+                  label: "人员流动表"
+                },
+                {
+                  value: "kekong",
+                  label: "进货表"
+                }
+              ]
+            },
+            {
+              value: "daohang",
+              label: "合同",
+              children: [
+                {
+                  value: "cexiangdaohang",
+                  label: "财务合同"
+                },
+                {
+                  value: "dingbudaohang",
+                  label: "商务合同"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          value: "tupian",
+          label: "图片",
+          children: [
+            {
+              value: "basic",
+              label: "Basic",
+              children: [
+                {
+                  value: "layout",
+                  label: "Layout 布局"
+                },
+                {
+                  value: "color",
+                  label: "Color 色彩"
+                },
+                {
+                  value: "typography",
+                  label: "Typography 字体"
+                },
+                {
+                  value: "icon",
+                  label: "Icon 图标"
+                },
+                {
+                  value: "button",
+                  label: "Button 按钮"
+                }
+              ]
+            },
+            {
+              value: "form",
+              label: "Form",
+              children: [
+                {
+                  value: "radio",
+                  label: "Radio 单选框"
+                },
+                {
+                  value: "checkbox",
+                  label: "Checkbox 多选框"
+                },
+                {
+                  value: "input",
+                  label: "Input 输入框"
+                },
+                {
+                  value: "input-number",
+                  label: "InputNumber 计数器"
+                },
+                {
+                  value: "select",
+                  label: "Select 选择器"
+                },
+                {
+                  value: "cascader",
+                  label: "Cascader 级联选择器"
+                },
+                {
+                  value: "switch",
+                  label: "Switch 开关"
+                },
+                {
+                  value: "slider",
+                  label: "Slider 滑块"
+                },
+                {
+                  value: "time-picker",
+                  label: "TimePicker 时间选择器"
+                },
+                {
+                  value: "date-picker",
+                  label: "DatePicker 日期选择器"
+                },
+                {
+                  value: "datetime-picker",
+                  label: "DateTimePicker 日期时间选择器"
+                },
+                {
+                  value: "upload",
+                  label: "Upload 上传"
+                },
+                {
+                  value: "rate",
+                  label: "Rate 评分"
+                },
+                {
+                  value: "form",
+                  label: "Form 表单"
+                }
+              ]
+            },
+            {
+              value: "data",
+              label: "Data",
+              children: [
+                {
+                  value: "table",
+                  label: "Table 表格"
+                },
+                {
+                  value: "tag",
+                  label: "Tag 标签"
+                },
+                {
+                  value: "progress",
+                  label: "Progress 进度条"
+                },
+                {
+                  value: "tree",
+                  label: "Tree 树形控件"
+                },
+                {
+                  value: "pagination",
+                  label: "Pagination 分页"
+                },
+                {
+                  value: "badge",
+                  label: "Badge 标记"
+                }
+              ]
+            },
+            {
+              value: "notice",
+              label: "Notice",
+              children: [
+                {
+                  value: "alert",
+                  label: "Alert 警告"
+                },
+                {
+                  value: "loading",
+                  label: "Loading 加载"
+                },
+                {
+                  value: "message",
+                  label: "Message 消息提示"
+                },
+                {
+                  value: "message-box",
+                  label: "MessageBox 弹框"
+                },
+                {
+                  value: "notification",
+                  label: "Notification 通知"
+                }
+              ]
+            },
+            {
+              value: "navigation",
+              label: "Navigation",
+              children: [
+                {
+                  value: "menu",
+                  label: "NavMenu 导航菜单"
+                },
+                {
+                  value: "tabs",
+                  label: "Tabs 标签页"
+                },
+                {
+                  value: "breadcrumb",
+                  label: "Breadcrumb 面包屑"
+                },
+                {
+                  value: "dropdown",
+                  label: "Dropdown 下拉菜单"
+                },
+                {
+                  value: "steps",
+                  label: "Steps 步骤条"
+                }
+              ]
+            },
+            {
+              value: "others",
+              label: "Others",
+              children: [
+                {
+                  value: "dialog",
+                  label: "Dialog 对话框"
+                },
+                {
+                  value: "tooltip",
+                  label: "Tooltip 文字提示"
+                },
+                {
+                  value: "popover",
+                  label: "Popover 弹出框"
+                },
+                {
+                  value: "card",
+                  label: "Card 卡片"
+                },
+                {
+                  value: "carousel",
+                  label: "Carousel 走马灯"
+                },
+                {
+                  value: "collapse",
+                  label: "Collapse 折叠面板"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          value: "biaogebiaodan",
+          label: "表格表单",
+          children: [
+            {
+              value: "axure",
+              label: "Axure Components"
+            },
+            {
+              value: "sketch",
+              label: "Sketch Templates"
+            },
+            {
+              value: "jiaohu",
+              label: "组件交互文档"
+            }
+          ]
+        }
+      ],
+
+      departments: [
+        {
+          value: "bangongshi",
+          label: "办公室",
+          children: [
+            {
+              value: "shejiyuanze",
+              label: "办公室一"
+            },
+            {
+              value: "daohang",
+              label: "办公室二"
+            }
+          ]
+        },
+        {
+          value: "zonghechu",
+          label: "综合处",
+          children: [
+            {
+              value: "axure",
+              label: "综合处一"
+            },
+            {
+              value: "sketch",
+              label: "综合处二"
+            },
+            {
+              value: "jiaohu",
+              label: "综合处三"
+            }
+          ]
+        },
+        {
+          value: "renjiaochu",
+          label: "人教处",
+          children: [
+            {
+              value: "axure",
+              label: "人教处一"
+            },
+            {
+              value: "sketch",
+              label: "人教处二"
+            },
+            {
+              value: "jiaohu",
+              label: "人教处三"
+            }
+          ]
+        }
+      ]
     };
   }
 };
