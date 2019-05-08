@@ -40,10 +40,10 @@
                     <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
                         <transition-group tag="div" id="doing" class="item-ul">
                             <el-tag
+                            class="name"
                             v-for="tag in tags"
                             :key="tag.name"
                             size="mini"
-                            style="height:25px;margin-right:5px;margin-bottom:4px;"
                             @click="move(tag)"
                             closable
                             :type="tag.type">
@@ -210,7 +210,7 @@ export default {
       renderContent(h,{node,data,store}){
           return(
              <span class="custom-tree-node">
-            <span>{node.label}</span>
+            <span><i class="el-icon-lx-tag" style="margin-right:5px"></i>{node.label}</span>
             <span>
                <i class="el-icon-lx-roundclose" on-click={() => this.remove(node, data)}></i>
             </span>
@@ -290,6 +290,11 @@ export default {
 </script>
 
 <style>
+.name{
+    height:25px !important;
+    margin-right:5px !important;
+    margin-bottom:4px !important;
+}
 .custom-tree-node{
     flex: 1;
     display: flex;

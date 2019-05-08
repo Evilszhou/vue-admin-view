@@ -14,12 +14,43 @@
                     </el-input>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="login">登录</el-button>
+                    <el-button type="danger" @click="login">登录</el-button>
                 </div>
                 <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>
+    <!-- <div class="banner">
+   <div class="agileinfo-dot">
+	<h1>用户登录</h1>
+
+	<div class="w3layoutscontaineragileits">
+	<h2>Sign In</h2>
+		 <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
+                <el-form-item prop="username">
+                    <el-input v-model="ruleForm.username" placeholder="username">
+                        <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
+                    </el-input>
+                </el-form-item>
+                <el-form-item prop="password">
+                    <el-input type="password" placeholder="password" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
+                        <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
+                    </el-input>
+                </el-form-item>
+                <div class="login-btn">
+                    <el-button type="primary" @click="login">登录</el-button>
+                </div>
+                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+            </el-form>
+	</div> -->
+	
+	
+	<!-- <div class="w3footeragile">
+		<p> &copy; 2019 User Signin Form. All Rights Reserved | Design by <a href="#" target="_blank">Bardsix</a></p>
+	</div>
+
+</div>
+</div> -->
 </template>
 
 <script>
@@ -93,11 +124,12 @@
 </script>
 
 <style scoped>
+/* @import url("../../assets/css/login.css"); */
     .login-wrap{
         position: relative;
         width:100%;
         height:100%;
-        background-image: url(../../assets/img/login-bg.jpg);
+        background-image: url(../../assets/img/b1.jpg);
         background-size: 100%;
     }
     .ms-title{

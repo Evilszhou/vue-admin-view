@@ -127,6 +127,7 @@
                     :key="tag"
                     v-for="tag in dynamicTags"
                     closable
+                    style="margin-right:10px"
                     :disable-transitions="true"
                     @close="handleClose(tag)">
                     {{tag}}
@@ -236,7 +237,7 @@ export default {
 <style>
 
 .el-tag + .el-tag {
-    margin-left: 10px;
+    /* margin-left: 10px; */
   }
   .button-new-tag {
     margin-left: 10px;
