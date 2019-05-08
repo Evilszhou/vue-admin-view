@@ -183,6 +183,9 @@ export default {
           this.startTime = moment(val[0]).format("YYYY-MM-DD HH:mm:ss");
           this.endTime = moment(val[1]).format("YYYY-MM-DD HH:mm:ss");
         }
+      }else {
+        this.startTime = null;
+        this.endTime = null;
       }
       console.log(this.startTime);
       console.log(this.endTime);

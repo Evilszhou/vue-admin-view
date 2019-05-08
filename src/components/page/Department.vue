@@ -156,11 +156,26 @@ export default {
       this.treeData.children = list;
     },
     deleteDepatment(item) {
+       getRequest("/api/admin/getAllDepartments")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.treeData.children = result.data.data;
+            console.log(this.treeData)
+            console.log( this.treeData.children);
+
+            // this.total = result.data.data.total;
+          } else {
+            alert("获取失败");
+          }
+        })
+        .catch(e => {
+          console.log(e);
+        });
       console.log("删除", item);
     },
     editDepartment(item) {
       console.log("修改", item);
-    }
+    },
   },
    watch: {
     searchParam(val) {

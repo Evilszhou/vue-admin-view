@@ -21,20 +21,18 @@
               <el-submenu index="1">
                 <template slot="title">
                   <i class="el-icon-location"></i>
-                  <span>导航一</span>
+                  <span>文件分类</span>
                 </template>
                 <el-menu-item-group>
-                  <template slot="title">分组一</template>
-                  <el-menu-item index="1-1">选项1</el-menu-item>
-                  <el-menu-item index="1-2">选项2</el-menu-item>
+                  <el-menu-item index="1-1" @click="fitterDoc('txt')">txt文档</el-menu-item>
+                  <el-menu-item index="1-2">word文档</el-menu-item>
+                  <el-menu-item index="1-3">excel文档</el-menu-item>
+                  <el-menu-item index="1-4">pdf文档</el-menu-item>
+                  <el-menu-item index="1-5">ppt文档</el-menu-item>
+                  <el-menu-item index="1-6">图片文档</el-menu-item>
+                  <el-menu-item index="1-7">压缩文档</el-menu-item>
                 </el-menu-item-group>
-                <el-menu-item-group title="分组2">
-                  <el-menu-item index="1-3">选项3</el-menu-item>
-                </el-menu-item-group>
-                <el-submenu index="1-4">
-                  <template slot="title">选项4</template>
-                  <el-menu-item index="1-4-1">选项1</el-menu-item>
-                </el-submenu>
+
               </el-submenu>
               <el-menu-item index="2">
                 <i class="el-icon-menu"></i>
@@ -58,7 +56,7 @@
               </el-menu-item>
               <el-menu-item index="7">
                 <i class="el-icon-setting"></i>
-                <span slot="title">导航四</span>
+                <span @click="toUploadPage" slot="title">上传文件</span>
               </el-menu-item>
             </el-menu>
           </el-col>
@@ -66,7 +64,7 @@
             <div class="document-search">
               <el-row :gutter="20">
                 <el-col :span="4">
-                  <el-input  placeholder="文件名"></el-input>
+                  <el-input placeholder="文件名"></el-input>
                 </el-col>
                 <el-col :span="10">
                   <el-date-picker
@@ -78,7 +76,7 @@
                   ></el-date-picker>
                 </el-col>
                 <el-col :span="4">
-                  <el-input  placeholder="操作类型"></el-input>
+                  <el-input placeholder="操作类型"></el-input>
                 </el-col>
                 <el-col :span="3">
                   <!-- <el-button type="primary" @click="getLogsBySearchParam">查询</el-button> -->
@@ -118,32 +116,51 @@
                 </el-checkbox>
               </el-checkbox-group>
             </div>
-            <div class="document-fileInfo" style="margin-top:20px;;border-left:7px solid lightgray;padding-left:15px; " :selectDocumentInfo="selectDocumentInfo">
-                <div><label style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129);">文档ID:</label><span style="font-size:14px">{{selectDocumentInfo.id}}</span></div>
-                <div><label style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)">文档名字:</label><span style=""> {{selectDocumentInfo.fileName}}</span></div>
-                <div><label style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)">文档类型:</label><span style="">{{selectDocumentInfo.type}}</span></div>
-                <div><label style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)">标签:</label>
+            <div
+              class="document-fileInfo"
+              style="margin-top:20px;;border-left:7px solid lightgray;padding-left:15px; "
+              :selectDocumentInfo="selectDocumentInfo"
+            >
+              <div>
+                <label
+                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129);"
+                >文档ID:</label>
+                <span style="font-size:14px">{{selectDocumentInfo.id}}</span>
+              </div>
+              <div>
+                <label
+                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                >文档名字:</label>
+                <span style>{{selectDocumentInfo.fileName}}</span>
+              </div>
+              <div>
+                <label
+                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                >文档类型:</label>
+                <span style>{{selectDocumentInfo.type}}</span>
+              </div>
+              <div>
+                <label
+                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                >标签:</label>
                 <el-tag
-                    :key="tag"
-                    v-for="tag in dynamicTags"
-                    closable
-                    style="margin-right:10px"
-                    :disable-transitions="true"
-                    @close="handleClose(tag)">
-                    {{tag}}
-                  </el-tag>
-                  <el-input
-                    class="input-new-tag"
-                    v-if="inputVisible"
-                    v-model="inputValue"
-                    ref="saveTagInput"
-                    size="small"
-                    @keyup.enter.native="handleInputConfirm"
-                    @blur="handleInputConfirm"
-                  >
-                  </el-input>
-                  <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-                </div>
+                  :key="tag"
+                  v-for="tag in dynamicTags"
+                  closable
+                  :disable-transitions="true"
+                  @close="handleClose(tag)"
+                >{{tag}}</el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputVisible"
+                  v-model="inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                ></el-input>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+              </div>
             </div>
           </el-col>
         </el-row>
@@ -159,12 +176,14 @@ import { isNull } from "util";
 
 export default {
   methods: {
-    selectDocument(item){
-     
+    toUploadPage() {
+      this.$router.push({path:'Upload'});
+    },
+    selectDocument(item) {
       console.log(item);
       this.selectDocumentInfo = item;
       this.dynamicTags = this.selectDocumentInfo.tags;
-      
+
       // for(let i = 0 ;i < )
       // for(let obj in docList){
       //   if(docList[obj].id == id){
@@ -174,83 +193,110 @@ export default {
       //   }
       // }
     },
-    handleCheckAllChange(){
+    handleCheckAllChange() {},
+    handleOpen() {},
+    handleClose() {},
 
-    },
-    handleOpen(){
-
-    },
-    handleClose(){
-
+    handleClose(tag) {
+      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     },
 
-     handleClose(tag) {
-        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-      },
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
 
-      showInput() {
-        this.inputVisible = true;
-        this.$nextTick(_ => {
-          this.$refs.saveTagInput.$refs.input.focus();
-        });
-      },
-
-      handleInputConfirm() {
-        let inputValue = this.inputValue;
-        if (inputValue) {
-          this.dynamicTags.push(inputValue);
-        }
-        this.inputVisible = false;
-        this.inputValue = '';
+    handleInputConfirm() {
+      let inputValue = this.inputValue;
+      if (inputValue) {
+        this.dynamicTags.push(inputValue);
       }
+      this.inputVisible = false;
+      this.inputValue = "";
+    },
+    fitterDoc(type){
+      let item = this.items;
+      console.log("changdu"+item.length);
+      let num = item.length;
+      for(let i=0;i<item.length;i++){
 
+
+        if(this.items[i].type != type){
+          // console.log("第"+i);
+
+          console.log( item.splice(i,1))
+        }
+      }
+      console.log(this.items.length);
+    }
   },
   watch: {},
 
   mounted() {},
   data() {
     return {
-       dynamicTags: ['标签一', '标签二', '标签三'],
-        inputVisible: false,
-        inputValue: '',
+      dynamicTags: ["标签一", "标签二", "标签三"],
+      inputVisible: false,
+      inputValue: "",
       items: [
-        { id: "1", fileName: "2019-2020综测文件", type: "txt",tags:["须立即","高富帅"] },
-        { id: "2", fileName: "部门综测", type: "xls" ,tags:["hahaah"]},
-        { id: "3", fileName: "期末学院考试通知", type: "ppt",tags:["1111","222"] },
-        { id: "4", fileName: "Bar", type: "pdf" ,tags:["534","5443"]},
-        { id: "5", fileName: "Foo", type: "txt" ,tags:["00"]},
-        { id: "6", fileName: "期末学院考试通知", type: "xls",tags:["1ee"] },
-        { id: "7", fileName: "期末学院考试通知", type: "ppt" ,tags:["e98"]},
-        { id: "8", fileName: "Bar", type: "word",tags:["e5e"] },
-        { id: "9", fileName: "Bwerwer23423423234werar", type: "img" ,tags:["eee"]}
+        {
+          id: "1",
+          fileName: "2019-2020综测文件",
+          type: "txt",
+          tags: ["须立即", "高富帅"]
+        },
+        { id: "2", fileName: "部门综测", type: "xls", tags: ["hahaah"] },
+        {
+          id: "3",
+          fileName: "期末学院考试通知",
+          type: "ppt",
+          tags: ["1111", "222"]
+        },
+        { id: "4", fileName: "Bar", type: "pdf", tags: ["534", "5443"] },
+        { id: "5", fileName: "Foo", type: "txt", tags: ["00"] },
+        { id: "6", fileName: "期末学院考试通知", type: "xls", tags: ["1ee"] },
+        { id: "7", fileName: "期末学院考试通知", type: "ppt", tags: ["e98"] },
+        { id: "8", fileName: "Bar", type: "word", tags: ["e5e"] },
+        {
+          id: "9",
+          fileName: "Bwerwer23423423234werar",
+          type: "img",
+          tags: ["eee"]
+        }
       ],
       checkList: ["1", "3"],
-      selectDocumentInfo: {id: "2", fileName: "部门综测", type: "xls",tags:[] },
+      selectDocumentInfo: {
+        id: "2",
+        fileName: "部门综测",
+        type: "xls",
+        tags: []
+      },
       checkAll: false,
       isIndeterminate: true,
-      time: [],
+      time: []
     };
   }
 };
 </script>
 
 <style>
-
 .el-tag + .el-tag {
-    /* margin-left: 10px; */
-  }
-  .button-new-tag {
-    margin-left: 10px;
-    height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    width: 90px;
-    margin-left: 10px;
-    vertical-align: bottom;
-  }
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
 .document {
   width: 100%;
   position: relative;
@@ -327,6 +373,9 @@ export default {
 }
 .icon:hover {
   transform: scale(1.5);
+}
+.el-submenu .el-menu-item {
+  min-width: 100px;
 }
 </style>
 
