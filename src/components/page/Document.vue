@@ -21,20 +21,18 @@
               <el-submenu index="1">
                 <template slot="title">
                   <i class="el-icon-location"></i>
-                  <span>导航一</span>
+                  <span>文件分类</span>
                 </template>
-                <el-menu-item-group>
-                  <template slot="title">分组一</template>
-                  <el-menu-item index="1-1">选项1</el-menu-item>
-                  <el-menu-item index="1-2">选项2</el-menu-item>
+                <el-menu-item-group>                 
+                  <el-menu-item index="1-1" @click="fitterDoc('txt')">txt文档</el-menu-item>
+                  <el-menu-item index="1-2">word文档</el-menu-item>
+                  <el-menu-item index="1-3">excel文档</el-menu-item>
+                  <el-menu-item index="1-4">pdf文档</el-menu-item>
+                  <el-menu-item index="1-5">ppt文档</el-menu-item>
+                  <el-menu-item index="1-6">图片文档</el-menu-item>
+                  <el-menu-item index="1-7">压缩文档</el-menu-item>
                 </el-menu-item-group>
-                <el-menu-item-group title="分组2">
-                  <el-menu-item index="1-3">选项3</el-menu-item>
-                </el-menu-item-group>
-                <el-submenu index="1-4">
-                  <template slot="title">选项4</template>
-                  <el-menu-item index="1-4-1">选项1</el-menu-item>
-                </el-submenu>
+                
               </el-submenu>
               <el-menu-item index="2">
                 <i class="el-icon-menu"></i>
@@ -217,6 +215,21 @@ export default {
       }
       this.inputVisible = false;
       this.inputValue = "";
+    },
+    fitterDoc(type){
+      let item = this.items;
+      console.log("changdu"+item.length);
+      let num = item.length;
+      for(let i=0;i<item.length;i++){
+        
+       
+        if(this.items[i].type != type){
+          // console.log("第"+i);
+         
+          console.log( item.splice(i,1))
+        }
+      }
+      console.log(this.items.length);
     }
   },
   watch: {},
@@ -360,6 +373,9 @@ export default {
 }
 .icon:hover {
   transform: scale(1.5);
+}
+.el-submenu .el-menu-item {
+  min-width: 100px;
 }
 </style>
 
