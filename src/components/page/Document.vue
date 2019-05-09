@@ -17,7 +17,7 @@
               class="el-menu-vertical-demo"
               @open="handleOpen"
               @close="handleClose"
-              default-openeds='[1]'
+              :default-openeds="defaultOpeneds"
             >
               <el-submenu index="1">
                 <template slot="title">
@@ -38,7 +38,7 @@
               <!-- <el-menu-item index="2">
                 <i class="el-icon-menu"></i>
                 <span slot="title">导航二</span>
-              </el-menu-item> -->
+              </el-menu-item>-->
               <!-- <el-menu-item index="3" disabled>
                 <i class="el-icon-document"></i>
                 <span slot="title">导航三</span>
@@ -54,7 +54,7 @@
               <el-menu-item index="6">
                 <i class="el-icon-setting"></i>
                 <span slot="title">导航四</span>
-              </el-menu-item> -->
+              </el-menu-item>-->
               <el-menu-item index="7">
                 <i class="el-icon-setting"></i>
                 <span @click="toUploadPage" slot="title">上传文件</span>
@@ -128,30 +128,46 @@
             </div>
             <div
               class="document-fileInfo"
-              style="margin-top:20px;;border-left:7px solid lightgray;padding-left:15px; "
+              style="margin-top:20px;border-left:7px solid lightgray;padding-left:15px;color: rgb(129, 129, 129);position:relative"
               :selectDocumentInfo="selectDocumentInfo"
             >
-              <div>
-                <label
-                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129);"
-                >文档ID:</label>
-                <span style="font-size:14px">{{selectDocumentInfo.id}}</span>
+              <svg
+                class="icon"
+                style="font-size:15px;position:absolute;right:50px;bottom:-11px"
+                aria-hidden="true"
+              >
+                <use xlink:href="#icon-drxx07"></use>
+              </svg>
+              <div style="float:left;width:50%">
+                <div style="font-family: 'PingFang SC';">
+                  <label style="margin-right: 20px;line-height: 1.7;">文档名字:</label>
+                  <span style>{{selectDocumentInfo.fileName}}</span>
+                </div>
+                <div>
+                  <label
+                    style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                  >上传人员:</label>
+                  <span style>{{selectDocumentInfo.userName}}</span>
+                </div>
               </div>
-              <div>
-                <label
-                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
-                >文档名字:</label>
-                <span style>{{selectDocumentInfo.fileName}}</span>
+              <div style="float:left;width:50%">
+                <div>
+                  <label
+                    style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                  >文档类型:</label>
+                  <span style>{{selectDocumentInfo.type}}</span>
+                </div>
+                <div>
+                  <label
+                    style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                  >上传时间:</label>
+                  <span style>{{selectDocumentInfo.time}}</span>
+                </div>
               </div>
-              <div>
+
+              <div style="padding-top:50px">
                 <label
-                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
-                >文档类型:</label>
-                <span style>{{selectDocumentInfo.type}}</span>
-              </div>
-              <div>
-                <label
-                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
+                  style="font-family: 'PingFang SC';font-size: 16px;margin-right: 45px;line-height: 1.7;color: rgb(129, 129, 129)"
                 >标签:</label>
                 <el-tag
                   :key="tag"
@@ -257,28 +273,29 @@ export default {
           }
         }
         this.fitterItems = newItem;
-        this.docSearchName = '';
+        this.docSearchName = "";
       }
     },
-     openMessageBox(title,label) {
-        this.$confirm(title, '是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+    openMessageBox(title, label) {
+      this.$confirm(title, "是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
           this.dynamicTags.splice(this.dynamicTags.indexOf(label), 1);
           this.$message({
-            type: 'success',
-            message: '删除成功!'
+            type: "success",
+            message: "删除成功!"
           });
-        }).catch(() => {
+        })
+        .catch(() => {
           this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
+            type: "info",
+            message: "已取消删除"
+          });
         });
-      }
-    
+    }
   },
   watch: {
     docSearchName(val) {
@@ -305,25 +322,73 @@ export default {
           id: "1",
           fileName: "2019-2020综测文件",
           type: "txt",
-          tags: ["须立即", "高富帅"]
+          tags: ["须立即", "高富帅"],
+          userName: "小高",
+          time: "2019-05-08"
         },
-        { id: "2", fileName: "部门综测", type: "xls", tags: ["hahaah"] },
+        {
+          id: "2",
+          fileName: "部门综测",
+          type: "xls",
+          tags: ["hahaah"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
         {
           id: "3",
           fileName: "期末学院考试通知",
           type: "ppt",
-          tags: ["1111", "222"]
+          tags: ["1111", "222"],
+          userName: "小高",
+          time: "2019-05-08"
         },
-        { id: "4", fileName: "Bar", type: "pdf", tags: ["534", "5443"] },
-        { id: "5", fileName: "Foo", type: "txt", tags: ["00"] },
-        { id: "6", fileName: "期末学院考试通知", type: "xls", tags: ["1ee"] },
-        { id: "7", fileName: "期末学院考试通知", type: "ppt", tags: ["e98"] },
-        { id: "8", fileName: "Bar", type: "word", tags: ["e5e"] },
+        {
+          id: "4",
+          fileName: "Bar",
+          type: "pdf",
+          tags: ["534", "5443"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
+        {
+          id: "5",
+          fileName: "Foo",
+          type: "txt",
+          tags: ["00"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
+        {
+          id: "6",
+          fileName: "期末学院考试通知",
+          type: "xls",
+          tags: ["1ee"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
+        {
+          id: "7",
+          fileName: "期末学院考试通知",
+          type: "ppt",
+          tags: ["e98"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
+        {
+          id: "8",
+          fileName: "Bar",
+          type: "word",
+          tags: ["e5e"],
+          userName: "小高",
+          time: "2019-05-08"
+        },
         {
           id: "9",
           fileName: "Bwerwer23423423234werar",
           type: "img",
-          tags: ["eee"]
+          tags: ["eee"],
+          userName: "小高",
+          time: "2019-05-08"
         }
       ],
       fitterItems: [],
@@ -333,12 +398,15 @@ export default {
         id: "2",
         fileName: "部门综测",
         type: "xls",
-        tags: []
+        tags: [],
+        userName: "",
+        time: "2019-05-08"
       },
       checkAll: false,
       isIndeterminate: true,
       time: [],
       docSearchName: "",
+      defaultOpeneds: ["1"],
       docLabels: [
         {
           value: "shujuwenjian",
@@ -718,7 +786,7 @@ export default {
   border-radius: 5px;
   /* margin-top: 20px; */
   overflow-y: scroll;
-  min-height: 295px;
+  min-height: 318px;
   max-height: 310px;
 }
 .document-display-checkAll {
