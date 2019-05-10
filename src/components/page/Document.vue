@@ -34,6 +34,7 @@
                   <el-menu-item index="1-7" @click="fitterDoc('img')">图片文档</el-menu-item>
                   <el-menu-item index="1-8" @click="fitterDoc('compressDoc')">压缩文档</el-menu-item>
                 </el-menu-item-group>
+                
               </el-submenu>
               <!-- <el-menu-item index="2">
                 <i class="el-icon-menu"></i>
@@ -202,22 +203,28 @@ import { isNull } from "util";
 
 export default {
   methods: {
+    download(){
+      console.log(this.checkfileList);
+      postRequest("/api/downLoadFile",{
+        docs:JSON.stringify(this.checkfileList)
+      }).then((result) => {
+        console.log(result);;
+      }).catch((err) => {
+
+      });
+
+
+    },
     toUploadPage() {
-      this.$router.push({ path: "Upload" });
+      this.$router.push({path:'Upload'});
     },
     selectDocument(item) {
       console.log(item);
       this.selectDocumentInfo = item;
       this.dynamicTags = this.selectDocumentInfo.tags;
+      this.checkfileList.push(item);
+      console.log("list:"+JSON.stringify(this.checkfileList))
 
-      // for(let i = 0 ;i < )
-      // for(let obj in docList){
-      //   if(docList[obj].id == id){
-      //     console.log('id:'+id)
-      //     this.selectDocumentInfo = obj;
-      //     console.log(this.selectDocumentInfo)
-      //   }
-      // }
     },
     handleCheckAllChange(val) {
       this.checkList = val ? this.allCheckList : [];
@@ -734,9 +741,9 @@ export default {
 </script>
 
 <style>
-.el-tag + .el-tag {
+/* .el-tag + .el-tag {
   margin-left: 10px;
-}
+} */
 .button-new-tag {
   margin-left: 10px;
   height: 32px;

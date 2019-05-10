@@ -58,32 +58,80 @@
                 </el-pagination>
             </div>
         </div>
-
+        <!--新建用户弹窗-->
         <el-dialog title="新增用户" :visible.sync="dialogTableVisible">
           <el-form :model="user">
-              <el-form-item label="用户名" :label-width="formLabelWidth">
-                <el-input v-model="user.name" autocomplete="off"></el-input>
+              <el-form-item label="用户名"  :label-width="formLabelWidth">
+                <el-input v-model="user.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
               </el-form-item>
+              <el-form-item label="用户密码" :label-width="formLabelWidth">
+                <el-input v-model="user.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
+              </el-form-item>
+
               <el-form-item label="真实姓名" :label-width="formLabelWidth">
-                <el-input v-model="user.name" autocomplete="off"></el-input>
+                <el-input v-model="user.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
               </el-form-item>
            
               <el-form-item label="所属部门" :label-width="formLabelWidth">
-                <el-select v-model="user.region" placeholder="请选择所属部门">
+                <el-select v-model="user.department" placeholder="请选择所属部门">
                   <el-option label="丽水学院" value="丽水学院"></el-option>
                   <el-option label="工学院" value="工学院"></el-option>
                 </el-select>
               </el-form-item>
                <el-form-item label="所有权限" :label-width="formLabelWidth">
-                <el-select v-model="user.role" placeholder="请选择权限">
-                  <el-option label="管理员" value="admin"></el-option>
-                  <el-option label="用户" value="user"></el-option>
-                </el-select>
+                   <el-radio-group @change="choosePermission"  v-model="user.role">
+                       <el-radio label="admin">admin</el-radio>
+                       <el-radio label="user">user</el-radio>
+                   </el-radio-group>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogTableVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogTableVisible = false">确 定</el-button>
+              <el-button type="primary" @click="createUser">确 定</el-button>
+            </div>
+        </el-dialog>
+
+        <!--编辑弹窗-->
+        <el-dialog title="编辑用户" :visible.sync="dialogTableVisible1">
+          <el-form :model="updateuser">
+              <el-form-item label="用户名"  :label-width="formLabelWidth">
+                <el-input readonly v-model="updateuser.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="用户密码" :label-width="formLabelWidth">
+                <el-input v-model="updateuser.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
+              </el-form-item>
+
+              <el-form-item label="真实姓名" :label-width="formLabelWidth">
+                <el-input v-model="updateuser.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
+              </el-form-item>
+           
+              <el-form-item label="所属部门" :label-width="formLabelWidth">
+                <el-select v-model="updateuser.department" placeholder="请选择所属部门">
+                  <el-option label="丽水学院" value="丽水学院"></el-option>
+                  <el-option label="工学院" value="工学院"></el-option>
+                </el-select>
+              </el-form-item>
+                
+               <el-form-item label="所有权限" :label-width="formLabelWidth">
+                   <el-radio-group @change="choosePermission"  v-model="updateuser.role">
+                       <el-radio label="admin">admin</el-radio>
+                       <el-radio label="user">user</el-radio>
+                   </el-radio-group>
+              </el-form-item>
+              <el-form-item>
+                 <el-switch
+                    style="display: block;margin-left:7%"
+                    v-model="updateuser.islocked"
+                    @change="changeLock"
+                    active-color="#13ce66"
+                    active-text="解除锁定"
+                    inactive-text="用户锁定">
+                  </el-switch>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogTableVisible1 = false">取 消</el-button>
+              <el-button type="primary" @click="sendUpdateUser">确 定</el-button>
             </div>
         </el-dialog>
    </div>
@@ -91,6 +139,7 @@
 
 <script>
 import {postJsonRequest,postRequest,getRequest} from '../../main.js';
+import { truncate } from 'fs';
 export default {
   inject:['reload'],
       methods: {
@@ -103,12 +152,33 @@ export default {
         return '';
       },
        handleEdit(index, row) {
-        console.log(index, row);
+        // console.log(index, row);
+        console.log(row);
+        this.dialogTableVisible1 = true;
+        this.updateuser.userId = row.userId;
+        this.updateuser.department = row.department;
+        this.updateuser.userName = row.userName;
+        this.updateuser.password = row.password;
+        this.updateuser.role = row.role;
+        this.updateuser.realname = "高富帅"
+        if(row.islocked == "未锁定"){
+          this.updateuser.islocked = false;
+        }else if(row.islocked == "已锁定"){
+          this.updateuser.islocked = true;
+        }
+      },
+      sendUpdateUser(){
+        postJsonRequest("api/public/updateUserMessage",this.updateuser).then((result) => {
+          console.log(result);
+          this.reload();
+        }).catch((err) => {
+          
+        });
+        this.dialogTableVisible1 = false;
       },
       handleDelete(index, row) {
         console.log(row);
         console.log(row.userId)
-        
         postRequest("/api/public/deleteUser",{
           userId:row.userId
         }).then((result) => {
@@ -118,21 +188,34 @@ export default {
           }else if(result.data.code == -1){
             this.open6();
           }
-          
-        
         }).catch((err) => {
-          console.log(err)
-          if(err){
-            console.log("权限不够")
-          }
-          
         });
+      },
+      createUser(){
+        postJsonRequest("/api/public/createUser",this.user).then((result) => {
+          console.log(result)
+          if(result.data.code == 200){
+            this.open3();
+            this.dialogTableVisible = false;
+            this.reload();
+          }else if(result.data.code == -1){
+            this.open6();
+          }
+        }).catch((err) => {
+        });
+      },
+      choosePermission(){
+
+        console.log(this.user.role);
       },
         handleCurrentChange(val) {
                 this.cur_page = val;
                 this.getData();
             },
+            changeLock(){
+              console.log(this.value4);
 
+            },
             getData(){
               console.log("hhhh");
               let that = this;
@@ -148,9 +231,7 @@ export default {
                   
 
                 }
-                
-                console.log("total:"+this.total)
-
+                // console.log("total:"+this.total)
               }).catch((err) => {
                 console.log(err);
                 
@@ -161,14 +242,30 @@ export default {
                 title: '错误',
                 message: '无权限进行此操作'
                 });
-            }
+            },
+              open7() {
+                this.$notify.error({
+                title: '错误',
+                message: '用户已锁定'
+                });
+            },
+             open3() {
+        this.$notify({
+          title: '成功',
+          message: '这是一条成功的提示消息',
+          type: 'success'
+        });
+      }
     },
     created(){
       this.getData();
     },
     data() {
       return {
+        value4: '100',
+        radio:1,
         dialogTableVisible:false,
+        dialogTableVisible1:false,
         loading:true,
         input: '',
         cur_page:1,
@@ -177,30 +274,37 @@ export default {
         tableData: [
         ],
         user: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+         userName:"",
+         password:"",
+         realname:"",
+         department:"",
+         role:""
         },
+        updateuser:{
+          userId:"",
+          userName:"",
+          password:"",
+          realname:"",
+          department:"",
+          role:"",
+          islocked:""
+        }
       }
     }
 }
 </script>
 
 <style>
+
 .username{
     width: 200px !important;
 }
  .el-table .warning-row {
-    background: oldlace;
+    background: oldlace !important;
   }
 
   .el-table .success-row {
-    background: #f0f9eb;
+    background: #f0f9eb !important;
   }
 </style>
 

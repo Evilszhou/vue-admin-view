@@ -32,6 +32,11 @@ export default new Router({
 
                 },
                 {
+                    path:"/tags",
+                    component:resolve => require(['../components/page/Tags.vue'],resolve),
+                    meta:{title:"标签管理"}
+                },
+                {
                     path:"/document",
                     component:resolve => require(['../components/page/Document.vue'],resolve),
                     meta:{title:"文件管理"}
