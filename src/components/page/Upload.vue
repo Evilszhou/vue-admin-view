@@ -9,7 +9,7 @@
     </div>
     <div class="container">
       <div class="plugins-tips">将文件拖拽到此处</div>
-      <el-upload class="upload-demo" drag action="/api/posts/" multiple>
+      <el-upload class="upload-demo" drag action="/api/uploadFile" name="file" :before-upload="beforeUpload" :on-success="success" >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">
           将文件拖到此处，或
@@ -79,7 +79,7 @@ export default {
   data: function() {
     return {
       defaultSrc: require("../../assets/img/img.jpg"),
-      fileList: [],
+      fileList:[{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
       imgSrc: "",
       cropImg: "",
       dialogVisible: false,
@@ -92,6 +92,26 @@ export default {
     VueCropper
   },
   methods: {
+    beforeUpload(){
+      console.log(this.fileList);
+
+    },
+     open3(msg) {
+        this.$notify({
+          title: '成功',
+          message:msg,
+          type: 'success'
+        });
+      },
+    success(res){
+      console.log(res);
+      if(res.code == 200){
+       this.open3(res.msg);
+       
+      }else{
+
+      }
+    },
     setImage(e) {
       //   const file = e.target.files[0];
       //   if (!file.type.includes("image/")) {

@@ -300,11 +300,11 @@ export default {
     width: 200px !important;
 }
  .el-table .warning-row {
-    background: oldlace;
+    background: oldlace !important;
   }
 
   .el-table .success-row {
-    background: #f0f9eb;
+    background: #f0f9eb !important;
   }
 </style>
 

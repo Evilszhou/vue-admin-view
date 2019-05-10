@@ -82,7 +82,7 @@
                   <!-- <el-button type="primary" @click="getLogsBySearchParam">查询</el-button> -->
                 </el-col>
                 <el-col :span="1">
-                  <svg class="icon" style="margin:0;font-size:10px" aria-hidden="true">
+                  <svg class="icon" style="margin:0;font-size:10px" aria-hidden="true" @click="download">
                     <use xlink:href="#icon-drxx07"></use>
                   </svg>
                 </el-col>
@@ -173,9 +173,20 @@
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
-
 export default {
   methods: {
+    download(){
+      console.log(this.checkfileList);
+      postRequest("/api/downLoadFile",{
+        docs:JSON.stringify(this.checkfileList) 
+      }).then((result) => {
+        console.log(result);;
+      }).catch((err) => {
+        
+      });
+      
+
+    },
     toUploadPage() {
       this.$router.push({path:'Upload'});
     },
@@ -183,15 +194,9 @@ export default {
       console.log(item);
       this.selectDocumentInfo = item;
       this.dynamicTags = this.selectDocumentInfo.tags;
+      this.checkfileList.push(item);
+      console.log("list:"+JSON.stringify(this.checkfileList))
 
-      // for(let i = 0 ;i < )
-      // for(let obj in docList){
-      //   if(docList[obj].id == id){
-      //     console.log('id:'+id)
-      //     this.selectDocumentInfo = obj;
-      //     console.log(this.selectDocumentInfo)
-      //   }
-      // }
     },
     handleCheckAllChange() {},
     handleOpen() {},
@@ -221,11 +226,7 @@ export default {
       console.log("changdu"+item.length);
       let num = item.length;
       for(let i=0;i<item.length;i++){
-
-
         if(this.items[i].type != type){
-          // console.log("第"+i);
-
           console.log( item.splice(i,1))
         }
       }
@@ -266,7 +267,8 @@ export default {
           tags: ["eee"]
         }
       ],
-      checkList: ["1", "3"],
+      checkList: [],
+      checkfileList:[],
       selectDocumentInfo: {
         id: "2",
         fileName: "部门综测",
@@ -282,9 +284,9 @@ export default {
 </script>
 
 <style>
-.el-tag + .el-tag {
+/* .el-tag + .el-tag {
   margin-left: 10px;
-}
+} */
 .button-new-tag {
   margin-left: 10px;
   height: 32px;

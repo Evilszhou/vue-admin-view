@@ -242,10 +242,23 @@ export default {
 
         },
          remove(node, data) {
-        const parent = node.parent;
-        const children = parent.data.children || parent.data;
-        const index = children.findIndex(d => d.id === data.id);
-        children.splice(index, 1);
+             this.$confirm('确认要删除该标签吗?',"提示",{
+                 confirmButtonText:"确定",
+                 cancelButtonText:"取消",
+                 type:"warning"
+             }).then((result) => {
+                 if(result == "confirm"){
+                    const parent = node.parent;
+                    const children = parent.data.children || parent.data;
+                    const index = children.findIndex(d => d.id === data.id);
+                    children.splice(index, 1);
+                 }else{
+                     
+                 }
+             }).catch((err) => {
+                 
+             });
+       
       },
          removeHandle(event){
                 console.log(event); 

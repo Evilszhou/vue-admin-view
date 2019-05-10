@@ -33,7 +33,7 @@
       </el-row>
       <el-table
         :data="tableData"
-        stripe
+        stripe=""
         style="width: 100%;margin-top:10px"
         :row-class-name="tableRowClassName"
       >
@@ -82,6 +82,14 @@ import { isNull } from "util";
 
 export default {
   methods: {
+    tableRowClassName({row, rowIndex}) {
+        if (rowIndex % 4 === 1) {
+          return 'warning-row';
+        } else if (rowIndex % 4 === 3) {
+          return 'success-row';
+        }
+        return '';
+      },
     tableRowClassName({ row, rowIndex }) {
       // if (rowIndex % 4 === 1) {
       //   return "warning-row";
@@ -225,7 +233,7 @@ export default {
   display: inline-block;
 }
 .el-table .warning-row {
-  background: oldlace;
+  background: red;
 }
 
 .el-table .success-row {

@@ -38,15 +38,42 @@
         </el-form-item>
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
-          <el-select v-model="department.departmentSuper" placeholder="请选择所属部门">
-            <el-option label="丽水学院" value="丽水学院"></el-option>
-            <el-option label="工学院" value="工学院"></el-option>
-          </el-select>
+           <el-cascader
+            placeholder="试试搜索：工学院"
+            :options="options"
+            filterable
+            change-on-select
+          ></el-cascader>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogTableVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
+
+<!--  -->
+    <el-dialog title="修改组织" :visible.sync="dialogTableVisible1">
+      <el-form :model="department">
+        <el-form-item label="组织名" :label-width="formLabelWidth">
+          <el-input v-model="department.departmentName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="组织简介" :label-width="formLabelWidth">
+          <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="所属部门" :label-width="formLabelWidth">
+           <el-cascader
+            placeholder="试试搜索：工学院"
+            :options="options"
+            filterable
+            change-on-select
+          ></el-cascader>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTableVisible1 = false">取 消</el-button>
+        <el-button type="primary" @click="dialogTableVisible1 = false">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -61,6 +88,52 @@ export default {
   name: "department",
   data() {
     return {
+      parentName:"",
+      dialogTableVisible1:false,
+      options: [{
+          value: 'zhinan',
+          label: '指南',
+          children: [{
+            value: 'shejiyuanze',
+            label: '设计原则',
+            children: [{
+              value: 'yizhi',
+              label: '一致'
+            }, {
+              value: 'fankui',
+              label: '反馈'
+            }, {
+              value: 'xiaolv',
+              label: '效率'
+            }, {
+              value: 'kekong',
+              label: '可控'
+            }]
+          }, {
+            value: 'daohang',
+            label: '导航',
+            children: [{
+              value: 'cexiangdaohang',
+              label: '侧向导航'
+            }, {
+              value: 'dingbudaohang',
+              label: '顶部导航'
+            }]
+          }]
+        }, {
+          value: 'ziyuan',
+          label: '资源',
+          children: [{
+            value: 'axure',
+            label: 'Axure Components'
+          }, {
+            value: 'sketch',
+            label: 'Sketch Templates'
+          }, {
+            value: 'jiaohu',
+            label: '组件交互文档'
+          }]
+        }],
       searchParam: '',
       formLabelWidth: "120px",
       dialogTableVisible: false,
@@ -156,26 +229,59 @@ export default {
       this.treeData.children = list;
     },
     deleteDepatment(item) {
-       getRequest("/api/admin/getAllDepartments")
-        .then(result => {
-          if (result.data.code === 200) {
-            this.treeData.children = result.data.data;
-            console.log(this.treeData)
-            console.log( this.treeData.children);
 
-            // this.total = result.data.data.total;
-          } else {
-            alert("获取失败");
-          }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      this.$confirm("确认要删除该部门吗?","提示",{
+        confirmButtonText:"确定",
+        cancelButtonText:"取消"
+      }).then((result) => {
+        if(result == "confirm"){
+
+        }
+      }).catch((err) => {
+        
+      });
+      //  getRequest("/api/admin/getAllDepartments")
+      //   .then(result => {
+      //     if (result.data.code === 200) {
+      //       this.treeData.children = result.data.data;
+      //       console.log(this.treeData)
+      //       console.log( this.treeData.children);
+
+      //       // this.total = result.data.data.total;
+      //     } else {
+      //       alert("获取失败");
+      //     }
+      //   })
+      //   .catch(e => {
+      //     console.log(e);
+      //   });
       console.log("删除", item);
     },
     editDepartment(item) {
       console.log("修改", item);
+      this.dialogTableVisible1 = true;
+      this.department.departmentName = item.name;
+      this.department.departmentIntroduction = item.departmentIntroduction;
+      let departmentSuper;
+      departmentSuper = this.getParentName(item);
+      // console.log(this.getParentName(item));
+      
     },
+
+    getParentName(item){
+      if(item.parent_id == 0){
+        return item.name + "";
+      }else{
+        for(let i = 0;i < this.treeData.length;i++){
+          if(this.treeData[i].id == id){
+             this.parentName = this.parentName + this.treeData[i].name+"/"
+          }
+          return getParentName(item.parent_id)  + this.parentName;
+        }
+
+      }
+
+    }
   },
    watch: {
     searchParam(val) {
