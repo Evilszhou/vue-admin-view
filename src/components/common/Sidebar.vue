@@ -39,6 +39,11 @@
                 collapse: false,
                 items: [
                     {
+                        icon:"el-icon-lx-file",
+                        index:"document",
+                        title:"文件管理"
+                    },
+                    {
                         icon:'el-icon-lx-people',
                         index:"user",
                         title:"用户管理"
@@ -49,10 +54,6 @@
                         index:"log",
                         title:"日志管理"
 
-                    },{
-                        icon:"el-icon-lx-file",
-                        index:"document",
-                        title:"文件管理"
                     },
                     {
                         icon:"el-icon-lx-tag",

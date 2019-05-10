@@ -171,6 +171,7 @@
                   style="font-family: 'PingFang SC';font-size: 16px;margin-right: 45px;line-height: 1.7;color: rgb(129, 129, 129)"
                 >标签:</label>
                 <el-tag
+                  style="margin-right:10px"
                   :key="tag"
                   v-for="tag in dynamicTags"
                   closable
