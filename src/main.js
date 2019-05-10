@@ -12,6 +12,7 @@ import './components/common/directives';
 import "babel-polyfill";
 import "./assets/font/iconfont.js";
 
+
 Vue.config.productionTip = false
 Vue.use(VueI18n);
 Vue.use(ElementUI, {
@@ -97,6 +98,17 @@ export const getRequest = (url, data) => {
     params: data,
     url: url,
   });
+}
+
+export function downloadFile(params){
+    return axios({
+        url:"/api/downLoadFile",
+        method:'get',
+        params:{
+            
+            
+        }
+    })
 }
 
 
