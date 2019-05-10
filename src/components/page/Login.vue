@@ -97,7 +97,7 @@
                 //    console.log(result.data.msg);
                    if(result.data.code === 200){
                        localStorage.setItem("token",result.data.data);
-                       this.$router.push("/dashboard");
+                       this.$router.push("/document");
                    }else if(result === undefined){
                        this.open6();
                    }else if(result.data.code == -100){
