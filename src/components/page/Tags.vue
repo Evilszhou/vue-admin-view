@@ -337,14 +337,6 @@ export default {
     padding-right: 8px;
 }
 
-.el-input.el{
-    width:200px;
-    margin-left: 100px;
-    margin-top:-30px;
-    display: flex;
-    /* height: 30px; */
-    line-height: 20px;
-}
 
 .tree{
     background-color: #eff1f5;
@@ -353,7 +345,7 @@ export default {
         display: flex;
         user-select: none;
     }
-    .drag-box-item {
+    .container .drag-box-item {
         flex: 1;
         max-width: 330px;
         min-width: 300px;
