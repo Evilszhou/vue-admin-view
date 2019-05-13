@@ -57,11 +57,11 @@
                     <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
                         <transition-group tag="div" id="doing" class="item-ul">
                             <el-tag
-                            v-for="tag in tags"
+                            v-for="tag in tags1"
                             :key="tag.name"
                             size="mini"
                             style="height:25px;margin-right:5px;margin-bottom:4px;"
-                            @click="move(tag)"
+                            
                             closable
                             :type="tag.type">
                             {{tag.name}}
@@ -94,7 +94,14 @@ export default {
             dialogVisible:false,
             filterText: '',
             tags: [
-          { name: '标签一', type: '' },
+          { name: '图标', type: '' },
+          { name: '文章', type: 'success' },
+          { name: '工作事务', type: 'info' },
+          { name: '文章2', type: 'warning' },
+          { name: '文章3', type: 'danger' }
+        ],
+        tags1:[
+             { name: '标签一', type: '' },
           { name: '标签二', type: 'success' },
           { name: '标签三', type: 'info' },
           { name: '标签四', type: 'warning' },
@@ -104,47 +111,60 @@ export default {
             label:"",
             data: [{
           id: 1,
-          label: '一级 1',
+          label: '数据文件',
           children: [{
             id: 4,
-            label: '二级 1-1',
+            label: '报表',
             children: [{
               id: 9,
-              label: '三级 1-1-1'
+              label: '财务报表'
             }, {
               id: 10,
-              label: '三级 1-1-2'
+              label: '公司财政'
+            },{
+                id:11,
+                label:"人员流动表"
+            },{
+                id:12,
+                label:"图片"
             }]
+          },{
+              id:14,
+              label:"合同",
+              children:[{
+                  id:15,
+                  label:"财务合同"
+              },{
+                  id:16,
+                  label:"商务合同"
+              }]
           }]
         }, {
           id: 2,
-          label: '一级 2',
+          label: '图片',
           children: [{
             id: 5,
-            label: '二级 2-1'
+            label: 'Basic'
           }, {
             id: 6,
-            label: '二级 2-2'
+            label: 'Form'
+          },{
+              id:7,
+              label:'Data'
           }]
         }, {
           id: 3,
-          label: '一级 3',
+          label: '表格表单',
           children: [{
             id: 7,
-            label: '二级 3-1'
+            label: 'Axure Components'
           }, {
             id: 8,
-            label: '二级 3-2',
-            children: [{
-             id: 11,
-              label: '三级 3-2-1'
-            }, {
-              id: 12,
-              label: '三级 3-2-2'
-            }, {
-              id: 13,
-              label: '三级 3-2-3'
-            }]
+            label: 'Sketch Templates',
+         
+          },{
+              id:15,
+              label:"组件交互文档"
           }]
         }],
         defaultProps: {
