@@ -3,7 +3,7 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 
-export default new Router({
+export default new Router({ 
     routes: [
         {
             path: '/',
@@ -52,6 +52,12 @@ export default new Router({
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }
+                },
+                {
+                    path:"/permission",
+                    component:resolve => require(['../components/page/UserGroup.vue'],resolve),
+                    meta:{title:"权限管理"}
+
                 },
                 {
                     path: '/table',

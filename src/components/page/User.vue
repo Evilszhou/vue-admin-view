@@ -79,9 +79,9 @@
                 </el-select>
               </el-form-item>
                <el-form-item label="所有权限" :label-width="formLabelWidth">
-                   <el-radio-group @change="choosePermission"  v-model="user.role">
-                       <el-radio label="admin">admin</el-radio>
-                       <el-radio label="user">user</el-radio>
+                   <el-radio-group @change="choosePermission"  v-model="user.role" v-for="item in roles" :key="item">
+                       <el-radio style="margin-right:10px" :label=item.groupName>{{item.groupName}}</el-radio>
+                      
                    </el-radio-group>
               </el-form-item>
             </el-form>
@@ -113,9 +113,8 @@
               </el-form-item>
                 
                <el-form-item label="所有权限" :label-width="formLabelWidth">
-                   <el-radio-group @change="choosePermission"  v-model="updateuser.role">
-                       <el-radio label="admin">admin</el-radio>
-                       <el-radio label="user">user</el-radio>
+                   <el-radio-group @change="choosePermission"  v-model="updateuser.role" v-for="item in roles" :key="item">
+                       <el-radio style="margin-right:10px" :label=item.groupName>{{item.groupName}}</el-radio>
                    </el-radio-group>
               </el-form-item>
               <el-form-item>
@@ -142,6 +141,9 @@ import {postJsonRequest,postRequest,getRequest} from '../../main.js';
 import { truncate } from 'fs';
 export default {
   inject:['reload'],
+  mounted(){
+    this.getAllPermissions();
+  },
       methods: {
       tableRowClassName({row, rowIndex}) {
         if (rowIndex % 4 === 1) {
@@ -216,13 +218,17 @@ export default {
               console.log(this.value4);
 
             },
+            getAllUserGroup(){
+              
+
+            },
             getData(){
               console.log("hhhh");
               let that = this;
               postRequest("/api/public/getAllUsers",{
                 page:this.cur_page
               }).then((result) => {
-                console.log(result.data.code);
+                console.log(result);
                 if(result.data.code === 200){
                   that.tableData = result.data.data.list
                   that.total = result.data.data.total
@@ -234,6 +240,19 @@ export default {
                 // console.log("total:"+this.total)
               }).catch((err) => {
                 console.log(err);
+                
+              });
+            },
+            getAllPermissions(){
+              let _this = this;
+              let roles = [];
+              postJsonRequest("/api/getAllUserGroup").then((result) => {
+                  console.log(result);
+                  for(let i = 0;i < result.data.data.length;i++){
+                    roles.push(result.data.data[i]);
+                  }
+                  _this.roles = roles;
+              }).catch((err) => {
                 
               });
             },
@@ -263,6 +282,7 @@ export default {
     data() {
       return {
         value4: '100',
+        roles:[],
         radio:1,
         dialogTableVisible:false,
         dialogTableVisible1:false,

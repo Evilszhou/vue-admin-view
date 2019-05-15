@@ -47,7 +47,11 @@
                         icon:'el-icon-lx-people',
                         index:"user",
                         title:"用户管理"
-
+                    },
+                    {
+                        icon:"el-icon-lx-group",
+                        index:"permission",
+                        title:"权限管理"
                     },
                     {
                         icon:'el-icon-lx-edit',

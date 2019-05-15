@@ -9,7 +9,7 @@
     </div>
     <div class="container">
       <div class="plugins-tips">将文件拖拽到此处</div>
-      <el-upload class="upload-demo" drag action="/api/uploadFile" name="file" :before-upload="beforeUpload" :on-success="success" >
+      <el-upload class="upload-demo"  ref="upload" :data="form" :file-list="fileList" drag action="/api/uploadFile" name="file" :before-upload="beforeUpload" :on-success="success" :auto-upload="false" >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">
           将文件拖到此处，或
@@ -17,6 +17,23 @@
         </div>
         <div class="el-upload__tip" slot="tip">文件不能超过100M</div>
       </el-upload>
+       <el-form :model="form" style="width:30%;margin-left:400px;margin-top:-200px;height:200px">
+    <el-form-item label="部门" :label-width="formLabelWidth">
+      <el-input v-model="form.name" placeholder="请选择部门" autocomplete="off"></el-input>
+    </el-form-item>
+    <el-form-item label="处事" :label-width="formLabelWidth">
+      <el-select v-model="form.region" placeholder="请选择处事">
+        <el-option label="区域一" value="shanghai"></el-option>
+        <el-option label="区域二" value="beijing"></el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item label="处事" :label-width="formLabelWidth">
+      <el-select v-model="form.region" placeholder="请选择处事">
+        <el-option label="区域一" value="shanghai"></el-option>
+        <el-option label="区域二" value="beijing"></el-option>
+      </el-select>
+    </el-form-item>
+  </el-form>
       <el-row style="margin-top:30px" :gutter="20">
         <el-col :span="20">
           <label
@@ -42,9 +59,9 @@
         </el-col>
         <el-col :span="4">
           <el-button
-            style="float:right;border:1px solid red"
+            style="float:right;"
             type="primary"
-            @click="dialogTableVisible = true"
+            @click="submit"
           >确定</el-button>
         </el-col>
       </el-row>
@@ -78,12 +95,23 @@ export default {
   name: "upload",
   data: function() {
     return {
+        form: {
+          name: '',
+          region: '',
+          date1: '',
+          date2: '',
+          delivery: false,
+          type: [],
+          resource: '',
+          desc: ''
+        },
+        formLabelWidth: '120px',
       defaultSrc: require("../../assets/img/img.jpg"),
-      fileList:[{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
+      fileList:[],
       imgSrc: "",
       cropImg: "",
       dialogVisible: false,
-      dynamicTags: ["标签一", "标签二", "标签三"],
+      dynamicTags: [],
       inputVisible: false,
       inputValue: ""
     };
@@ -127,6 +155,11 @@ export default {
     },
     cropImage() {
       //   this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
+    },
+    submit(){
+      this.$refs.upload.submit();
+      console.log(this.fileList);
+
     },
     cancelCrop() {
       this.dialogVisible = false;
