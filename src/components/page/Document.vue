@@ -78,35 +78,23 @@
                 <el-table-column type="expand">
                   <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
-                      <el-form-item label="商品名称">
-                        <span>{{ props.row.name }}</span>
-                      </el-form-item>
-                      <el-form-item label="所属店铺">
-                        <span>{{ props.row.shop }}</span>
-                      </el-form-item>
-                      <el-form-item label="商品 ID">
-                        <span>{{ props.row.id }}</span>
-                      </el-form-item>
-                      <el-form-item label="店铺 ID">
-                        <span>{{ props.row.shopId }}</span>
-                      </el-form-item>
-                      <el-form-item label="商品分类">
-                        <span>{{ props.row.category }}</span>
-                      </el-form-item>
-                      <el-form-item label="店铺地址">
-                        <span>{{ props.row.address }}</span>
-                      </el-form-item>
-                      <el-form-item label="商品描述">
-                        <span>{{ props.row.desc }}</span>
-                      </el-form-item>
+                      <!-- <el-form-item label="附件名称">
+                        <spanv-for="item in props.row.annexes">{{ props.row.annexes }}</span>
+                      </el-form-item> -->
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column prop="docName" label="文件编号" width="180"></el-table-column>
-                <el-table-column prop="docName" label="操作者"></el-table-column>
-                <el-table-column prop="docName" label="操作记录"></el-table-column>
-                <el-table-column prop="docName" sortable :formatter="dateTimeFormat" label="操作日期"></el-table-column>
-                <el-table-column prop="opLabel" label="操作类型">
+                <el-table-column prop="docName" label="文件名" width="180"></el-table-column>
+                <el-table-column prop="docNumber" label="文件标号"></el-table-column>
+                <el-table-column prop="docType" label="文件类型"></el-table-column>
+                <el-table-column prop="departmentName" label="所属部门"></el-table-column>
+                <el-table-column
+                  prop="docPostTime"
+                  sortable
+                  :formatter="dateTimeFormat"
+                  label="发文日期"
+                ></el-table-column>
+                <el-table-column>
                   <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                     <el-button
@@ -272,7 +260,10 @@ export default {
     },
     handleOpen() {},
     handleClose() {},
-
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getAllDocInfo();
+    },
     // handleClose(tag) {
     //   this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     // },
@@ -292,43 +283,61 @@ export default {
       this.inputVisible = false;
       this.inputValue = "";
     },
-    fitterDoc(type) {
-      this.checkList = [];
-      let item = this.items;
-      let newItem = [];
-      if (type == "") {
-        this.fitterItems = this.items;
-      } else {
-        for (let i = 0; i < item.length; i++) {
-          if (item[i].type == type) {
-            newItem.push(item[i]);
-          }
-        }
-        this.fitterItems = newItem;
-      }
-    },
+    // fitterDoc(type) {
+    //   this.checkList = [];
+    //   let item = this.items;
+    //   let newItem = [];
+    //   if (type == "") {
+    //     this.fitterItems = this.items;
+    //   } else {
+    //     for (let i = 0; i < item.length; i++) {
+    //       if (item[i].type == type) {
+    //         newItem.push(item[i]);
+    //       }
+    //     }
+    //     this.fitterItems = newItem;
+    //   }
+    // },
     dateTimeFormat(row, column, cellValue, index) {
       let date = cellValue;
       if (date == undefined) {
         return "";
       }
-      return moment(date).format("YYYY-MM-DD HH:mm:ss");
+      return moment(date).format("YYYY-MM-DD");
     },
-    getDocsBySearchParam() {
-      this.checkList = [];
-      let item = this.fitterItems;
-      let newItem = [];
-      if (this.docSearchName == "") {
-        // this.fitterItems = this.items;
-      } else {
-        for (let i = 0; i < item.length; i++) {
-          if (item[i].fileName.indexOf(this.docSearchName) != -1) {
-            newItem.push(item[i]);
+    // getDocsBySearchParam() {
+    //   this.checkList = [];
+    //   let item = this.fitterItems;
+    //   let newItem = [];
+    //   if (this.docSearchName == "") {
+    //     // this.fitterItems = this.items;
+    //   } else {
+    //     for (let i = 0; i < item.length; i++) {
+    //       if (item[i].fileName.indexOf(this.docSearchName) != -1) {
+    //         newItem.push(item[i]);
+    //       }
+    //     }
+    //     this.fitterItems = newItem;
+    //     this.docSearchName = "";
+    //   }
+    // },
+    getAllDocInfo() {
+      getRequest("/api/public/getAllDocInfo", {
+        pageSize: this.pageSize,
+        currentPage: this.currentPage
+      })
+        .then(result => {
+          if (result.data.code === 200) {
+            this.tableData = result.data.data.list;
+            console.log(this.tableData);
+            this.total = result.data.data.total;
+          } else {
+            console.log(result.data.msg);
           }
-        }
-        this.fitterItems = newItem;
-        this.docSearchName = "";
-      }
+        })
+        .catch(e => {
+          console.log(e);
+        });
     },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
@@ -351,6 +360,7 @@ export default {
         });
     }
   },
+
   watch: {
     docSearchName(val) {
       if (val != "") {
@@ -366,10 +376,12 @@ export default {
   },
 
   mounted() {
-    this.fitterItems = this.items;
-    for (let i = 0; i < this.items.length; i++) {
-      this.allCheckList.push(this.items[i].id);
-    }
+    // this.fitterItems = this.items;
+    // for (let i = 0; i < this.items.length; i++) {
+    //   this.allCheckList.push(this.items[i].id);
+    // }
+
+    this.getAllDocInfo();
   },
   data() {
     return {
@@ -379,27 +391,29 @@ export default {
       inputValue: "",
       selectYear: "",
       filterText: "",
+      pageSize: "10",
+      currentPage: "1",
       tableData: [
-        {
-          docName: "高凸嫖历险记",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          docName: "高凸嫖历险记",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          docName: "高凸嫖历险记",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          docName: "高凸嫖历险记",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        }
+        // {
+        //   docName: "高凸嫖历险记",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1518 弄"
+        // },
+        // {
+        //   docName: "高凸嫖历险记",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1518 弄"
+        // },
+        // {
+        //   docName: "高凸嫖历险记",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1518 弄"
+        // },
+        // {
+        //   docName: "高凸嫖历险记",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1518 弄"
+        // }
       ],
       data: [
         {
