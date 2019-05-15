@@ -1,5 +1,6 @@
 <template>
   <div class="document">
+    <!-- 顶部页签开始 -->
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -7,80 +8,48 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
+    <!-- 顶部页签结束 -->
 
+    <!-- 中间内容开始 -->
     <div class="document-content">
       <div class="document-content-card">
         <el-row class="tac">
-          <el-col :span="4">
-            <el-menu
-              default-active="2"
-              class="el-menu-vertical-demo"
-              @open="handleOpen"
-              @close="handleClose"
-              :default-openeds="defaultOpeneds"
-            >
-              <el-submenu index="1">
-                <template slot="title">
-                  <i class="el-icon-location"></i>
-                  <span>文件分类</span>
-                </template>
-                <el-menu-item-group>
-                  <el-menu-item index="1-1" @click="fitterDoc('')">全部文档</el-menu-item>
-                  <el-menu-item index="1-2" @click="fitterDoc('txt')">txt文档</el-menu-item>
-                  <el-menu-item index="1-3" @click="fitterDoc('word')">word文档</el-menu-item>
-                  <el-menu-item index="1-4" @click="fitterDoc('xls')">excel文档</el-menu-item>
-                  <el-menu-item index="1-5" @click="fitterDoc('pdf')">pdf文档</el-menu-item>
-                  <el-menu-item index="1-6" @click="fitterDoc('ppt')">ppt文档</el-menu-item>
-                  <el-menu-item index="1-7" @click="fitterDoc('img')">图片文档</el-menu-item>
-                  <el-menu-item index="1-8" @click="fitterDoc('compressDoc')">压缩文档</el-menu-item>
-                </el-menu-item-group>
-                
-              </el-submenu>
-              <!-- <el-menu-item index="2">
-                <i class="el-icon-menu"></i>
-                <span slot="title">导航二</span>
-              </el-menu-item>-->
-              <!-- <el-menu-item index="3" disabled>
-                <i class="el-icon-document"></i>
-                <span slot="title">导航三</span>
-              </el-menu-item>-->
-              <!-- <el-menu-item index="4">
-                <i class="el-icon-setting"></i>
-                <span slot="title">导航四</span>
-              </el-menu-item>
-              <el-menu-item index="5">
-                <i class="el-icon-setting"></i>
-                <span slot="title">导航四</span>
-              </el-menu-item>
-              <el-menu-item index="6">
-                <i class="el-icon-setting"></i>
-                <span slot="title">导航四</span>
-              </el-menu-item>-->
-              <el-menu-item index="7">
-                <i class="el-icon-setting"></i>
-                <span @click="toUploadPage" slot="title">上传文件</span>
-              </el-menu-item>
-            </el-menu>
+          <!-- 左侧菜单开始 -->
+          <el-col :span="5">
+            <div class="drag-box-item">
+              <el-input class="el" placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+              <el-tree
+                style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;  display: block;margin-top:10px"
+                ref="tree"
+                class="mulu"
+                :data="data"
+                node-key="id"
+                :filter-node-method="filterNode"
+              >
+                <span class="span-ellipsis" slot-scope="{ node }">
+                  <span :title="node.label">{{ node.label }}</span>
+                </span>
+              </el-tree>
+            </div>
           </el-col>
-          <el-col :span="20" style="padding:20px">
+          <!-- 左侧菜单结束 -->
+
+          <!-- 右侧文件展示开始 -->
+          <el-col :span="19" style="padding:20px;padding-left:0px">
+            <!-- 顶部条件搜索区开始 -->
             <div class="document-search">
-              <el-row :gutter="20">
+              <el-row :gutter="25" class="document-search-label">
+                <ul>
+                  <li style="float:left">
+                    <el-tag>标签一</el-tag>
+                  </li>
+                </ul>
+              </el-row>
+              <el-row :gutter="25" class="document-search-multipleConditions">
                 <el-col :span="4">
                   <el-input v-model="docSearchName" placeholder="文件名"></el-input>
                 </el-col>
-                <el-col :span="10">
-                  <el-date-picker
-                    v-model="time"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                  ></el-date-picker>
-                </el-col>
                 <el-col :span="4">
-                  <el-cascader placeholder="输入标签" :options="docLabels" filterable change-on-select></el-cascader>
-                </el-col>
-                <el-col :span="3">
                   <el-cascader
                     placeholder="输入部门"
                     :options="departments"
@@ -88,18 +57,76 @@
                     change-on-select
                   ></el-cascader>
                 </el-col>
+                <el-col :span="7">
+                  <el-date-picker v-model="selectYear" type="year" placeholder="选择年"></el-date-picker>
+                </el-col>
                 <el-col :span="3">
                   <el-button type="primary" @click="getDocsBySearchParam">查询</el-button>
                 </el-col>
-                <!-- <el-col :span="1">
-                  <svg class="icon" style="margin:0;font-size:10px" aria-hidden="true">
-                    <use xlink:href="#icon-drxx07"></use>
-                  </svg>
-                </el-col>-->
               </el-row>
             </div>
+            <!-- 顶部条件搜索区结束 -->
+
+            <!-- 文件展示区开始 -->
             <div class="document-display">
-              <el-checkbox
+              <el-table
+                :data="tableData"
+                stripe
+                style="width: 100%;margin-top:10px"
+                :row-class-name="tableRowClassName"
+              >
+                <el-table-column type="expand">
+                  <template slot-scope="props">
+                    <el-form label-position="left" inline class="demo-table-expand">
+                      <el-form-item label="商品名称">
+                        <span>{{ props.row.name }}</span>
+                      </el-form-item>
+                      <el-form-item label="所属店铺">
+                        <span>{{ props.row.shop }}</span>
+                      </el-form-item>
+                      <el-form-item label="商品 ID">
+                        <span>{{ props.row.id }}</span>
+                      </el-form-item>
+                      <el-form-item label="店铺 ID">
+                        <span>{{ props.row.shopId }}</span>
+                      </el-form-item>
+                      <el-form-item label="商品分类">
+                        <span>{{ props.row.category }}</span>
+                      </el-form-item>
+                      <el-form-item label="店铺地址">
+                        <span>{{ props.row.address }}</span>
+                      </el-form-item>
+                      <el-form-item label="商品描述">
+                        <span>{{ props.row.desc }}</span>
+                      </el-form-item>
+                    </el-form>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="docName" label="文件编号" width="180"></el-table-column>
+                <el-table-column prop="docName" label="操作者"></el-table-column>
+                <el-table-column prop="docName" label="操作记录"></el-table-column>
+                <el-table-column prop="docName" sortable :formatter="dateTimeFormat" label="操作日期"></el-table-column>
+                <el-table-column prop="opLabel" label="操作类型">
+                  <template slot-scope="scope">
+                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button
+                      size="mini"
+                      type="danger"
+                      @click="handleDelete(scope.$index, scope.row)"
+                    >删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <div class="pagination">
+                <el-pagination
+                  background
+                  @current-change="handleCurrentChange"
+                  layout="prev, pager, next"
+                  :page-size="10"
+                  :total="total"
+                ></el-pagination>
+              </div>
+              <!-- <el-checkbox
                 class="document-display-checkAll"
                 :indeterminate="isIndeterminate"
                 v-model="checkAll"
@@ -125,9 +152,10 @@
                   </div>
                   <div class="document-display-fileName">{{item.fileName}}</div>
                 </el-checkbox>
-              </el-checkbox-group>
+              </el-checkbox-group>-->
             </div>
-            <div
+            <!-- 文件展示区结束 -->
+            <!-- <div
               class="document-fileInfo"
               style="margin-top:20px;border-left:7px solid lightgray;padding-left:15px;color: rgb(129, 129, 129);position:relative"
               :selectDocumentInfo="selectDocumentInfo"
@@ -189,11 +217,13 @@
                 ></el-input>
                 <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
               </div>
-            </div>
+            </div>-->
+            <!-- 右侧文件展示结束 -->
           </el-col>
         </el-row>
       </div>
     </div>
+    <!-- 中间内容结束 -->
   </div>
 </template>
 
@@ -204,32 +234,41 @@ import { isNull } from "util";
 
 export default {
   methods: {
-    download(){
+    download() {
       console.log(this.checkfileList);
-      postRequest("/api/downLoadFile",{
-        docs:JSON.stringify(this.checkfileList)
-      }).then((result) => {
-        console.log(result);;
-      }).catch((err) => {
-
-      });
-
-
+      postRequest("/api/downLoadFile", {
+        docs: JSON.stringify(this.checkfileList)
+      })
+        .then(result => {
+          console.log(result);
+        })
+        .catch(err => {});
     },
     toUploadPage() {
-      this.$router.push({path:'Upload'});
+      this.$router.push({ path: "Upload" });
     },
     selectDocument(item) {
       console.log(item);
       this.selectDocumentInfo = item;
       this.dynamicTags = this.selectDocumentInfo.tags;
       this.checkfileList.push(item);
-      console.log("list:"+JSON.stringify(this.checkfileList))
-
+      console.log("list:" + JSON.stringify(this.checkfileList));
     },
     handleCheckAllChange(val) {
       this.checkList = val ? this.allCheckList : [];
       this.isIndeterminate = false;
+    },
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex % 4 === 1) {
+        return "warning-row";
+      } else if (rowIndex % 4 === 3) {
+        return "success-row";
+      }
+      return "";
+    },
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
     },
     handleOpen() {},
     handleClose() {},
@@ -267,6 +306,13 @@ export default {
         }
         this.fitterItems = newItem;
       }
+    },
+    dateTimeFormat(row, column, cellValue, index) {
+      let date = cellValue;
+      if (date == undefined) {
+        return "";
+      }
+      return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
     getDocsBySearchParam() {
       this.checkList = [];
@@ -311,6 +357,11 @@ export default {
         this.docSearchName = val;
         console.log("docSearchName" + this.docSearchName);
       }
+    },
+
+    filterText(val) {
+      console.log(val);
+      this.$refs.tree.filter(val);
     }
   },
 
@@ -322,9 +373,114 @@ export default {
   },
   data() {
     return {
+      displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
       inputVisible: false,
       inputValue: "",
+      selectYear: "",
+      filterText: "",
+      tableData: [
+        {
+          docName: "高凸嫖历险记",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄"
+        },
+        {
+          docName: "高凸嫖历险记",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄"
+        },
+        {
+          docName: "高凸嫖历险记",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄"
+        },
+        {
+          docName: "高凸嫖历险记",
+          name: "王小虎",
+          address: "上海市普陀区金沙江路 1518 弄"
+        }
+      ],
+      data: [
+        {
+          id: 1,
+          label: "数据文件hadfasdasdasdasdhah",
+          children: [
+            {
+              id: 4,
+              label: "报表",
+              children: [
+                {
+                  id: 9,
+                  label: "财务报表"
+                },
+                {
+                  id: 10,
+                  label: "公司财政"
+                },
+                {
+                  id: 11,
+                  label: "人员流动表"
+                },
+                {
+                  id: 12,
+                  label: "图片"
+                }
+              ]
+            },
+            {
+              id: 14,
+              label: "合同",
+              children: [
+                {
+                  id: 15,
+                  label: "财务合同"
+                },
+                {
+                  id: 16,
+                  label: "商务合同"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          label: "图片",
+          children: [
+            {
+              id: 5,
+              label: "Basic"
+            },
+            {
+              id: 6,
+              label: "Form"
+            },
+            {
+              id: 7,
+              label: "Data"
+            }
+          ]
+        },
+        {
+          id: 3,
+          label: "表格表单",
+          children: [
+            {
+              id: 7,
+              label: "Axure Components"
+            },
+            {
+              id: 8,
+              label: "Sketch Templates"
+            },
+            {
+              id: 15,
+              label: "组件交互文档"
+            }
+          ]
+        }
+      ],
       items: [
         {
           id: "1",
@@ -786,16 +942,37 @@ export default {
 }
 .document-search {
   /* border: 1px solid red; */
-  height: 60px;
+  height: 90px;
+}
+.document-search .el-tag {
+  margin-right: 9px;
+}
+.document-search-label {
+  /* border: 1px solid black; */
+  height: 30px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.document-search-label ul {
+  padding-left: 13px;
+  padding-right: 13px;
+}
+.document-search-label li {
+  margin-top: 5px;
+  list-style: none;
+}
+.document-search-multipleConditions {
+  margin-top: 15px;
+  /* border: 1px solid yellow;   */
 }
 .document-display {
   border: 2px solid rgb(246, 246, 246);
   /* background: rgb(246, 246, 246); */
   border-radius: 5px;
   /* margin-top: 20px; */
-  overflow-y: scroll;
-  min-height: 318px;
-  max-height: 310px;
+  /* overflow-y: scroll; */
+  min-height: 372px;
+  /* max-height: 634px; */
 }
 .document-display-checkAll {
   margin-left: 30px;
@@ -836,6 +1013,22 @@ export default {
 }
 .el-submenu .el-menu-item {
   min-width: 100px;
+}
+.drag-box-item {
+  flex: 1;
+  max-width: 412px;
+  /* min-width: 159px; */
+  margin-right: 16px;
+  border-right: 2px rgb(246, 246, 246) solid;
+  overflow: hidden;
+  padding: 10px;
+}
+.span-ellipsis {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
 }
 </style>
 
