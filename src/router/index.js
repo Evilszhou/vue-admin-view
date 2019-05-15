@@ -54,6 +54,12 @@ export default new Router({
                     meta: { title: '自定义图标' }
                 },
                 {
+                    path:"/permission",
+                    component:resolve => require(['../components/page/UserGroup.vue'],resolve),
+                    meta:{title:"权限管理"}
+
+                },
+                {
                     path: '/table',
                     component: resolve => require(['../components/page/BaseTable.vue'], resolve),
                     meta: { title: '基础表格' }
