@@ -92,46 +92,40 @@ export default {
       dialogTableVisible1:false,
       options: [{
           value: 'zhinan',
-          label: '指南',
+          label: '行政部',
           children: [{
             value: 'shejiyuanze',
-            label: '设计原则',
+            label: '办公室',
             children: [{
               value: 'yizhi',
-              label: '一致'
+              label: '人事'
             }, {
               value: 'fankui',
-              label: '反馈'
-            }, {
-              value: 'xiaolv',
-              label: '效率'
-            }, {
-              value: 'kekong',
-              label: '可控'
+              label: '总务'
             }]
           }, {
             value: 'daohang',
-            label: '导航',
+            label: '供销部',
             children: [{
               value: 'cexiangdaohang',
-              label: '侧向导航'
+              label: '供应'
             }, {
               value: 'dingbudaohang',
-              label: '顶部导航'
+              label: '市场'
             }]
           }]
         }, {
           value: 'ziyuan',
-          label: '资源',
+          label: '财务部',
           children: [{
             value: 'axure',
-            label: 'Axure Components'
+            label: '会计'
           }, {
             value: 'sketch',
-            label: 'Sketch Templates'
+            label: '出纳'
           }, {
             value: 'jiaohu',
-            label: '组件交互文档'
+            label: '原料仓库'
           }]
         }],
       searchParam: '',
@@ -210,7 +204,7 @@ export default {
           if (result.data.code === 200) {
             this.treeData.children = result.data.data;
             console.log(this.treeData)
-            console.log( this.treeData.children);
+            // console.log( this.treeData.children);
 
             // this.total = result.data.data.total;
           } else {
@@ -225,11 +219,19 @@ export default {
       node.child = true;
     },
     onTreeDataChange(list) {
-      console.log(list);
-      this.treeData.children = list;
+       this.$confirm("确认要移动该部门吗?","提示",{
+        confirmButtonText:"确定",
+        cancelButtonText:"取消"
+      }).then((result) => {
+        if(result == "confirm"){
+           console.log(list);
+           this.treeData.children = list;
+        }
+      }).catch((err) => {
+        
+      });
     },
     deleteDepatment(item) {
-
       this.$confirm("确认要删除该部门吗?","提示",{
         confirmButtonText:"确定",
         cancelButtonText:"取消"
@@ -298,7 +300,7 @@ export default {
         type: "selection",
         title: "机构名称",
         field: "name",
-        width: 200,
+        width: 100,
         align: "left",
         formatter: item => {
           return "<span>" + item.name + "</span>";
@@ -309,12 +311,15 @@ export default {
         field: "introduction",
         width: 200,
         align: "center",
-        flex: 1
+        flex: 1,
+        formatter: item => {
+          return "<span>" + item.instroduction +  "</span>";
+        }
       },
       {
         title: "操作",
         type: "action",
-        width: 350,
+        width: 150,
         align: "center",
         actions: [
           {
