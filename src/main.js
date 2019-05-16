@@ -104,10 +104,8 @@ export function downloadFile(params){
     return axios({
         url:"/api/downLoadFile",
         method:'get',
-        params:{
-            
-            
-        }
+        params:params,
+        responseType:'blob'
     })
 }
 
