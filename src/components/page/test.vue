@@ -1,5 +1,9 @@
 <template>
     <div class="container">
+        <el-button @click="download">下载</el-button>
+
+    </div>
+    <!-- <div class="container">
        <el-cascader
         :options="options"
         change-on-select
@@ -7,10 +11,10 @@
         <el-checkbox-group v-model="checkList" v-for="item in labels" :key="item"  >
             <el-checkbox :label=item.label></el-checkbox>
         </el-checkbox-group>
-    </div>
+    </div> -->
 </template>
 <script>
-  import {postJsonRequest,postRequest,getRequest} from '../../main.js';
+  import {postJsonRequest,postRequest,getRequest,downloadFile} from '../../main.js';
   export default {
     data() {
       return {
@@ -50,7 +54,10 @@ children: null
           }).catch((err) => {
               
           });
-
+      },
+      download(){
+          let _this = this;
+          downloadFile("/api/downLoadFile")
       },
       getVal(val){
           console.log(val);

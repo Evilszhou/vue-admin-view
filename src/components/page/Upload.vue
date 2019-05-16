@@ -9,7 +9,11 @@
     </div>
     <div class="container">
       <div class="plugins-tips">将文件拖拽到此处</div>
-      <el-upload class="upload-demo"  ref="upload" :data="form" :file-list="fileList" drag action="/api/uploadFile" name="file" :before-upload="beforeUpload" :on-success="success" :auto-upload="false" >
+      <el-upload class="upload-demo"  ref="upload" :data="form" 
+      :headers="config"
+      :file-list="fileList" drag action="/api/uploadFile" name="file" 
+      :before-upload="beforeUpload" :on-success="success" :auto-upload="false"
+      :limit="1" :on-exceed="overNumber" >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">
           将文件拖到此处，或
@@ -17,21 +21,37 @@
         </div>
         <div class="el-upload__tip" slot="tip">文件不能超过100M</div>
       </el-upload>
-       <el-form :model="form" style="width:30%;margin-left:400px;margin-top:-200px;height:200px">
-    <el-form-item label="部门" :label-width="formLabelWidth">
-      <el-input v-model="form.name" placeholder="请选择部门" autocomplete="off"></el-input>
-    </el-form-item>
-    <el-form-item label="处事" :label-width="formLabelWidth">
-      <el-select v-model="form.region" placeholder="请选择处事">
-        <el-option label="区域一" value="shanghai"></el-option>
+       <el-form :model="form" style="width:30%;position:fixed;top:260px;left:600px;height:200px">
+    <!-- <el-form-item label="部门" :label-width="formLabelWidth">
+     <el-select v-model="form.department" placeholder="请选择处事">
+        <el-option label="行政部" value="行政部"></el-option>
         <el-option label="区域二" value="beijing"></el-option>
       </el-select>
     </el-form-item>
     <el-form-item label="处事" :label-width="formLabelWidth">
       <el-select v-model="form.region" placeholder="请选择处事">
+        <el-option label="行政部" value="行政部"></el-option>
+        <el-option label="区域二" value="beijing"></el-option>
+      </el-select>
+    </el-form-item> -->
+    <el-form-item label="类别" :label-width="formLabelWidth">
+      <el-select v-model="form.type" placeholder="请选择类别">
         <el-option label="区域一" value="shanghai"></el-option>
         <el-option label="区域二" value="beijing"></el-option>
       </el-select>
+    </el-form-item>
+    <el-form-item label="序号" :label-width="formLabelWidth">
+      <el-input v-model="form.number" placeholder="请输入内容"></el-input>
+    </el-form-item>
+    <el-form-item label="日期" :label-width="formLabelWidth">
+      <el-date-picker
+      v-model="form.date"
+      type="date"
+      placeholder="选择日期">
+    </el-date-picker>
+
+
+
     </el-form-item>
   </el-form>
       <el-row style="margin-top:30px" :gutter="20">
@@ -41,7 +61,7 @@
           >标签:</label>
           <el-tag
             :key="tag"
-            v-for="tag in dynamicTags"
+            v-for="tag in form.tags"
             closable
             :disable-transitions="true"
             @close="handleClose(tag)"
@@ -51,6 +71,7 @@
             v-if="inputVisible"
             v-model="inputValue"
             ref="saveTagInput"
+
             size="small"
             @keyup.enter.native="handleInputConfirm"
             @blur="handleInputConfirm"
@@ -91,19 +112,21 @@
 
 <script>
 import VueCropper from "vue-cropperjs";
+import { fail } from 'assert';
 export default {
   name: "upload",
   data: function() {
     return {
+      config:{
+        token:localStorage.getItem("token")
+      },
         form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+          department:"",
+          region:"",
+          type:"",
+          date:"",
+          number:"",
+          tags:["表歉意",'dada']
         },
         formLabelWidth: '120px',
       defaultSrc: require("../../assets/img/img.jpg"),
@@ -111,10 +134,24 @@ export default {
       imgSrc: "",
       cropImg: "",
       dialogVisible: false,
-      dynamicTags: [],
+      dynamicTags: ["标签一"],
       inputVisible: false,
       inputValue: ""
     };
+  },
+  mounted(){
+    console.log(this.tags)
+    console.log(JSON.stringify(this.dynamicTags))
+  },
+  computed:{
+    getTags(){
+      let tags = this.dynamicTags;
+      let result = "";
+      for(let i = 0;i < tags.length;i++){
+
+      }
+      return resul+"=da";
+    }
   },
   components: {
     VueCropper
@@ -132,13 +169,29 @@ export default {
         });
       },
     success(res){
-      console.log(res);
+      console.log(this.form.tags)
       if(res.code == 200){
-       this.open3(res.msg);
+       this.open3(res.msg); 
+       localStorage.setItem("file",res.data);
+       console.log(localStorage.getItem("file"))
+       this.$confirm('要继续上传附件吗?',"提示",{
+         confirmButtonText:'确定',
+         cancelButtonText:"取消"
+       }).then((result) => {
+         if(result == "confirm"){
+
+         }
+         
+       }).catch((err) => {
+         
+       });
        
       }else{
 
       }
+    },
+    overNumber(){
+      this.$message.error('上传失败!!!');
     },
     setImage(e) {
       //   const file = e.target.files[0];
