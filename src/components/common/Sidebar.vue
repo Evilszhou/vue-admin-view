@@ -64,11 +64,15 @@
                         index:"tags",
                         title:"标签管理"
                     },
-                    
-                     {
+                    {
                         icon:'el-icon-lx-edit',
                         index:"department",
                         title:"机构管理"
+                    },
+                    {
+                        icon:"el-icon-lx-file",
+                        index:"upload",
+                        title:"文件上传"
 
                     }
                 ]
