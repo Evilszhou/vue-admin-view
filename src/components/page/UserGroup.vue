@@ -212,7 +212,7 @@ export default {
         postJsonRequest("/api/addUserGroup",userGroup).then((result) => {
           console.log(result);   
           if(result.data.code === 200){
-            this.open2(result.data.message);
+            this.open2(result.data.msg);
             this.reload();
           }
         }).catch((err) => {
