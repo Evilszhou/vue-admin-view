@@ -70,6 +70,7 @@
             <!-- 文件展示区开始 -->
             <div class="document-display">
               <el-table
+                v-loading="loading"
                 :data="tableData"
                 stripe
                 style="width: 100%;margin-top:10px"
@@ -110,7 +111,7 @@
                   background
                   @current-change="handleCurrentChange"
                   layout="prev, pager, next"
-                  :page-size="10"
+                  :page-size=pageSize
                   :total="total"
                 ></el-pagination>
               </div>
@@ -305,23 +306,24 @@ export default {
       }
       return moment(date).format("YYYY-MM-DD");
     },
-    // getDocsBySearchParam() {
-    //   this.checkList = [];
-    //   let item = this.fitterItems;
-    //   let newItem = [];
-    //   if (this.docSearchName == "") {
-    //     // this.fitterItems = this.items;
-    //   } else {
-    //     for (let i = 0; i < item.length; i++) {
-    //       if (item[i].fileName.indexOf(this.docSearchName) != -1) {
-    //         newItem.push(item[i]);
-    //       }
-    //     }
-    //     this.fitterItems = newItem;
-    //     this.docSearchName = "";
-    //   }
-    // },
+    getDocsBySearchParam() {
+      this.checkList = [];
+      let item = this.fitterItems;
+      let newItem = [];
+      if (this.docSearchName == "") {
+        // this.fitterItems = this.items;
+      } else {
+        for (let i = 0; i < item.length; i++) {
+          if (item[i].fileName.indexOf(this.docSearchName) != -1) {
+            newItem.push(item[i]);
+          }
+        }
+        this.fitterItems = newItem;
+        this.docSearchName = "";
+      }
+    },
     getAllDocInfo() {
+      this.loading = true;
       getRequest("/api/public/getAllDocInfo", {
         pageSize: this.pageSize,
         currentPage: this.currentPage
@@ -329,13 +331,33 @@ export default {
         .then(result => {
           if (result.data.code === 200) {
             this.tableData = result.data.data.list;
-            console.log(this.tableData);
+            console.log(result.data.data);
+            // console.log(this.tableData);
             this.total = result.data.data.total;
+            this.loading = false;
           } else {
+            this.loading = false;
             console.log(result.data.msg);
           }
         })
         .catch(e => {
+          this.loading = false;
+          console.log(e);
+        });
+    },
+     getMyChildDepartments() {
+      getRequest("/api/admin/getMyChildDepartments")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.departments = result.data.data;
+            console.log(this.departments);
+          } else {
+            // this.loading = false;
+            console.log(result.data.msg);
+          }
+        })
+        .catch(e => {
+          // this.loading = false;
           console.log(e);
         });
     },
@@ -382,6 +404,7 @@ export default {
     // }
 
     this.getAllDocInfo();
+    this.getMyChildDepartments();
   },
   data() {
     return {
@@ -391,8 +414,10 @@ export default {
       inputValue: "",
       selectYear: "",
       filterText: "",
-      pageSize: "10",
+      pageSize: 6,
       currentPage: "1",
+      total: 0,
+      loading:false,
       tableData: [
         // {
         //   docName: "高凸嫖历险记",
@@ -495,80 +520,7 @@ export default {
           ]
         }
       ],
-      items: [
-        {
-          id: "1",
-          fileName: "2019-2020综测文件",
-          type: "txt",
-          tags: ["须立即", "高富帅"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "2",
-          fileName: "部门综测",
-          type: "xls",
-          tags: ["hahaah"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "3",
-          fileName: "期末学院考试通知",
-          type: "ppt",
-          tags: ["1111", "222"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "4",
-          fileName: "Bar",
-          type: "pdf",
-          tags: ["534", "5443"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "5",
-          fileName: "Foo",
-          type: "txt",
-          tags: ["00"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "6",
-          fileName: "期末学院考试通知",
-          type: "xls",
-          tags: ["1ee"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "7",
-          fileName: "期末学院考试通知",
-          type: "ppt",
-          tags: ["e98"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "8",
-          fileName: "Bar",
-          type: "word",
-          tags: ["e5e"],
-          userName: "小高",
-          time: "2019-05-08"
-        },
-        {
-          id: "9",
-          fileName: "Bwerwer23423423234werar",
-          type: "img",
-          tags: ["eee"],
-          userName: "小高",
-          time: "2019-05-08"
-        }
-      ],
+    
       fitterItems: [],
       checkList: [],
       allCheckList: [],
@@ -854,58 +806,7 @@ export default {
         }
       ],
 
-      departments: [
-        {
-          value: "bangongshi",
-          label: "办公室",
-          children: [
-            {
-              value: "shejiyuanze",
-              label: "办公室一"
-            },
-            {
-              value: "daohang",
-              label: "办公室二"
-            }
-          ]
-        },
-        {
-          value: "zonghechu",
-          label: "综合处",
-          children: [
-            {
-              value: "axure",
-              label: "综合处一"
-            },
-            {
-              value: "sketch",
-              label: "综合处二"
-            },
-            {
-              value: "jiaohu",
-              label: "综合处三"
-            }
-          ]
-        },
-        {
-          value: "renjiaochu",
-          label: "人教处",
-          children: [
-            {
-              value: "axure",
-              label: "人教处一"
-            },
-            {
-              value: "sketch",
-              label: "人教处二"
-            },
-            {
-              value: "jiaohu",
-              label: "人教处三"
-            }
-          ]
-        }
-      ]
+      departments: []
     };
   }
 };
