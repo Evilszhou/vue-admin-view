@@ -79,9 +79,9 @@
                 <el-table-column type="expand">
                   <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
-                      <!-- <el-form-item label="附件名称">
-                        <spanv-for="item in props.row.annexes">{{ props.row.annexes }}</span>
-                      </el-form-item> -->
+                      <el-form-item label="附件:">
+                        <span v-for="item in props.row.annexes" :key="item.annexId">{{ item.annexName }}<el-button type="primary" size="mini" style="margin-right:25px;margin-left:25px">下载</el-button></span>
+                      </el-form-item>
                     </el-form>
                   </template>
                 </el-table-column>
