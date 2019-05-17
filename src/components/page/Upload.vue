@@ -71,7 +71,6 @@
             v-if="inputVisible"
             v-model="inputValue"
             ref="saveTagInput"
-
             size="small"
             @keyup.enter.native="handleInputConfirm"
             @blur="handleInputConfirm"
@@ -87,38 +86,52 @@
         </el-col>
       </el-row>
     </div>
-
-    <!-- <div class="content-title">支持裁剪</div>
-            <div class="plugins-tips">
-                vue-cropperjs：一个封装了 cropperjs 的 Vue 组件。
-                访问地址：<a href="https://github.com/Agontuk/vue-cropperjs" target="_blank">vue-cropperjs</a>
-            </div>
-            <div class="crop-demo">
-                <img :src="cropImg" class="pre-img">
-                <div class="crop-demo-btn">选择图片
-                    <input class="crop-input" type="file" name="image" accept="image/*" @change="setImage"/>
-                </div>
-    </div>-->
-    <!--         
-            <el-dialog title="裁剪图片" :visible.sync="dialogVisible" width="30%">
-                <vue-cropper ref='cropper' :src="imgSrc" :ready="cropImage" :zoom="cropImage" :cropmove="cropImage" style="width:100%;height:300px;"></vue-cropper>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="cancelCrop">取 消</el-button>
-                    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-                </span>
-    </el-dialog>-->
+          <el-dialog
+        title="添加附件"
+        :visible.sync="dialogVisible"
+        width="40%">
+        <el-upload
+        :data="args"
+        style="margin-left:100px"
+          :headers="config"
+          class="upload-demo"
+          name="file"
+          ref="uploadannex"
+          drag
+          :auto-upload="false"
+          action="/api/uploadannex"
+          :on-success="uploadAnneixSuccess"
+          multiple>
+  <i class="el-icon-upload"></i>
+  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+  <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+</el-upload>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="uploadAnneix">确 定</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
 <script>
 import VueCropper from "vue-cropperjs";
 import { fail } from 'assert';
+import { setTimeout } from 'timers';
 export default {
   name: "upload",
   data: function() {
     return {
+      dialogVisible:false,
       config:{
         token:localStorage.getItem("token")
+      },
+      annix:{
+        file:localStorage.getItem("file")
+      },
+      args:{
+        filename:""
+
       },
         form: {
           department:"",
@@ -126,7 +139,7 @@ export default {
           type:"",
           date:"",
           number:"",
-          tags:["表歉意",'dada']
+          tags:['表歉意','dada']
         },
         formLabelWidth: '120px',
       defaultSrc: require("../../assets/img/img.jpg"),
@@ -179,7 +192,10 @@ export default {
          cancelButtonText:"取消"
        }).then((result) => {
          if(result == "confirm"){
-
+           let _this = this;
+           setTimeout(function(){
+             _this.dialogVisible = true;
+           },500)
          }
          
        }).catch((err) => {
@@ -228,9 +244,18 @@ export default {
       });
     },
     handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      this.form.tags.splice(this.form.tags.indexOf(tag), 1);
     },
+    uploadAnneix(){
+      this.args.filename = localStorage.getItem("file");
+      this.$refs.uploadannex.submit();
+    },
+    uploadAnneixSuccess(){
 
+      console.log("dasdasda");
+      this.dialogVisible = false;
+
+    },
     showInput() {
       this.inputVisible = true;
       this.$nextTick(_ => {
@@ -241,7 +266,7 @@ export default {
     handleInputConfirm() {
       let inputValue = this.inputValue;
       if (inputValue) {
-        this.dynamicTags.push(inputValue);
+        this.form.tags.push(inputValue);
       }
       this.inputVisible = false;
       this.inputValue = "";

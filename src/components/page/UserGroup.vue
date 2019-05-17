@@ -160,7 +160,7 @@ export default {
           if(i == permissions.length - 1 ){
             name = name + permissions[i];
           }else{
-            name = name + permissions[i]+";"
+            name = name + permissions[i]+","
           }
         }
         console.log(name);
@@ -177,7 +177,7 @@ export default {
           if(i == this.form.groupPermission - 1 ){
             name = name + this.form.groupPermission[i];
           }else{
-            name = name + this.form.groupPermission[i]+";"
+            name = name + this.form.groupPermission[i]+","
           }
         }
         let userGroup = {
