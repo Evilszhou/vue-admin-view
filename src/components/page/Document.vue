@@ -21,8 +21,9 @@
               <el-tree
                 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;  display: block;margin-top:10px"
                 ref="tree"
+                show-checkbox
                 class="mulu"
-                :data="data"
+                :data="docLabelsTree"
                 node-key="id"
                 :filter-node-method="filterNode"
               >
@@ -51,17 +52,19 @@
                 </el-col>
                 <el-col :span="4">
                   <el-cascader
+                    v-model="departs"
                     placeholder="输入部门"
                     :options="departments"
                     filterable
-                    change-on-select
+                    :change-on-select="true"
+                    @change="selectDepartment"
                   ></el-cascader>
                 </el-col>
                 <el-col :span="7">
                   <el-date-picker v-model="selectYear" type="year" placeholder="选择年"></el-date-picker>
                 </el-col>
                 <el-col :span="3">
-                  <el-button type="primary" @click="getDocsBySearchParam">查询</el-button>
+                  <el-button type="primary" @click="search">查询</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -111,8 +114,9 @@
                   background
                   @current-change="handleCurrentChange"
                   layout="prev, pager, next"
-                  :page-size=pageSize
+                  :page-size="pageSize"
                   :total="total"
+                  :current-page="currentPage"
                 ></el-pagination>
               </div>
               <!-- <el-checkbox
@@ -233,6 +237,11 @@ export default {
         })
         .catch(err => {});
     },
+      selectDepartment(data){
+        if(data != null && data.length>0) {
+            this.selectDepartmentId = data[data.length];
+        }
+      },
     toUploadPage() {
       this.$router.push({ path: "Upload" });
     },
@@ -263,7 +272,7 @@ export default {
     handleClose() {},
     handleCurrentChange(val) {
       this.currentPage = val;
-      this.getAllDocInfo();
+      this.getDocsBySearchParam();
     },
     // handleClose(tag) {
     //   this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
@@ -306,21 +315,41 @@ export default {
       }
       return moment(date).format("YYYY-MM-DD");
     },
+    search(){
+      this.handleCurrentChange(1);
+    },
     getDocsBySearchParam() {
-      this.checkList = [];
-      let item = this.fitterItems;
-      let newItem = [];
-      if (this.docSearchName == "") {
-        // this.fitterItems = this.items;
-      } else {
-        for (let i = 0; i < item.length; i++) {
-          if (item[i].fileName.indexOf(this.docSearchName) != -1) {
-            newItem.push(item[i]);
-          }
-        }
-        this.fitterItems = newItem;
-        this.docSearchName = "";
-      }
+     
+        this.loading = true;
+        
+        postJsonRequest("/api/public/getDocsBySearchParam", {
+            pageInfo:{pageSize:this.pageSize,currentPage:this.currentPage},
+            docLabels:this.$refs.tree.getCheckedNodes(),
+            tags:[],
+            departmentId:this.selectDepartmentId,
+            docName:this.docSearchName,
+            selectYear:moment(this.selectYear).format("YYYY")
+        })
+            .then(result => {
+                if (result.data.code === 200) {
+                    this.tableData = result.data.data.list;
+                    console.log(result.data.data);
+                   
+                    
+                    // console.log(this.tableData);
+                    this.total = result.data.data.total;
+                    this.loading = false;
+                } else {
+                    this.loading = false;
+                    console.log(result.data.msg);
+                }
+            })
+            .catch(e => {
+                this.loading = false;
+                console.log(e);
+            });
+            
+            console.log(this.currentPage+"currentPage")
     },
     getAllDocInfo() {
       this.loading = true;
@@ -350,7 +379,7 @@ export default {
         .then(result => {
           if (result.data.code === 200) {
             this.departments = result.data.data;
-            console.log(this.departments);
+            console.log(JSON.stringify(this.departments));
           } else {
             // this.loading = false;
             console.log(result.data.msg);
@@ -361,6 +390,23 @@ export default {
           console.log(e);
         });
     },
+      getDocLabelsTree() {
+          getRequest("/api/public/getDocLabelsTree")
+              .then(result => {
+                  if (result.data.code === 200) {
+                      this.docLabelsTree = result.data.data;
+                      console.log(this.docLabelsTree)
+                      // console.log("docLabelsTree"+this.docLabelsTree);
+                  } else {
+                      // this.loading = false;
+                      console.log(result.data.msg);
+                  }
+              })
+              .catch(e => {
+                  // this.loading = false;
+                  console.log(e);
+              });
+      },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -402,12 +448,14 @@ export default {
     // for (let i = 0; i < this.items.length; i++) {
     //   this.allCheckList.push(this.items[i].id);
     // }
-
-    this.getAllDocInfo();
-    this.getMyChildDepartments();
+      this.getDocLabelsTree();
+      this.getMyChildDepartments();
+      this.getDocsBySearchParam();
+      // this.getAllDocInfo();
   },
   data() {
     return {
+      departs:[],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
       inputVisible: false,
@@ -415,8 +463,9 @@ export default {
       selectYear: "",
       filterText: "",
       pageSize: 6,
-      currentPage: "1",
+      currentPage: 1,
       total: 0,
+      selectDepartmentId: -1,
       loading:false,
       tableData: [
         // {
@@ -440,86 +489,7 @@ export default {
         //   address: "上海市普陀区金沙江路 1518 弄"
         // }
       ],
-      data: [
-        {
-          id: 1,
-          label: "数据文件hadfasdasdasdasdhah",
-          children: [
-            {
-              id: 4,
-              label: "报表",
-              children: [
-                {
-                  id: 9,
-                  label: "财务报表"
-                },
-                {
-                  id: 10,
-                  label: "公司财政"
-                },
-                {
-                  id: 11,
-                  label: "人员流动表"
-                },
-                {
-                  id: 12,
-                  label: "图片"
-                }
-              ]
-            },
-            {
-              id: 14,
-              label: "合同",
-              children: [
-                {
-                  id: 15,
-                  label: "财务合同"
-                },
-                {
-                  id: 16,
-                  label: "商务合同"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 2,
-          label: "图片",
-          children: [
-            {
-              id: 5,
-              label: "Basic"
-            },
-            {
-              id: 6,
-              label: "Form"
-            },
-            {
-              id: 7,
-              label: "Data"
-            }
-          ]
-        },
-        {
-          id: 3,
-          label: "表格表单",
-          children: [
-            {
-              id: 7,
-              label: "Axure Components"
-            },
-            {
-              id: 8,
-              label: "Sketch Templates"
-            },
-            {
-              id: 15,
-              label: "组件交互文档"
-            }
-          ]
-        }
-      ],
+      docLabelsTree: [],
     
       fitterItems: [],
       checkList: [],
