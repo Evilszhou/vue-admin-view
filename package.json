@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
+    "el-cascader-multi": "^1.1.6",
     "element-ui": "^2.8.2",
     "jquery": "^3.4.0",
     "mavon-editor": "^2.6.17",

@@ -129,8 +129,6 @@ export default {
         .then(result => {
           if (result.data.code === 200) {
             this.tableData = result.data.data.list;
-            console.log(this.tableData);
-
             this.total = result.data.data.total;
           } else {
             alert("获取失败");
@@ -152,8 +150,11 @@ export default {
       })
         .then(result => {
           if (result.data.code === 200) {
+              this.$message({
+                  message: result.data.msg,
+                  type: 'success'
+              });
             this.tableData = result.data.data.list;
-            console.log(this.tableData);
             this.total = result.data.data.total;
           } else {
             console.log(result.data.msg);
