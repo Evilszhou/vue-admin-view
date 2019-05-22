@@ -137,195 +137,191 @@
 </template>
 
 <script>
-import {postJsonRequest,postRequest,getRequest} from '../../main.js';
-import { truncate } from 'fs';
+import { postJsonRequest, postRequest, getRequest } from "../../main.js";
+import { truncate } from "fs";
 export default {
-  inject:['reload'],
-  mounted(){
+  inject: ["reload"],
+  mounted() {
     this.getAllPermissions();
   },
-      methods: {
-      tableRowClassName({row, rowIndex}) {
-        if (rowIndex % 4 === 1) {
-          return 'warning-row';
-        } else if (rowIndex % 4 === 3) {
-          return 'success-row';
-        }
-        return '';
-      },
-       handleEdit(index, row) {
-        // console.log(index, row);
-        console.log(row);
-        this.dialogTableVisible1 = true;
-        this.updateuser.userId = row.userId;
-        this.updateuser.department = row.department;
-        this.updateuser.userName = row.userName;
-        this.updateuser.password = row.password;
-        this.updateuser.role = row.role;
-        this.updateuser.realname = "高富帅"
-        if(row.islocked == "未锁定"){
-          this.updateuser.islocked = false;
-        }else if(row.islocked == "已锁定"){
-          this.updateuser.islocked = true;
-        }
-      },
-      sendUpdateUser(){
-        postJsonRequest("api/public/updateUserMessage",this.updateuser).then((result) => {
+  methods: {
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex % 4 === 1) {
+        return "warning-row";
+      } else if (rowIndex % 4 === 3) {
+        return "success-row";
+      }
+      return "";
+    },
+    handleEdit(index, row) {
+      // console.log(index, row);
+      console.log(row);
+      this.dialogTableVisible1 = true;
+      this.updateuser.userId = row.userId;
+      this.updateuser.department = row.department;
+      this.updateuser.userName = row.userName;
+      this.updateuser.password = row.password;
+      this.updateuser.role = row.role;
+      this.updateuser.realname = "高富帅";
+      if (row.islocked == "未锁定") {
+        this.updateuser.islocked = false;
+      } else if (row.islocked == "已锁定") {
+        this.updateuser.islocked = true;
+      }
+    },
+    sendUpdateUser() {
+      postJsonRequest("api/public/updateUserMessage", this.updateuser)
+        .then(result => {
           console.log(result);
           this.reload();
-        }).catch((err) => {
-          
-        });
-        this.dialogTableVisible1 = false;
-      },
-      handleDelete(index, row) {
-        console.log(row);
-        console.log(row.userId)
-        postRequest("/api/public/deleteUser",{
-          userId:row.userId
-        }).then((result) => {
+        })
+        .catch(err => {});
+      this.dialogTableVisible1 = false;
+    },
+    handleDelete(index, row) {
+      console.log(row);
+      console.log(row.userId);
+      let _this = this;
+      postRequest("/api/public/deleteUser", {
+        userId: row.userId
+      })
+        .then(result => {
           console.log(result);
-          if(result.data.code == 200){
+          if (result.data.code == 200) {
             this.reload();
-          }else if(result.data.code == -1){
+            // _this.tableData = result.data.data
+          } else if (result.data.code == -1) {
             this.open6();
           }
-        }).catch((err) => {
-        });
-      },
-      createUser(){
-        postJsonRequest("/api/public/createUser",this.user).then((result) => {
-          console.log(result)
-          if(result.data.code == 200){
+        })
+        .catch(err => {});
+    },
+    createUser() {
+      postJsonRequest("/api/public/createUser", this.user)
+        .then(result => {
+          console.log(result);
+          if (result.data.code == 200) {
             this.open3();
             this.dialogTableVisible = false;
             this.reload();
-          }else if(result.data.code == -1){
+          } else if (result.data.code == -1) {
             this.open6();
           }
-        }).catch((err) => {
-        });
-      },
-      choosePermission(){
-
-        console.log(this.user.role);
-      },
-        handleCurrentChange(val) {
-                this.cur_page = val;
-                this.getData();
-            },
-            changeLock(){
-              console.log(this.value4);
-
-            },
-            getAllUserGroup(){
-              
-
-            },
-            getData(){
-              console.log("hhhh");
-              let that = this;
-              postRequest("/api/public/getAllUsers",{
-                page:this.cur_page
-              }).then((result) => {
-                console.log(result);
-                if(result.data.code === 200){
-                  that.tableData = result.data.data.list
-                  that.total = result.data.data.total
-                  this.loading = false;
-                }else if(result.data.code == -1){
-                  
-
-                }
-                // console.log("total:"+this.total)
-              }).catch((err) => {
-                console.log(err);
-                
-              });
-            },
-            getAllPermissions(){
-              let _this = this;
-              let roles = [];
-              postJsonRequest("/api/getAllUserGroup").then((result) => {
-                  console.log(result);
-                  for(let i = 0;i < result.data.data.length;i++){
-                    roles.push(result.data.data[i]);
-                  }
-                  _this.roles = roles;
-              }).catch((err) => {
-                
-              });
-            },
-            open6() {
-                this.$notify.error({
-                title: '错误',
-                message: '无权限进行此操作'
-                });
-            },
-              open7() {
-                this.$notify.error({
-                title: '错误',
-                message: '用户已锁定'
-                });
-            },
-             open3() {
-        this.$notify({
-          title: '成功',
-          message: '这是一条成功的提示消息',
-          type: 'success'
-        });
-      }
+        })
+        .catch(err => {});
     },
-    created(){
+    choosePermission() {
+      console.log(this.user.role);
+    },
+    handleCurrentChange(val) {
+      this.cur_page = val;
       this.getData();
     },
-    data() {
-      return {
-        value4: '100',
-        roles:[],
-        radio:1,
-        dialogTableVisible:false,
-        dialogTableVisible1:false,
-        loading:true,
-        input: '',
-        cur_page:1,
-        total:1,
-        formLabelWidth: '120px',
-        tableData: [
-        ],
-        user: {
-         userName:"",
-         password:"",
-         realname:"",
-         department:"",
-         role:""
-        },
-        updateuser:{
-          userId:"",
-          userName:"",
-          password:"",
-          realname:"",
-          department:"",
-          role:"",
-          islocked:""
-        }
-      }
+    changeLock() {
+      console.log(this.value4);
+    },
+    getAllUserGroup() {},
+    getData() {
+      console.log("hhhh");
+      let that = this;
+      postRequest("/api/public/getAllUsers", {
+        page: this.cur_page
+      })
+        .then(result => {
+          console.log(result);
+          if (result.data.code === 200) {
+            that.tableData = result.data.data.list;
+            that.total = result.data.data.total;
+            this.loading = false;
+          } else if (result.data.code == -1) {
+          }
+          // console.log("total:"+this.total)
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    getAllPermissions() {
+      let _this = this;
+      let roles = [];
+      postJsonRequest("/api/getAllUserGroup")
+        .then(result => {
+          console.log(result);
+          for (let i = 0; i < result.data.data.length; i++) {
+            roles.push(result.data.data[i]);
+          }
+          _this.roles = roles;
+        })
+        .catch(err => {});
+    },
+    open6() {
+      this.$notify.error({
+        title: "错误",
+        message: "无权限进行此操作"
+      });
+    },
+    open7() {
+      this.$notify.error({
+        title: "错误",
+        message: "用户已锁定"
+      });
+    },
+    open3() {
+      this.$notify({
+        title: "成功",
+        message: "这是一条成功的提示消息",
+        type: "success"
+      });
     }
-}
+  },
+  created() {
+    this.getData();
+  },
+  data() {
+    return {
+      value4: "100",
+      roles: [],
+      radio: 1,
+      dialogTableVisible: false,
+      dialogTableVisible1: false,
+      loading: true,
+      input: "",
+      cur_page: 1,
+      total: 1,
+      formLabelWidth: "120px",
+      tableData: [],
+      user: {
+        userName: "",
+        password: "",
+        realname: "",
+        department: "",
+        role: ""
+      },
+      updateuser: {
+        userId: "",
+        userName: "",
+        password: "",
+        realname: "",
+        department: "",
+        role: "",
+        islocked: ""
+      }
+    };
+  }
+};
 </script>
 
 <style>
-
-.username{
-    width: 200px !important;
+.username {
+  width: 200px !important;
 }
- .el-table .warning-row {
-    background: oldlace !important;
-  }
+.el-table .warning-row {
+  background: oldlace !important;
+}
 
-  .el-table .success-row {
-    background: #f0f9eb !important;
-  }
+.el-table .success-row {
+  background: #f0f9eb !important;
+}
 </style>
 
 

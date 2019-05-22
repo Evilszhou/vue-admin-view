@@ -1,131 +1,113 @@
 <template>
+   
     <div class="container">
-        <el-button @click="download">下载</el-button>
+     <el-tree
+  :data="data"
+  show-checkbox
+  node-key="id"
+  :default-expanded-keys="[2, 3]"
+  :default-checked-keys="[5]"
+  :props="defaultProps">
+</el-tree>
+
+
+ <el-input placeholder="请输入内容" v-model="input5" class="input-with-select">
+    <el-select v-model="select" slot="prepend" placeholder="请选择">
+      <el-option label="餐厅名" value="1"></el-option>
+      <el-option label="订单号" value="2"></el-option>
+      <el-option label="用户电话" value="3"></el-option>
+    </el-select>
+    <el-button slot="append" icon="el-icon-search"></el-button>
+  </el-input>
 
     </div>
-    <!-- <div class="container">
-       <el-cascader
-        :options="options"
-        change-on-select
-        ></el-cascader>
-        <el-checkbox-group v-model="checkList" v-for="item in labels" :key="item"  >
-            <el-checkbox :label=item.label></el-checkbox>
-        </el-checkbox-group>
-    </div> -->
 </template>
 <script>
-  import {postJsonRequest,postRequest,getRequest,downloadFile} from '../../main.js';
-  export default {
-    data() {
-      return {
-        val:"",
-        checkList: ['选中且禁用','复选框 A'],
-        labels:[{label:"复选框"},{label:"复选框2"}],
-        options: [{
-            label:"dasas",
-         id: 14,
-name: "办公室",
-parent_id: 1,
-instroduction: "负责组织起草市政府的文件、工作报告和领导讲话，以及市政府领导交办的其它文字综合材料",
-sort: 0,
-children: null
-        }, {
-          label: '浙江',
-          cities: []
-        }],
-        props: {
-          value: 'label',
-          children: 'cities'
+import {
+  postJsonRequest,
+  postRequest,
+  getRequest,
+  downloadFile
+} from "../../main.js";
+export default {
+  data() {
+    return {
+        tags:["标签一"],
+        data: [
+        {
+            "superId": 0,
+            "children": [
+                {
+                    "superId": 19,
+                    "children": null,
+                    "list": null,
+                    "id": 22,
+                    "label": "表情包"
+                },
+                {
+                    "superId": 19,
+                    "children": [
+                        {
+                            "superId": 26,
+                            "children": null,
+                            "list": null,
+                            "id": 27,
+                            "label": "ppt素材"
+                        }
+                    ],
+                    "list": null,
+                    "id": 26,
+                    "label": "透明素材"
+                }
+            ],
+            "list": null,
+            "id": 19,
+            "label": "图片"
+        },
+        {
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 20,
+            "label": "背景图"
+        },
+        {
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 21,
+            "label": "风景图"
         }
-      };
-    },
-    mounted(){
-        this.getTopDepartment();
-     
-    },
-    methods: {
-      getTopDepartment(){
-          let _this = this;
-          getRequest("/api/admin/getAllDepartments").then((result) => {
-            //   console.log(result);
-              console.log(result.data.data);
-            //   _this.options = result.data.data
-              
-          }).catch((err) => {
-              
-          });
-      },
-      download(){
-          let _this = this;
-          downloadFile("/api/downLoadFile")
-      },
-      getVal(val){
-          console.log(val);
-      },
-      handleItemChange(val) {
-        console.log(this.val);
-        console.log('active item:', val);
-        console.log(val[0])
-        setTimeout(_ => {
-          if (val.indexOf('江苏') > -1 && !this.options[0].cities.length) {
-            this.options[0].cities = [{
-              label: '南京',
-              cities:[{
-                  label:'南京区'
-              }]
-            }];
-          } else if (val.indexOf('浙江') > -1 && !this.options[1].cities.length) {
-            this.options[1].cities = [{
-              label: '杭州'
-            }];
-          }
-        }, 300);
-      },
-      serverArray(arr,lastLaboratory_id){
-            var newArr = []
-            for(var item = 0;item < arr.length;item++){
-                if(arr[item]['parent_id']==lastLaboratory_id){
-                    newArr.push(arr[item].children)
-                    if(arr[item].children&&arr[item].children.length > 0){
-                        newArr.push(this.serverArrayChild(arr[item].children)) //把所有子集筛选出来
-                    }
-                }else if(arr[item].children){
-                        newArr.push(this.serverArray(arr[item].children,lastLaboratory_id)) //没有子集重新递归查找下一级
-                    }
-            }
-            return newArr
-        },
-        serverArrayChild(arr) {
-            var newArr = []
-            for(var item = 0;item < arr.length;item++){
-                newArr.push(arr[item]['parent_id'])
-                if(arr[item].children&&arr[item].children.length > 0){
-                    newArr.push(this.serverArrayChild(arr[item].children)) //用递归把所有子集筛选出来
-                }
-            }
-            return newArr
-        },
-        selectVal(val){
-            console.log(val);
-             setTimeout(_ => {
-                if (val.indexOf('江苏') > -1 && !this.options[0].cities.length) {
-                    this.options[0].cities = [{
-                    label: '南京'
-                    }];
-                } else if (val.indexOf('浙江') > -1 && !this.options[1].cities.length) {
-                    this.options[1].cities = [{
-                    label: '杭州'
-                    }];
-                }
-                }, 300);
+    ],
 
-        }
-    }
-  };
+          
+        value: [],
+          selectedOptions2: [],
+      val: "",
+      checkList: ["选中且禁用", "复选框 A"],
+      labels: [{ label: "复选框" }, { label: "复选框2" }],
+     
+      props: {
+        value: "label",
+        children: "cities"
+      }
+    };
+  },
+  mounted() {
+    // this.getTopDepartment();
+  },
+  methods: {
+        handleChange(value) {
+        console.log(value);
+      }
+  }
+};
 </script>
 
 <style scoped>
-
+.tag{
+    width: 100px !important;
+}
 </style>
 
 

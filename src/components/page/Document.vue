@@ -223,6 +223,7 @@ import { isNull } from "util";
 
 export default {
   methods: {
+   
     download() {
       console.log(this.checkfileList);
       postRequest("/api/downLoadFile", {
@@ -405,6 +406,7 @@ export default {
 
     this.getAllDocInfo();
     this.getMyChildDepartments();
+    
   },
   data() {
     return {

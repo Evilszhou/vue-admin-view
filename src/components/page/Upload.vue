@@ -9,7 +9,7 @@
     </div>
     <div class="container">
       <div class="plugins-tips">将文件拖拽到此处</div>
-      <el-upload class="upload-demo"  ref="upload" :data="form" 
+      <el-upload class="upload-demo"  ref="upload" :data="table" 
       :headers="config"
       :file-list="fileList" drag action="/api/uploadFile" name="file" 
       :before-upload="beforeUpload" :on-success="success" :auto-upload="false"
@@ -34,20 +34,36 @@
         <el-option label="区域二" value="beijing"></el-option>
       </el-select>
     </el-form-item> -->
-    <el-form-item label="类别" :label-width="formLabelWidth">
-      <el-select v-model="form.type" placeholder="请选择类别">
-        <el-option label="区域一" value="shanghai"></el-option>
-        <el-option label="区域二" value="beijing"></el-option>
-      </el-select>
+    <el-form-item label="类别:" :label-width="formLabelWidth">
+       <!-- <el-select
+    v-model="value"
+    multiple
+    filterable
+    allow-create
+    focus="popWindows"
+    default-first-option
+    placeholder="请选择文章标签">
+    <el-option
+      v-for="item in options"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value">
+    </el-option>
+  </el-select> -->
+     <el-input readonly="true" style="width:300px" placeholder="请选择文件类型" v-model="value">
+        
+        
+      </el-input>
+      <el-button type="primary" style="margin-left:320px;margin-top:-32px;display: flex" @click="chooseType">选择类别</el-button>
     </el-form-item>
-    <el-form-item label="序号" :label-width="formLabelWidth">
+    <el-form-item label="序号:" :label-width="formLabelWidth">
       <el-input v-model="form.number" placeholder="请输入内容"></el-input>
     </el-form-item>
-    <el-form-item label="日期" :label-width="formLabelWidth">
+    <el-form-item label="日期:" :label-width="formLabelWidth">
       <el-date-picker
       v-model="form.date"
       type="date"
-      placeholder="选择日期">
+      placeholder="选择日期:">
     </el-date-picker>
 
 
@@ -62,11 +78,13 @@
           <el-tag
             :key="tag"
             v-for="tag in form.tags"
-            closable
+            @click="chooseTag(tag)"
+            :type="tag.type"
             :disable-transitions="true"
             @close="handleClose(tag)"
-          >{{tag}}</el-tag>
+          >{{tag.tagName}}</el-tag>
           <el-input
+            placeholder="请选择文件分类"
             class="input-new-tag"
             v-if="inputVisible"
             v-model="inputValue"
@@ -111,39 +129,121 @@
           <el-button type="primary" @click="uploadAnneix">确 定</el-button>
         </span>
       </el-dialog>
+
+
+      <el-dialog
+  title="选择文本分类"
+  :visible.sync="dialogVisible3"
+  width="30%"
+  :before-close="handleClose">
+  <el-tree
+  ref="tree"
+  :data="data"
+  show-checkbox
+  node-key="id"
+  default-expand-all
+  :default-checked-keys="[5]"
+  :props="defaultProps">
+</el-tree>
+  <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible3 = false">取 消</el-button>
+    <el-button type="primary" @click="confimType">确 定</el-button>
+  </span>
+</el-dialog>
+
   </div>
 </template>
 
 <script>
+import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import VueCropper from "vue-cropperjs";
-import { fail } from 'assert';
-import { setTimeout } from 'timers';
+import { fail } from "assert";
+import { setTimeout } from "timers";
+import moment from 'moment';
 export default {
   name: "upload",
+  inject: ["reload"],
   data: function() {
     return {
-      dialogVisible:false,
-      config:{
-        token:localStorage.getItem("token")
-      },
-      annix:{
-        file:localStorage.getItem("file")
-      },
-      args:{
-        filename:""
-
-      },
-        form: {
-          department:"",
-          region:"",
-          type:"",
-          date:"",
-          number:"",
-          tags:['表歉意','dada']
+      data: [
+        {
+            "superId": 0,
+            "children": [
+                {
+                    "superId": 19,
+                    "children": null,
+                    "list": null,
+                    "id": 22,
+                    "label": "表情包"
+                },
+                {
+                    "superId": 19,
+                    "children": [
+                        {
+                            "superId": 26,
+                            "children": null,
+                            "list": null,
+                            "id": 27,
+                            "label": "ppt素材"
+                        }
+                    ],
+                    "list": null,
+                    "id": 26,
+                    "label": "透明素材"
+                }
+            ],
+            "list": null,
+            "id": 19,
+            "label": "图片"
         },
-        formLabelWidth: '120px',
+        {
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 20,
+            "label": "背景图"
+        },
+        {
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 21,
+            "label": "风景图"
+        }
+    ],
+      dialogVisible3:false,
+      value: [],
+      table: {
+        department: "",
+        region: "",
+        type: "",
+        date: "",
+        number: "",
+        tags: []
+      },
+      danger: "normal",
+      dialogVisible: false,
+      config: {
+        token: localStorage.getItem("token")
+      },
+      annix: {
+        file: localStorage.getItem("file")
+      },
+      args: {
+        filename: ""
+      },
+      form: {
+        department: "",
+        region: "",
+        type: "",
+        date: "",
+        number: "",
+        tags: []
+      },
+      chooseTags: [],
+      formLabelWidth: "120px",
       defaultSrc: require("../../assets/img/img.jpg"),
-      fileList:[],
+      fileList: [],
       imgSrc: "",
       cropImg: "",
       dialogVisible: false,
@@ -152,62 +252,95 @@ export default {
       inputValue: ""
     };
   },
-  mounted(){
-    console.log(this.tags)
-    console.log(JSON.stringify(this.dynamicTags))
+  mounted() {
+    console.log(this.tags);
+    console.log(JSON.stringify(this.dynamicTags));
+    this.getAllTags();
   },
-  computed:{
-    getTags(){
-      let tags = this.dynamicTags;
-      let result = "";
-      for(let i = 0;i < tags.length;i++){
-
-      }
-      return resul+"=da";
-    }
-  },
+  computed: {},
   components: {
     VueCropper
   },
   methods: {
-    beforeUpload(){
-      console.log(this.fileList);
+    confimType(){
+      this.value = [];
+      let aKey = this.$refs.tree.getCheckedNodes();
+      console.log(aKey)
+      for(let i = 0;i < aKey.length;i++){
+        this.value.push(aKey[i].label);
+      }
+      this.dialogVisible3 = false;
+    },
+    chooseType(){
+      this.dialogVisible3 = true;
 
     },
-     open3(msg) {
-        this.$notify({
-          title: '成功',
-          message:msg,
-          type: 'success'
-        });
-      },
-    success(res){
-      console.log(this.form.tags)
-      if(res.code == 200){
-       this.open3(res.msg); 
-       localStorage.setItem("file",res.data);
-       console.log(localStorage.getItem("file"))
-       this.$confirm('要继续上传附件吗?',"提示",{
-         confirmButtonText:'确定',
-         cancelButtonText:"取消"
-       }).then((result) => {
-         if(result == "confirm"){
-           let _this = this;
-           setTimeout(function(){
-             _this.dialogVisible = true;
-           },500)
-         }
-         
-       }).catch((err) => {
-         
-       });
-       
-      }else{
-
+    popWindows(){
+      this.dialogVisible = true;
+    },
+    chooseTag(item) {
+      console.log(item);
+      if (item.type === "normal") {
+        item.type = "danger";
+      } else {
+        item.type = "normal";
       }
     },
-    overNumber(){
-      this.$message.error('上传失败!!!');
+    getAllTags() {
+      let _this = this;
+      postJsonRequest("/api/public/getAllTags")
+        .then(result => {
+          console.log(result);
+          for (let i = 0; i < result.data.data.length; i++) {
+            if (result.data.data[i].isuse == 1) {
+              let obj = {
+                type: "normal",
+                isuse: result.data.data[i].isuse,
+                tagName: result.data.data[i].tagName,
+                tagId: result.data.data[i].tagId
+              };
+              _this.form.tags.push(obj);
+            }
+          }
+        })
+        .catch(err => {});
+    },
+    beforeUpload() {
+      console.log(this.fileList);
+    },
+    open3(msg) {
+      this.$notify({
+        title: "成功",
+        message: msg,
+        type: "success"
+      });
+    },
+    success(res) {
+      console.log(this.form.tags);
+      if (res.code == 200) {
+        this.open3(res.msg);
+        localStorage.setItem("file", res.data);
+        console.log(localStorage.getItem("file"));
+        this.$confirm("要继续上传附件吗?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消"
+        })
+          .then(result => {
+            if (result == "confirm") {
+              let _this = this;
+              setTimeout(function() {
+                _this.dialogVisible = true;
+              }, 500);
+              //  _this.reload();
+            }
+          })
+          .catch(err => {});
+      } else {
+      }
+      //
+    },
+    overNumber() {
+      this.$message.error("上传失败!!!");
     },
     setImage(e) {
       //   const file = e.target.files[0];
@@ -225,10 +358,36 @@ export default {
     cropImage() {
       //   this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
     },
-    submit(){
-      this.$refs.upload.submit();
-      console.log(this.fileList);
+    submit() {
+      this.chooseTags = [];
+      let tags = this.form.tags;
+      let _this = this;
+      for (let i = 0; i < tags.length; i++) {
+        if (tags[i].type == "danger") {
+          _this.chooseTags.push(tags[i]);
+        }
+      }
+      console.log(_this.chooseTags);
+      console.log(_this.chooseTags.length);
+      let names = [];
+      let values = [];
+      for (let i = 0; i < _this.chooseTags.length; i++) {
+        names.push(_this.chooseTags[i].tagName);
+      }
 
+      for(let i = 0;i < _this.value.length;i++){
+        values.push(_this.value[i]);
+      }
+      console.log("form:" + this.form.tags);
+      let date = moment(this.form.date).format("YYYY-MM-DD HH:mm:ss")
+      this.table.department = this.form.department;
+      this.table.region = this.form.region;
+      this.table.type = this.value;
+      this.table.date = date;
+      this.table.number = this.form.number;
+      this.table.tags = names;
+      console.log(this.table);
+      this.$refs.upload.submit();
     },
     cancelCrop() {
       this.dialogVisible = false;
@@ -246,15 +405,14 @@ export default {
     handleClose(tag) {
       this.form.tags.splice(this.form.tags.indexOf(tag), 1);
     },
-    uploadAnneix(){
+    uploadAnneix() {
       this.args.filename = localStorage.getItem("file");
       this.$refs.uploadannex.submit();
     },
-    uploadAnneixSuccess(){
-
+    uploadAnneixSuccess() {
       console.log("dasdasda");
       this.dialogVisible = false;
-
+      this.reload();
     },
     showInput() {
       this.inputVisible = true;
@@ -265,8 +423,12 @@ export default {
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
+      let obj = {
+        tagName: this.inputValue,
+        type: "danger"
+      };
       if (inputValue) {
-        this.form.tags.push(inputValue);
+        this.form.tags.push(obj);
       }
       this.inputVisible = false;
       this.inputValue = "";
