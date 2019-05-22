@@ -134,7 +134,8 @@ export default {
       getallUserGroup(){
         let _this = this;
         postJsonRequest("/api/getAllUserGroup").then((result) => {
-          console.log(result.data.data);          
+          console.log(result.data.data);
+
           
           _this.tableData = result.data.data;
         }).catch((err) => {
@@ -160,7 +161,7 @@ export default {
           if(i == permissions.length - 1 ){
             name = name + permissions[i];
           }else{
-            name = name + permissions[i]+";"
+            name = name + permissions[i]+","
           }
         }
         console.log(name);
@@ -174,10 +175,10 @@ export default {
         let name = "";
         
         for(let i = 0 ;i < this.form.groupPermission.length;i++){
-          if(i == this.form.groupPermission - 1 ){
+          if(i == this.form.groupPermission.length - 1 ){
             name = name + this.form.groupPermission[i];
           }else{
-            name = name + this.form.groupPermission[i]+";"
+            name = name + this.form.groupPermission[i]+","
           }
         }
         let userGroup = {
