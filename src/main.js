@@ -5,6 +5,8 @@ import axios from 'axios';
 import ElementUI from 'element-ui';
 import VueI18n from 'vue-i18n';
 import { messages } from './components/common/i18n';
+import elCascaderMulti from "el-cascader-multi";
+
 import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 // import '../static/css/theme-green/index.css';       // 浅绿色主题
 import './assets/css/icon.css';
@@ -15,6 +17,7 @@ import "./assets/font/iconfont.js";
 
 Vue.config.productionTip = false
 Vue.use(VueI18n);
+Vue.use(elCascaderMulti);
 Vue.use(ElementUI, {
     size: 'small'
 });
