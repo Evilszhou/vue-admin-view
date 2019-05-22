@@ -39,7 +39,7 @@
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
            <el-cascader
-            placeholder="试试搜索：工学院"
+            placeholder="选择部门"
             :options="options"
             filterable
             change-on-select
@@ -142,14 +142,14 @@ export default {
         }
       },
       department: {
-        departmentName: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
+        // departmentName: "",
+        // region: "",
+        // date1: "",
+        // date2: "",
+        // delivery: false,
+        // type: [],
+        // resource: "",
+        // desc: ""
       }
     };
   },

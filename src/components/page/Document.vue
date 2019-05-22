@@ -83,14 +83,22 @@
                   <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
                       <el-form-item label="附件:">
-                        <span v-for="item in props.row.annexes" :key="item.annexId">{{ item.annexName }}<el-button type="primary" size="mini" style="margin-right:25px;margin-left:25px">下载</el-button></span>
+                        <span v-for="item in props.row.annexes" :key="item.annexId">
+                          {{ item.annexName }}
+                          <el-button
+                            type="primary"
+                            size="mini"
+                            style="margin-right:25px;margin-left:25px"
+                            @click="downLoadAnnex(item.annexId)"
+                          >下载</el-button>
+                        </span>
                       </el-form-item>
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column prop="docName" label="文件名" width="180"></el-table-column>
+                <el-table-column prop="docName" label="文件名"></el-table-column>
                 <el-table-column prop="docNumber" label="文件标号"></el-table-column>
-                <el-table-column prop="docType" label="文件类型"></el-table-column>
+                <!--<el-table-column prop="docType" label="文件类型"></el-table-column>-->
                 <el-table-column prop="departmentName" label="所属部门"></el-table-column>
                 <el-table-column
                   prop="docPostTime"
@@ -98,9 +106,18 @@
                   :formatter="dateTimeFormat"
                   label="发文日期"
                 ></el-table-column>
-                <el-table-column>
+                <el-table-column label="操作" width="230">
                   <template slot-scope="scope">
-                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button
+                      size="mini"
+                      type="success"
+                      @click="handleDelete(scope.$index, scope.row)"
+                    >下载</el-button>
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      @click="handleEdit(scope.$index, scope.row)"
+                    >编辑</el-button>
                     <el-button
                       size="mini"
                       type="danger"
@@ -237,11 +254,12 @@ export default {
         })
         .catch(err => {});
     },
-      selectDepartment(data){
-        if(data != null && data.length>0) {
-            this.selectDepartmentId = data[data.length];
-        }
-      },
+    selectDepartment(data) {
+      if (data != null && data.length > 0) {
+        this.selectDepartmentId = data[data.length - 1];
+        console.log(this.selectDepartmentId);
+      }
+    },
     toUploadPage() {
       this.$router.push({ path: "Upload" });
     },
@@ -255,6 +273,9 @@ export default {
     handleCheckAllChange(val) {
       this.checkList = val ? this.allCheckList : [];
       this.isIndeterminate = false;
+    },
+    downLoadAnnex(id) {
+      console.log(id);
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
@@ -315,41 +336,39 @@ export default {
       }
       return moment(date).format("YYYY-MM-DD");
     },
-    search(){
+    search() {
       this.handleCurrentChange(1);
     },
     getDocsBySearchParam() {
-     
-        this.loading = true;
-        
-        postJsonRequest("/api/public/getDocsBySearchParam", {
-            pageInfo:{pageSize:this.pageSize,currentPage:this.currentPage},
-            docLabels:this.$refs.tree.getCheckedNodes(),
-            tags:[],
-            departmentId:this.selectDepartmentId,
-            docName:this.docSearchName,
-            selectYear:moment(this.selectYear).format("YYYY")
+      this.loading = true;
+
+      postJsonRequest("/api/public/getDocsBySearchParam", {
+        pageInfo: { pageSize: this.pageSize, currentPage: this.currentPage },
+        docLabels: this.$refs.tree.getCheckedNodes(),
+        tags: [],
+        departmentId: this.selectDepartmentId,
+        docName: this.docSearchName,
+        selectYear: moment(this.selectYear).format("YYYY")
+      })
+        .then(result => {
+          if (result.data.code === 200) {
+            this.tableData = result.data.data.list;
+            console.log(result.data.data);
+
+            // console.log(this.tableData);
+            this.total = result.data.data.total;
+            this.loading = false;
+          } else {
+            this.loading = false;
+            console.log(result.data.msg);
+          }
         })
-            .then(result => {
-                if (result.data.code === 200) {
-                    this.tableData = result.data.data.list;
-                    console.log(result.data.data);
-                   
-                    
-                    // console.log(this.tableData);
-                    this.total = result.data.data.total;
-                    this.loading = false;
-                } else {
-                    this.loading = false;
-                    console.log(result.data.msg);
-                }
-            })
-            .catch(e => {
-                this.loading = false;
-                console.log(e);
-            });
-            
-            console.log(this.currentPage+"currentPage")
+        .catch(e => {
+          this.loading = false;
+          console.log(e);
+        });
+
+      console.log(this.currentPage + "currentPage");
     },
     getAllDocInfo() {
       this.loading = true;
@@ -374,7 +393,7 @@ export default {
           console.log(e);
         });
     },
-     getMyChildDepartments() {
+    getMyChildDepartments() {
       getRequest("/api/admin/getMyChildDepartments")
         .then(result => {
           if (result.data.code === 200) {
@@ -390,23 +409,23 @@ export default {
           console.log(e);
         });
     },
-      getDocLabelsTree() {
-          getRequest("/api/public/getDocLabelsTree")
-              .then(result => {
-                  if (result.data.code === 200) {
-                      this.docLabelsTree = result.data.data;
-                      console.log(this.docLabelsTree)
-                      // console.log("docLabelsTree"+this.docLabelsTree);
-                  } else {
-                      // this.loading = false;
-                      console.log(result.data.msg);
-                  }
-              })
-              .catch(e => {
-                  // this.loading = false;
-                  console.log(e);
-              });
-      },
+    getDocLabelsTree() {
+      getRequest("/api/public/getDocLabelsTree")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.docLabelsTree = result.data.data;
+            console.log(this.docLabelsTree);
+            // console.log("docLabelsTree"+this.docLabelsTree);
+          } else {
+            // this.loading = false;
+            console.log(result.data.msg);
+          }
+        })
+        .catch(e => {
+          // this.loading = false;
+          console.log(e);
+        });
+    },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -448,25 +467,25 @@ export default {
     // for (let i = 0; i < this.items.length; i++) {
     //   this.allCheckList.push(this.items[i].id);
     // }
-      this.getDocLabelsTree();
-      this.getMyChildDepartments();
-      this.getDocsBySearchParam();
-      // this.getAllDocInfo();
+    this.getDocLabelsTree();
+    this.getMyChildDepartments();
+    this.getDocsBySearchParam();
+    // this.getAllDocInfo();
   },
   data() {
     return {
-      departs:[],
+      departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
       inputVisible: false,
       inputValue: "",
       selectYear: "",
       filterText: "",
-      pageSize: 6,
+      pageSize: 7,
       currentPage: 1,
       total: 0,
       selectDepartmentId: -1,
-      loading:false,
+      loading: false,
       tableData: [
         // {
         //   docName: "高凸嫖历险记",
@@ -490,7 +509,7 @@ export default {
         // }
       ],
       docLabelsTree: [],
-    
+
       fitterItems: [],
       checkList: [],
       allCheckList: [],
@@ -507,275 +526,7 @@ export default {
       time: [],
       docSearchName: "",
       defaultOpeneds: ["1"],
-      docLabels: [
-        {
-          value: "shujuwenjian",
-          label: "数据文件",
-          children: [
-            {
-              value: "shejiyuanze",
-              label: "报表",
-              children: [
-                {
-                  value: "yizhi",
-                  label: "财务报表"
-                },
-                {
-                  value: "fankui",
-                  label: "公司财政"
-                },
-                {
-                  value: "xiaolv",
-                  label: "人员流动表"
-                },
-                {
-                  value: "kekong",
-                  label: "进货表"
-                }
-              ]
-            },
-            {
-              value: "daohang",
-              label: "合同",
-              children: [
-                {
-                  value: "cexiangdaohang",
-                  label: "财务合同"
-                },
-                {
-                  value: "dingbudaohang",
-                  label: "商务合同"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          value: "tupian",
-          label: "图片",
-          children: [
-            {
-              value: "basic",
-              label: "Basic",
-              children: [
-                {
-                  value: "layout",
-                  label: "Layout 布局"
-                },
-                {
-                  value: "color",
-                  label: "Color 色彩"
-                },
-                {
-                  value: "typography",
-                  label: "Typography 字体"
-                },
-                {
-                  value: "icon",
-                  label: "Icon 图标"
-                },
-                {
-                  value: "button",
-                  label: "Button 按钮"
-                }
-              ]
-            },
-            {
-              value: "form",
-              label: "Form",
-              children: [
-                {
-                  value: "radio",
-                  label: "Radio 单选框"
-                },
-                {
-                  value: "checkbox",
-                  label: "Checkbox 多选框"
-                },
-                {
-                  value: "input",
-                  label: "Input 输入框"
-                },
-                {
-                  value: "input-number",
-                  label: "InputNumber 计数器"
-                },
-                {
-                  value: "select",
-                  label: "Select 选择器"
-                },
-                {
-                  value: "cascader",
-                  label: "Cascader 级联选择器"
-                },
-                {
-                  value: "switch",
-                  label: "Switch 开关"
-                },
-                {
-                  value: "slider",
-                  label: "Slider 滑块"
-                },
-                {
-                  value: "time-picker",
-                  label: "TimePicker 时间选择器"
-                },
-                {
-                  value: "date-picker",
-                  label: "DatePicker 日期选择器"
-                },
-                {
-                  value: "datetime-picker",
-                  label: "DateTimePicker 日期时间选择器"
-                },
-                {
-                  value: "upload",
-                  label: "Upload 上传"
-                },
-                {
-                  value: "rate",
-                  label: "Rate 评分"
-                },
-                {
-                  value: "form",
-                  label: "Form 表单"
-                }
-              ]
-            },
-            {
-              value: "data",
-              label: "Data",
-              children: [
-                {
-                  value: "table",
-                  label: "Table 表格"
-                },
-                {
-                  value: "tag",
-                  label: "Tag 标签"
-                },
-                {
-                  value: "progress",
-                  label: "Progress 进度条"
-                },
-                {
-                  value: "tree",
-                  label: "Tree 树形控件"
-                },
-                {
-                  value: "pagination",
-                  label: "Pagination 分页"
-                },
-                {
-                  value: "badge",
-                  label: "Badge 标记"
-                }
-              ]
-            },
-            {
-              value: "notice",
-              label: "Notice",
-              children: [
-                {
-                  value: "alert",
-                  label: "Alert 警告"
-                },
-                {
-                  value: "loading",
-                  label: "Loading 加载"
-                },
-                {
-                  value: "message",
-                  label: "Message 消息提示"
-                },
-                {
-                  value: "message-box",
-                  label: "MessageBox 弹框"
-                },
-                {
-                  value: "notification",
-                  label: "Notification 通知"
-                }
-              ]
-            },
-            {
-              value: "navigation",
-              label: "Navigation",
-              children: [
-                {
-                  value: "menu",
-                  label: "NavMenu 导航菜单"
-                },
-                {
-                  value: "tabs",
-                  label: "Tabs 标签页"
-                },
-                {
-                  value: "breadcrumb",
-                  label: "Breadcrumb 面包屑"
-                },
-                {
-                  value: "dropdown",
-                  label: "Dropdown 下拉菜单"
-                },
-                {
-                  value: "steps",
-                  label: "Steps 步骤条"
-                }
-              ]
-            },
-            {
-              value: "others",
-              label: "Others",
-              children: [
-                {
-                  value: "dialog",
-                  label: "Dialog 对话框"
-                },
-                {
-                  value: "tooltip",
-                  label: "Tooltip 文字提示"
-                },
-                {
-                  value: "popover",
-                  label: "Popover 弹出框"
-                },
-                {
-                  value: "card",
-                  label: "Card 卡片"
-                },
-                {
-                  value: "carousel",
-                  label: "Carousel 走马灯"
-                },
-                {
-                  value: "collapse",
-                  label: "Collapse 折叠面板"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          value: "biaogebiaodan",
-          label: "表格表单",
-          children: [
-            {
-              value: "axure",
-              label: "Axure Components"
-            },
-            {
-              value: "sketch",
-              label: "Sketch Templates"
-            },
-            {
-              value: "jiaohu",
-              label: "组件交互文档"
-            }
-          ]
-        }
-      ],
-
+      docLabels: [],
       departments: []
     };
   }
