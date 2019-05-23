@@ -1,139 +1,138 @@
 <template>
-   <div class="table">
-        <div class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-cascades"></i> 用户管理</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
+  <div class="table">
+    <div class="crumbs">
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item>
+          <i class="el-icon-lx-cascades"></i> 用户管理
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
 
-        <div class="container">
-            <el-input v-model="input" placeholder="用户名" class="username"></el-input>
-            <el-button type="danger" style="margin-left:10px" @click="dialogTableVisible = true">新增</el-button>
-            <el-button type="primary">查询</el-button>
-            <el-table
-               v-loading="loading"
-    element-loading-text="拼命加载中"
-    element-loading-spinner="el-icon-loading"
-                :data="tableData"
-                style="width: 100%;margin-top:10px"
-                :row-class-name="tableRowClassName">
-                <el-table-column
-                prop="userId"
-                label="序号"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="userName"
-                label="用户名"
-                width="180">
-                </el-table-column>
-                <el-table-column
-                prop="realname"
-                label="真实姓名">
-                </el-table-column>
-                <el-table-column
-                prop="department"
-                label="所属部门">
+    <div class="container">
+      <el-input v-model="input" placeholder="用户名" class="username"></el-input>
+      <el-button type="danger" style="margin-left:10px" @click="dialogTableVisible = true">新增</el-button>
+      <el-button type="primary">查询</el-button>
+      <el-table
+        v-loading="loading"
+        element-loading-text="拼命加载中"
+        element-loading-spinner="el-icon-loading"
+        :data="tableData"
+        style="width: 100%;margin-top:10px"
+        :row-class-name="tableRowClassName"
+      >
+        <el-table-column prop="userId" label="序号" width="180"></el-table-column>
+        <el-table-column prop="userName" label="用户名" width="180"></el-table-column>
+        <el-table-column prop="realname" label="真实姓名"></el-table-column>
+        <el-table-column prop="department" label="所属部门"></el-table-column>
+        <el-table-column prop="role" label="所有权限"></el-table-column>
 
-                </el-table-column>
-                <el-table-column
-                prop="role"
-                label="所有权限">
-                </el-table-column>
-              
-                   <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button
-                            size="mini"
-                            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                            <el-button
-                            size="mini"
-                            type="danger"
-                            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                        </template>
-                        </el-table-column>
-            </el-table>
-            <div class="pagination">
-                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="total">
-                </el-pagination>
-            </div>
-        </div>
-        <!--新建用户弹窗-->
-        <el-dialog title="新增用户" :visible.sync="dialogTableVisible">
-          <el-form :model="user">
-              <el-form-item label="用户名"  :label-width="formLabelWidth">
-                <el-input v-model="user.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="用户密码" :label-width="formLabelWidth">
-                <el-input v-model="user.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
-              </el-form-item>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          @current-change="handleCurrentChange"
+          layout="prev, pager, next"
+          :total="total"
+        ></el-pagination>
+      </div>
+    </div>
+    <!--新建用户弹窗-->
+    <el-dialog title="新增用户" :visible.sync="dialogTableVisible">
+      <el-form :model="user">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input v-model="user.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="用户密码" :label-width="formLabelWidth">
+          <el-input v-model="user.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
+        </el-form-item>
 
-              <el-form-item label="真实姓名" :label-width="formLabelWidth">
-                <el-input v-model="user.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
-              </el-form-item>
-           
-              <el-form-item label="所属部门" :label-width="formLabelWidth">
-                <el-select v-model="user.department" placeholder="请选择所属部门">
-                  <el-option label="丽水学院" value="丽水学院"></el-option>
-                  <el-option label="工学院" value="工学院"></el-option>
-                </el-select>
-              </el-form-item>
-               <el-form-item label="所有权限" :label-width="formLabelWidth">
-                   <el-radio-group @change="choosePermission"  v-model="user.role" v-for="item in roles" :key="item">
-                       <el-radio style="margin-right:10px" :label=item.groupName>{{item.groupName}}</el-radio>
-                      
-                   </el-radio-group>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogTableVisible = false">取 消</el-button>
-              <el-button type="primary" @click="createUser">确 定</el-button>
-            </div>
-        </el-dialog>
+        <el-form-item label="真实姓名" :label-width="formLabelWidth">
+          <el-input v-model="user.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
+        </el-form-item>
 
-        <!--编辑弹窗-->
-        <el-dialog title="编辑用户" :visible.sync="dialogTableVisible1">
-          <el-form :model="updateuser">
-              <el-form-item label="用户名"  :label-width="formLabelWidth">
-                <el-input readonly v-model="updateuser.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="用户密码" :label-width="formLabelWidth">
-                <el-input v-model="updateuser.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
-              </el-form-item>
+        <el-form-item label="所属部门" :label-width="formLabelWidth">
+          <el-cascader
+            placeholder="输入部门"
+            :options="departments"
+            filterable
+            :change-on-select="true"
+            @change="selectAddDepartment"
+          ></el-cascader>
+        </el-form-item>
+        <el-form-item label="所有权限" :label-width="formLabelWidth">
+          <el-radio-group
+            @change="choosePermission"
+            v-model="user.role"
+            v-for="item in roles"
+            :key="item"
+          >
+            <el-radio style="margin-right:10px" :label="item.groupName">{{item.groupName}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTableVisible = false">取 消</el-button>
+        <el-button type="primary" @click="createUser">确 定</el-button>
+      </div>
+    </el-dialog>
 
-              <el-form-item label="真实姓名" :label-width="formLabelWidth">
-                <el-input v-model="updateuser.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
-              </el-form-item>
-           
-              <el-form-item label="所属部门" :label-width="formLabelWidth">
-                <el-select v-model="updateuser.department" placeholder="请选择所属部门">
-                  <el-option label="丽水学院" value="丽水学院"></el-option>
-                  <el-option label="工学院" value="工学院"></el-option>
-                </el-select>
-              </el-form-item>
-                
-               <el-form-item label="所有权限" :label-width="formLabelWidth">
-                   <el-radio-group @change="choosePermission"  v-model="updateuser.role" v-for="item in roles" :key="item">
-                       <el-radio style="margin-right:10px" :label=item.groupName>{{item.groupName}}</el-radio>
-                   </el-radio-group>
-              </el-form-item>
-              <el-form-item>
-                 <el-switch
-                    style="display: block;margin-left:7%"
-                    v-model="updateuser.islocked"
-                    @change="changeLock"
-                    active-color="#13ce66"
-                    active-text="解除锁定"
-                    inactive-text="用户锁定">
-                  </el-switch>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogTableVisible1 = false">取 消</el-button>
-              <el-button type="primary" @click="sendUpdateUser">确 定</el-button>
-            </div>
-        </el-dialog>
-   </div>
+    <!--编辑弹窗-->
+    <el-dialog title="编辑用户" :visible.sync="dialogTableVisible1">
+      <el-form :model="updateuser">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input readonly v-model="updateuser.userName" placeholder="请输入用户名" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="用户密码" :label-width="formLabelWidth">
+          <el-input v-model="updateuser.password" placeholder="请输入用户密码" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="真实姓名" :label-width="formLabelWidth">
+          <el-input v-model="updateuser.realname" placeholder="请输入真实姓名" autocomplete="off"></el-input>
+        </el-form-item>
+
+        <el-form-item label="所属部门" :label-width="formLabelWidth">
+          <el-cascader
+            placeholder="输入部门"
+            :options="departments"
+            filterable
+            :change-on-select="true"
+            @change="selectEditDepartment"
+          ></el-cascader>
+        </el-form-item>
+
+        <el-form-item label="所有权限" :label-width="formLabelWidth">
+          <el-radio-group
+            @change="choosePermission"
+            v-model="updateuser.role"
+            v-for="item in roles"
+            :key="item"
+          >
+            <el-radio style="margin-right:10px" :label="item.groupName">{{item.groupName}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item>
+          <el-switch
+            style="display: block;margin-left:7%"
+            v-model="updateuser.islocked"
+            @change="changeLock"
+            active-color="#13ce66"
+            active-text="解除锁定"
+            inactive-text="用户锁定"
+          ></el-switch>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTableVisible1 = false">取 消</el-button>
+        <el-button type="primary" @click="sendUpdateUser">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -143,6 +142,7 @@ export default {
   inject: ["reload"],
   mounted() {
     this.getAllPermissions();
+    this.getDepartmentsTree();
   },
   methods: {
     tableRowClassName({ row, rowIndex }) {
@@ -158,7 +158,8 @@ export default {
       console.log(row);
       this.dialogTableVisible1 = true;
       this.updateuser.userId = row.userId;
-      this.updateuser.department = row.department;
+      // this.updateuser.department = row.department;
+      this.updateuser.departmentId = this.departmentId;
       this.updateuser.userName = row.userName;
       this.updateuser.password = row.password;
       this.updateuser.role = row.role;
@@ -209,6 +210,47 @@ export default {
           }
         })
         .catch(err => {});
+    },
+
+    /**
+     * 得到增加选中的部门
+     */
+    selectAddDepartment(data) {
+        if (data != null && data.length > 0) {
+        this.user.departmentId = data[data.length - 1];
+        console.log(this.user.departmentId);
+        console.log("console.log(this.user.departmentId);");
+      }
+    },
+    
+    /**
+     * 得到编辑选中的部门
+     */
+    selectEditDepartment(data) {
+      if (data != null && data.length > 0) {
+        this.updateuser.departmentId = data[data.length - 1];
+        console.log(this.user.departmentId);
+        console.log("console.log(this.user.departmentId);");
+      }
+    },
+
+    /**
+     * 得到部门列表
+     */
+    getDepartmentsTree() {
+      getRequest("/api/admin/getAllDepartments")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.departments = result.data.data;
+            console.log("this.departments");
+            console.log(this.departments);
+          } else {
+            alert("获取失败");
+          }
+        })
+        .catch(e => {
+          console.log(e);
+        });
     },
     choosePermission() {
       console.log(this.user.role);
@@ -295,8 +337,10 @@ export default {
         password: "",
         realname: "",
         department: "",
+        departmentId:"",
         role: ""
       },
+      departments: [],
       updateuser: {
         userId: "",
         userName: "",
