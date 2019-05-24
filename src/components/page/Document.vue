@@ -8,9 +8,6 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <!-- 顶部页签结束 -->
-
-    <!-- 中间内容开始 -->
     <div class="document-content">
       <div class="document-content-card">
         <el-row class="tac">
@@ -23,6 +20,7 @@
                 ref="tree"
                 show-checkbox
                 class="mulu"
+                default-expand-all
                 :data="docLabelsTree"
                 node-key="id"
                 :filter-node-method="filterNode"
@@ -109,10 +107,10 @@
                 <el-table-column label="操作" width="230">
                   <template slot-scope="scope">
                     <el-button
+                      @click="download(scope.row)"
                       size="mini"
-                      type="success"
-                      @click="handleDelete(scope.$index, scope.row)"
-                    >下载</el-button>
+                      type="success">
+                      下载 </el-button>
                     <el-button
                       type="primary"
                       size="mini"
@@ -244,15 +242,28 @@ import { isNull } from "util";
 
 export default {
   methods: {
-    download() {
-      console.log(this.checkfileList);
-      postRequest("/api/downLoadFile", {
-        docs: JSON.stringify(this.checkfileList)
-      })
-        .then(result => {
-          console.log(result);
-        })
-        .catch(err => {});
+    getherf(row){
+      console.log(4444)
+    
+      return row.url;
+
+    },
+    downLoadFileAndAnnex(item){
+      let _this = this;
+      console.log(item);
+      postJsonRequest("/api/public/downloadFileAndAnnex",item).then((result) => {
+        
+      }).catch((err) => {
+        
+      });
+    },
+    download(row) {
+      console.log(row);
+      console.log(row.url);
+      let url = row.url + "&token="+localStorage.getItem("token");
+      console.log("url:"+url);
+      window.location.href = url;
+     
     },
     selectDepartment(data) {
       if (data != null && data.length > 0) {
@@ -352,8 +363,29 @@ export default {
       })
         .then(result => {
           if (result.data.code === 200) {
-            this.tableData = result.data.data.list;
+            // this.tableData = result.data.data.list;
             console.log(result.data.data);
+             let table = [];
+            for(let i = 0;i < result.data.data.list.length;i++ ){
+              let item = result.data.data.list[i];
+              let tableobj = {
+                annexes:item.annexes,
+                departmentId:item.departmentId,
+                departmentName:item.departmentName,
+                docId:item.docId,
+                docLabels:item.docLabels,
+                docName:item.docName,
+                docPostTime:item.docPostTime,
+                docSavePath:item.docSavePath,
+                suffixName:item.suffixName,
+                userId:item.userId,
+                url:"/api/getName?name="+item.docName
+              }
+              table.push(tableobj);
+              console.log("table:"+table);
+            }
+            this.tableData = table;
+            console.log(this.tableData);
 
             // console.log(this.tableData);
             this.total = result.data.data.total;
@@ -378,9 +410,29 @@ export default {
       })
         .then(result => {
           if (result.data.code === 200) {
-            this.tableData = result.data.data.list;
+            // this.tableData = result.data.data.list;
             console.log(result.data.data);
-            // console.log(this.tableData);
+            let table = [];
+            for(let i = 0;i < result.data.data.list.length;i++ ){
+              let item = result.data.data.list[i];
+              let tableobj = {
+                annexes:item.annexes,
+                departmentId:item.departmentId,
+                departmentName:item.departmentName,
+                docId:item.docId,
+                docLabels:item.docLabels,
+                docName:item.docName,
+                docPostTime:item.docLabels,
+                docSavePath:item.docSavePath,
+                suffixName:item.suffixName,
+                userId:item.userId,
+                url:"/api/getName?name="+item.docName+"&token"
+              }
+              table.push(tableobj);
+             
+            }
+            this.tableData = table;
+         
             this.total = result.data.data.total;
             this.loading = false;
           } else {
