@@ -41,9 +41,14 @@
             <div class="document-search">
               <el-row :gutter="25" class="document-search-label">
                 <ul>
-                  <li style="float:left">
-                    <el-tag>标签一</el-tag>
-                  </li>
+                    <el-tag
+                            :key="tag.tagId"
+                            v-for="tag in allTags"
+                            @click="chooseTag(tag)"
+                            :type="tag.type"
+                            :disable-transitions="true"
+                            @close="handleClose(tag)"
+                    >{{tag.tagName}}</el-tag>
                 </ul>
               </el-row>
               <el-row :gutter="25" class="document-search-multipleConditions">
@@ -58,6 +63,7 @@
                     filterable
                     :change-on-select="true"
                     @change="selectDepartment"
+                    clearable
                   ></el-cascader>
                 </el-col>
                 <el-col :span="7">
@@ -305,6 +311,23 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
+      chooseTag(item) {
+          console.log(item);
+          if (item.type === "normal") {
+              item.type = "danger";
+              this.tags.push(item);
+          } else {
+              item.type = "normal";
+              console.log(this.tags.indexOf(item))
+              for(let i=0;i<this.tags.length;i++){
+                  if(this.tags[i].tagId == item.tagId){
+                      this.tags.splice(i,1);
+                  }
+              }
+
+          }
+          console.log(this.tags)
+      },
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
@@ -345,7 +368,7 @@ export default {
       postJsonRequest("/api/public/getDocsBySearchParam", {
         pageInfo: { pageSize: this.pageSize, currentPage: this.currentPage },
         docLabels: this.$refs.tree.getCheckedNodes(),
-        tags: [],
+        tags: this.tags,
         departmentId: this.selectDepartmentId,
         docName: this.docSearchName,
         selectYear: moment(this.selectYear).format("YYYY")
@@ -426,6 +449,27 @@ export default {
           console.log(e);
         });
     },
+      getAllTags() {
+          let _this = this;
+          postJsonRequest("/api/public/getAllTags")
+              .then(result => {
+                  console.log(result);
+                  for (let i = 0; i < result.data.data.length; i++) {
+                      if (result.data.data[i].isuse == 1) {
+                          let obj = {
+                              type: "normal",
+                              isuse: result.data.data[i].isuse,
+                              tagName: result.data.data[i].tagName,
+                              tagId: result.data.data[i].tagId
+                          };
+                          _this.allTags.push(obj);
+                      }
+                  }
+                  console.log(this.tags)
+                  console.log("this.tags")
+              })
+              .catch(err => {});
+      },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -459,6 +503,13 @@ export default {
     filterText(val) {
       console.log(val);
       this.$refs.tree.filter(val);
+    },
+    departs(val) {
+        if(val !=null && val.length == 0){
+            this.selectDepartmentId = -1;
+        }
+        console.log(this.selectDepartmentId);
+        console.log("this.selectDepartmentId")
     }
   },
 
@@ -467,6 +518,7 @@ export default {
     // for (let i = 0; i < this.items.length; i++) {
     //   this.allCheckList.push(this.items[i].id);
     // }
+      this.getAllTags();
     this.getDocLabelsTree();
     this.getMyChildDepartments();
     this.getDocsBySearchParam();
@@ -486,41 +538,21 @@ export default {
       total: 0,
       selectDepartmentId: -1,
       loading: false,
-      tableData: [
-        // {
-        //   docName: "高凸嫖历险记",
-        //   name: "王小虎",
-        //   address: "上海市普陀区金沙江路 1518 弄"
-        // },
-        // {
-        //   docName: "高凸嫖历险记",
-        //   name: "王小虎",
-        //   address: "上海市普陀区金沙江路 1518 弄"
-        // },
-        // {
-        //   docName: "高凸嫖历险记",
-        //   name: "王小虎",
-        //   address: "上海市普陀区金沙江路 1518 弄"
-        // },
-        // {
-        //   docName: "高凸嫖历险记",
-        //   name: "王小虎",
-        //   address: "上海市普陀区金沙江路 1518 弄"
-        // }
-      ],
+      tableData: [],
       docLabelsTree: [],
-
+      allTags: [],
+      tags: [],
       fitterItems: [],
       checkList: [],
       allCheckList: [],
-      selectDocumentInfo: {
-        id: "2",
-        fileName: "部门综测",
-        type: "xls",
-        tags: [],
-        userName: "",
-        time: "2019-05-08"
-      },
+      // selectDocumentInfo: {
+      //   id: "2",
+      //   fileName: "部门综测",
+      //   type: "xls",
+      //   tags: [],
+      //   userName: "",
+      //   time: "2019-05-08"
+      // },
       checkAll: false,
       isIndeterminate: true,
       time: [],

@@ -7,27 +7,30 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div style="box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);background:white;padding-top:20px">
+    <div
+      style="box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);background:white;padding-top:20px"
+    >
       <div class="department-top" style="padding-left:20px">
-      <el-row :gutter="20">
-        <el-col :span="4">
-          <el-input v-model="searchParam" placeholder="输入部门名字"></el-input>
-        </el-col>
-        <el-col :span="3">
-          <el-button type="primary" @click="search">查询</el-button>
-        </el-col>
-        <el-col :span="3" :offset="13">
-          <el-button type="primary" @click="dialogTableVisible = true">添加</el-button>
-        </el-col>
-      </el-row>
-    </div>
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-input v-model="searchParam" placeholder="输入部门名字"></el-input>
+          </el-col>
+          <el-col :span="3">
+            <el-button type="primary" @click="search">查询</el-button>
+          </el-col>
+          <el-col :span="3" :offset="13">
+            <el-button type="primary" @click="dialogTableVisible = true">添加</el-button>
+          </el-col>
+        </el-row>
+      </div>
       <dragTreeTable
-      style="background:white"
-      :data="treeData"
-      :onDrag="onTreeDataChange"
-      :isdraggable="true"
-    ></dragTreeTable>
+        style="background:white"
+        :data="treeData"
+        :onDrag="onTreeDataChange"
+        :isdraggable="true"
+      ></dragTreeTable>
     </div>
+    <!-- 新增组织 -->
     <el-dialog title="新增组织" :visible.sync="dialogTableVisible">
       <el-form :model="department">
         <el-form-item label="组织名" :label-width="formLabelWidth">
@@ -38,11 +41,12 @@
         </el-form-item>
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
-           <el-cascader
+          <el-cascader
             placeholder="选择部门"
-            :options="options"
+            :options="this.treeData.children"
             filterable
-            change-on-select
+            :change-on-select="true"
+            @change="selectDepartment"
           ></el-cascader>
         </el-form-item>
       </el-form>
@@ -52,7 +56,7 @@
       </div>
     </el-dialog>
 
-<!--  -->
+    <!-- 修改组织 -->
     <el-dialog title="修改组织" :visible.sync="dialogTableVisible1">
       <el-form :model="department">
         <el-form-item label="组织名" :label-width="formLabelWidth">
@@ -63,17 +67,17 @@
         </el-form-item>
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
-           <el-cascader
+          <el-cascader
             placeholder="试试搜索：工学院"
-            :options="options"
+            :options="this.treeData.children"
             filterable
             change-on-select
           ></el-cascader>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible1 = false">取 消</el-button>
-        <el-button type="primary" @click="dialogTableVisible1 = false">确 定</el-button>
+        <el-button @click="commitEditDepartment('0')">取 消</el-button>
+        <el-button type="primary" @click="commitEditDepartment('1')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -88,47 +92,10 @@ export default {
   name: "department",
   data() {
     return {
-      parentName:"",
-      dialogTableVisible1:false,
-      options: [{
-          value: 'zhinan',
-          label: '行政部',
-          children: [{
-            value: 'shejiyuanze',
-            label: '办公室',
-            children: [{
-              value: 'yizhi',
-              label: '人事'
-            }, {
-              value: 'fankui',
-              label: '总务'
-            }]
-          }, {
-            value: 'daohang',
-            label: '供销部',
-            children: [{
-              value: 'cexiangdaohang',
-              label: '供应'
-            }, {
-              value: 'dingbudaohang',
-              label: '市场'
-            }]
-          }]
-        }, {
-          value: 'ziyuan',
-          label: '财务部',
-          children: [{
-            value: 'axure',
-            label: '会计'
-          }, {
-            value: 'sketch',
-            label: '出纳'
-          }, {
-            value: 'jiaohu',
-            label: '原料仓库'
-          }]
-        }],
-      searchParam: '',
+      parentName: "",
+      dialogTableVisible1: false,
+      options: [],
+      searchParam: "",
       formLabelWidth: "120px",
       dialogTableVisible: false,
       treeData: {
@@ -142,14 +109,14 @@ export default {
         }
       },
       department: {
-        // departmentName: "",
-        // region: "",
-        // date1: "",
-        // date2: "",
-        // delivery: false,
-        // type: [],
-        // resource: "",
-        // desc: ""
+        departmentName: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        departmentIntroduction: ""
       }
     };
   },
@@ -160,21 +127,21 @@ export default {
     deepTraversal(list) {
       let nodes = [];
       let isInclude = false;
-      let result={'isInclude':isInclude,'nodes':nodes};
+      let result = { isInclude: isInclude, nodes: nodes };
       if (list !== null) {
         for (let i = 0; i < list.length; i++) {
           let child = list[i];
-          if(child.name == this.searchParam){
+          if (child.name == this.searchParam) {
             result.isInclude = true;
           }
-          console.log(child)
+          console.log(child);
           result.nodes.push(child);
           let isInclude = this.deepTraversal(child.children).isInclude;
-          if(isInclude){
+          if (isInclude) {
             child.open = true;
             result.isInclude = true;
-            console.log(child.name+"is true")
-          }else{
+            console.log(child.name + "is true");
+          } else {
             child.open = false;
           }
         }
@@ -183,27 +150,27 @@ export default {
     },
     search() {
       let result = this.deepTraversal(this.treeData.children);
-      console.log(result)
+      console.log(result);
       let newTreeDataChildren = result.nodes;
       let isInclude = result.isInclude;
       let newTreeData = {
-            columns: [...this.treeData.columns],
-            children: newTreeDataChildren,
-            custom_field: {
-            id: "id",
-            order: "sort",
-            lists: "children",
-            parent_id: "parent_id"
-          }
+        columns: [...this.treeData.columns],
+        children: newTreeDataChildren,
+        custom_field: {
+          id: "id",
+          order: "sort",
+          lists: "children",
+          parent_id: "parent_id"
         }
-      this.treeData = {...newTreeData};
+      };
+      this.treeData = { ...newTreeData };
     },
     getDepartmentsTree() {
       getRequest("/api/admin/getAllDepartments")
         .then(result => {
           if (result.data.code === 200) {
             this.treeData.children = result.data.data;
-            console.log(this.treeData)
+            console.log(this.treeData);
             // console.log( this.treeData.children);
 
             // this.total = result.data.data.total;
@@ -219,29 +186,28 @@ export default {
       node.child = true;
     },
     onTreeDataChange(list) {
-       this.$confirm("确认要移动该部门吗?","提示",{
-        confirmButtonText:"确定",
-        cancelButtonText:"取消"
-      }).then((result) => {
-        if(result == "confirm"){
-           console.log(list);
-           this.treeData.children = list;
-        }
-      }).catch((err) => {
-        
-      });
+      this.$confirm("确认要移动该部门吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
+        .then(result => {
+          if (result == "confirm") {
+            console.log(list);
+            this.treeData.children = list;
+          }
+        })
+        .catch(err => {});
     },
     deleteDepatment(item) {
-      this.$confirm("确认要删除该部门吗?","提示",{
-        confirmButtonText:"确定",
-        cancelButtonText:"取消"
-      }).then((result) => {
-        if(result == "confirm"){
-
-        }
-      }).catch((err) => {
-        
-      });
+      this.$confirm("确认要删除该部门吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
+        .then(result => {
+          if (result == "confirm") {
+          }
+        })
+        .catch(err => {});
       //  getRequest("/api/admin/getAllDepartments")
       //   .then(result => {
       //     if (result.data.code === 200) {
@@ -259,41 +225,70 @@ export default {
       //   });
       console.log("删除", item);
     },
-    editDepartment(item) {
+
+    /**
+     * 打开编辑部门窗口
+     * @param item 选中部门
+     */
+    opEditDialog(item) {
       console.log("修改", item);
       this.dialogTableVisible1 = true;
       this.department.departmentName = item.name;
-      this.department.departmentIntroduction = item.departmentIntroduction;
-      let departmentSuper;
-      departmentSuper = this.getParentName(item);
-      // console.log(this.getParentName(item));
-      
+      this.department.departmentIntroduction = item.instroduction;
     },
 
-    getParentName(item){
-      if(item.parent_id == 0){
-        return item.name + "";
-      }else{
-        for(let i = 0;i < this.treeData.length;i++){
-          if(this.treeData[i].id == id){
-             this.parentName = this.parentName + this.treeData[i].name+"/"
-          }
-          return getParentName(item.parent_id)  + this.parentName;
-        }
+    /**
+     * 提交编辑部门
+     * @param option 操作
+     */
+    commitEditDepartment(option) {
+      if (option == 0) {
 
+      } else if (option == 1) {
+
+      } else {
       }
+      this.dialogTableVisible1 = false;
+      this.department = {
+        departmentName: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        departmentIntroduction: ""
+      };
+    },
 
+    selectDepartment(data) {
+      if (data != null && data.length > 0) {
+        this.selectDepartmentId = data[data.length - 1];
+        console.log(this.selectDepartmentId);
+      }
+    },
+
+    getParentName(item) {
+      if (item.parent_id == 0) {
+        return item.name + "";
+      } else {
+        for (let i = 0; i < this.treeData.length; i++) {
+          if (this.treeData[i].id == id) {
+            this.parentName = this.parentName + this.treeData[i].name + "/";
+          }
+          return getParentName(item.parent_id) + this.parentName;
+        }
+      }
     }
   },
-   watch: {
+  watch: {
     searchParam(val) {
       if (val != "") {
         this.searchParam = val;
-        console.log(this.searchParam)
+        console.log(this.searchParam);
       }
-    },
-    
-    },
+    }
+  },
   mounted() {
     this.treeData.columns = [
       {
@@ -313,7 +308,7 @@ export default {
         align: "center",
         flex: 1,
         formatter: item => {
-          return "<span>" + item.instroduction +  "</span>";
+          return "<span>" + item.instroduction + "</span>";
         }
       },
       {
@@ -331,7 +326,7 @@ export default {
           },
           {
             text: "修改",
-            onclick: this.editDepartment,
+            onclick: this.opEditDialog,
             formatter: item => {
               return "<i style='color:rgb(64, 158, 255);font-size:20px' class='el-icon-lx-edit'></i>";
             }
@@ -345,16 +340,16 @@ export default {
 </script>
 
 <style>
-.drag-tree-table-header{
+.drag-tree-table-header {
   /* background-color: white; */
   border-top-width: 0;
-  border:1px solid rgb(238, 238, 238);
+  border: 1px solid rgb(238, 238, 238);
   border-top-width: 0;
   height: 40px !important;
   background: #fff !important;
   line-height: 40px;
-  padding:0 !important;
-  color: rgb(144, 147, 153)
+  padding: 0 !important;
+  color: rgb(144, 147, 153);
 }
 </style>
 
