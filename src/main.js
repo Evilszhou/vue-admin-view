@@ -103,14 +103,15 @@ export const getRequest = (url, data) => {
   });
 }
 
-export function downloadFile(params){
+export const downloadFile = (url,data) => {
     return axios({
-        url:"/api/downLoadFile",
-        method:'get',
-        params:params,
+        method:"get",
+        params:data,
+        url:url,
         responseType:'blob'
     })
 }
+
 
 
 // router.beforeEach((to,from,next) => {

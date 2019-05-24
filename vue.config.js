@@ -10,6 +10,13 @@ module.exports = {
                    '^/api': '/'
                 }
             },
+            '/file':{
+                target:'http://39.106.189.251/',
+                changeOrigin:true,
+                pathRewrite:{
+                    '^/file':"http://39.106.189.251/"
+                }
+            },
             // '/admin':{
             //     target:'http://localhost:8081',
             //     changeOrigin:true,

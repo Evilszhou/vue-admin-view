@@ -1,25 +1,16 @@
 <template>
-   
     <div class="container">
-     <el-tree
-  :data="data"
-  show-checkbox
-  node-key="id"
-  :default-expanded-keys="[2, 3]"
-  :default-checked-keys="[5]"
-  :props="defaultProps">
-</el-tree>
-
-
- <el-input placeholder="请输入内容" v-model="input5" class="input-with-select">
-    <el-select v-model="select" slot="prepend" placeholder="请选择">
-      <el-option label="餐厅名" value="1"></el-option>
-      <el-option label="订单号" value="2"></el-option>
-      <el-option label="用户电话" value="3"></el-option>
-    </el-select>
-    <el-button slot="append" icon="el-icon-search"></el-button>
-  </el-input>
-
+        <pdf :src="src" :page = "currentPage1" style="width:80%;height:40%;margin:0 auto" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
+        <!-- <el-button type="primary" @click="download"></el-button> -->
+        <el-pagination
+        style="margin-left:900px"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page.sync="currentPage1"
+      :page-size="1"
+      layout="total, prev, pager, next"
+      :total="pageCount">
+    </el-pagination>
     </div>
 </template>
 <script>
@@ -29,9 +20,16 @@ import {
   getRequest,
   downloadFile
 } from "../../main.js";
+import pdf from 'vue-pdf';
 export default {
+  components:{
+      pdf
+  },
   data() {
     return {
+        src:"/file/S2_%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88.pdf",
+        currentPage1:1,
+        pageCount:0,
         tags:["标签一"],
         data: [
         {
@@ -93,10 +91,62 @@ export default {
       }
     };
   },
+  created(){
+      var headers = {
+        'Authorization': 'Bearer SOME_TOKEN',
+
+        'x-ipp-device-uuid': 'SOME_UUID',
+        'x-ipp-client': 'SOME_ID',
+        'x-ipp-client-version': 'SOME_VERSION'
+};
+var loadingTask = pdf.createLoadingTask({
+
+    url:this.src,
+    httpHeaders:headers
+
+});
+      this.src = pdf.createLoadingTask(this.src)
+  },
   mounted() {
+      let  _this = this;
+      setTimeout(function(){
+       console.log(_this.pageCount);
+      },500)
+      
     // this.getTopDepartment();
   },
   methods: {
+      loadPdfHandler(){
+          this.currentPage1 = 1;
+
+      },
+       handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+        this.currentPage1 = val;
+      },
+      download(){
+          window.location.href = "/api/getName?name=demo.pptx"
+      },
+      downloadFile(){
+          console.log(344334)
+          let _this = this;
+          downloadFile("/api/getName",{
+              name:"ff.png"
+          }).then((result) => {
+              let data = result.data;
+              if(!data){
+                  return;
+              }
+
+              const blob = new Blob([data]);
+          }).catch((err) => {
+              
+          });
+      },
         handleChange(value) {
         console.log(value);
       }
