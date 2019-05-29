@@ -100,6 +100,7 @@
           <el-cascader
             placeholder="输入部门"
             :options="departments"
+         
             filterable
             :change-on-select="true"
             @change="selectEditDepartment"
@@ -145,6 +146,7 @@ export default {
     this.getDepartmentsTree();
   },
   methods: {
+    
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
         return "warning-row";
@@ -158,7 +160,6 @@ export default {
       console.log(row);
       this.dialogTableVisible1 = true;
       this.updateuser.userId = row.userId;
-      // this.updateuser.department = row.department;
       this.updateuser.departmentId = this.departmentId;
       this.updateuser.userName = row.userName;
       this.updateuser.password = row.password;
@@ -237,6 +238,7 @@ export default {
     /**
      * 得到部门列表
      */
+     
     getDepartmentsTree() {
       getRequest("/api/admin/getAllDepartments")
         .then(result => {
@@ -321,6 +323,7 @@ export default {
   },
   data() {
     return {
+      
       value4: "100",
       roles: [],
       radio: 1,

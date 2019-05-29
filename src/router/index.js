@@ -45,7 +45,7 @@ export default new Router({
                 {
                     path:"/department",
                     component:resolve => require(['../components/page/Department.vue'],resolve),
-                    meta:{title:"组织机构管理"}
+                    meta:{title:"机构管理"}
 
                 },
                 {
@@ -141,7 +141,8 @@ export default new Router({
         },
         {
             path: '/login',
-            component: resolve => require(['../components/page/Login.vue'], resolve)
+            component: resolve => require(['../components/page/Login.vue'], resolve),
+            meta:{title:"login"}
         },
         {
             path: '*',

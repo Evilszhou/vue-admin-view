@@ -110,7 +110,7 @@
                   :formatter="dateTimeFormat"
                   label="发文日期"
                 ></el-table-column>
-                <el-table-column label="操作" width="230">
+                <el-table-column label="操作" width="300">
                   <template slot-scope="scope">
                     <el-button
                       @click="download(scope.row)"
@@ -122,6 +122,12 @@
                       size="mini"
                       @click="handleEdit(scope.$index, scope.row)"
                     >编辑</el-button>
+                    <el-button
+                    size="mini"
+                    @click="perview(scope.row)"
+                    type="normal">
+                    预览
+                    </el-button>
                     <el-button
                       size="mini"
                       type="danger"
@@ -140,6 +146,42 @@
                   :current-page="currentPage"
                 ></el-pagination>
               </div>
+
+              <el-dialog
+                title="预览"
+                :visible.sync="dialogVisible"
+                width="50%"
+                style="height:100%;">
+                 <el-pagination
+                style="margin-left:20%;margin-top:-50px"
+              @size-change="handlePreSizeChange"
+              @current-change="handlePreCurrentChange"
+              :current-page.sync="currentPage1"
+              :page-size="1"
+              layout="total, prev, pager, next"
+              :total="pageCount">
+            </el-pagination>
+                <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:80%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
+
+                <span slot="footer" class="dialog-footer">
+                  <el-button @click="dialogVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                </span>
+              </el-dialog>
+
+
+              <el-dialog
+                title="提示"
+                :visible.sync="dialogVisible1"
+                width="30%"
+                :before-close="handleClose">
+                <span>是否选择下载文件及附件?</span>
+                <span slot="footer" class="dialog-footer">
+                  <el-button @click="singledownload">取 消</el-button>
+                  <el-button type="primary" @click="batchdownload">确 定</el-button>
+                </span>
+              </el-dialog>
+
               <!-- <el-checkbox
                 class="document-display-checkAll"
                 :indeterminate="isIndeterminate"
@@ -242,12 +284,124 @@
 </template>
 
 <script>
+import pdf from 'vue-pdf';
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
 
 export default {
+  components:{
+      pdf
+  },
+   created(){
+      var headers = {
+        'Authorization': 'Bearer SOME_TOKEN',
+        'x-ipp-device-uuid': 'SOME_UUID',
+        'x-ipp-client': 'SOME_ID',
+        'x-ipp-client-version': 'SOME_VERSION'
+        };
+        var loadingTask = pdf.createLoadingTask({
+            url:this.src,
+            httpHeaders:headers
+        });
+        this.src = pdf.createLoadingTask(this.src)
+  },
   methods: {
+     getPagePermissions(){
+       let _this = this;
+       postJsonRequest("/api/public/getPagePermission").then((result) => {
+        //  console.log(result)
+        //  console.log(result.data.data[0].pagePermission);
+         let str = result.data.data[0].pagePermission.split(";");
+         console.log(str)
+         str.push("login");
+         str.push("403")
+         console.log(str);
+         localStorage.setItem("permissions",str);
+        //  console.log(typeof result.data.data[0].pagePermission)
+        //  console.log(result.data.data[0].pagePermission.splice(";"))
+        //  let permissions = result.data.data[0].pagePermission.splice(";")
+        //  console.log(permissions)
+
+       }).catch((err) => {
+
+       });
+     },
+     open3(msg) {
+      if(msg == undefined){
+        msg = '这是一条成功的提示消息';
+      }
+        this.$notify({
+          title: '成功',
+          message: msg,
+          type: 'success'
+        });
+      },
+     open6(msg) {
+       if(msg == undefined){
+         msg = "这是一条错误的提示消息"
+       }
+        this.$notify.error({
+          title: '错误',
+          message: msg
+        });
+    },
+    batchdownload(){
+      console.log("单一")
+      //  window.location.href = this.url;
+      console.log(this.url.split("?"))
+      let res = this.url.split("?");
+      let url = "/api/public/downloadZip?"+ res[1];
+      console.log(url);
+      window.location.href = url;
+      this.dialogVisible1 = false;
+    },
+    singledownload(){
+      console.log("批量");
+      console.log(this.url)
+      window.location.href = this.url;
+      this.dialogVisible1 = false;
+    },
+    handlePreSizeChange(val){
+        console.log(`每页 ${val} 条`);
+    },
+    handlePreCurrentChange(val){
+
+        this.currentPage1 = val;
+        window.scrollTo(0,0);
+    },
+      loadPdfHandler(){
+          this.currentPage1 = 1;
+
+      },
+    perview(node){
+      // this.$router.push("/test");
+
+      this.src = "";
+      console.log(node);
+      let data = {
+        FilePath:node.docSavePath
+      }
+      // if(node.suffixName != ".docx" || node.suffixName!=".xls" || node.suffixName != ".doc" || node.suffixName != ".ppt" || node.suffixName != ".pptx" || node.suffixName != ".jpg" || node.suffixName != ".png"){
+      //   this.open6("该文件类型不支持预览!");
+      //   return;
+      // }
+      postRequest("/api/public/preViewFile",data).then((result) => {
+
+        let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
+        this.src = url;
+        if(result.data.code != 200){
+          this.open6(result.data.msg);
+
+        }
+        this.loading = false;
+        // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
+      }).catch((err) => {
+
+      });
+      this.dialogVisible = true;
+      window.scrollTo(0,0);
+    },
     getherf(row){
       console.log(4444)
     
@@ -264,13 +418,14 @@ export default {
       });
     },
     download(row) {
-      // console.log(row);
-      console.log(row.url);
-      console.log("row.url")
-      let url = row.url + "&token="+localStorage.getItem("token");
-      console.log("url:"+url);
-      window.location.href = url;
-     
+     this.dialogVisible1 = true;
+            // console.log(row);
+            // console.log(row.url);
+            let url = row.url + "&token="+localStorage.getItem("token");
+            this.url = url;
+            // console.log("url:"+url);
+            // window.location.href = url;
+
     },
     selectDepartment(data) {
       if (data != null && data.length > 0) {
@@ -292,11 +447,9 @@ export default {
       this.checkList = val ? this.allCheckList : [];
       this.isIndeterminate = false;
     },
-    downLoadAnnex(annex) {
-      console.log(annex)
-      console.log('Annex');
-      let url = annex.annexPath + "&token="+localStorage.getItem("token");
-      window.location.href = url;
+    downLoadAnnex(item) {
+      console.log(item);
+      window.location.href = "/api/getName?name="+item.annexName + "&token="+localStorage.getItem("token");
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
@@ -494,9 +647,7 @@ export default {
           if (result.data.code === 200) {
             this.docLabelsTree = result.data.data;
             console.log(this.docLabelsTree);
-            // console.log("docLabelsTree"+this.docLabelsTree);
           } else {
-            // this.loading = false;
             console.log(result.data.msg);
           }
         })
@@ -578,10 +729,18 @@ export default {
     this.getDocLabelsTree();
     this.getMyChildDepartments();
     this.getDocsBySearchParam();
+    this.getPagePermissions();
     // this.getAllDocInfo();
   },
   data() {
     return {
+      loading:true,
+      src:"",
+      currentPage1:1,
+      pageCount:0,
+      url:"",
+      dialogVisible: false,
+      dialogVisible1:false,
       departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
