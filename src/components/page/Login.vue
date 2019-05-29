@@ -98,10 +98,10 @@
                    if(result.data.code === 200){
                        localStorage.setItem("token",result.data.data);
                        this.$router.push("/document");
-                   }else if(result === undefined){
-                       this.open6();
                    }else if(result.data.code == -100){
                        this.open7();
+                   }else if(result.data.code == 0){
+                       this.open8(result.data.msg);
                    }
                 }).catch(e =>{
                     console.log(e)
@@ -117,6 +117,12 @@
                    this.$notify.error({
                 title: '错误',
                 message: '用户被锁定'
+                });
+            },
+            open8(msg){
+                   this.$notify.error({
+                title: '错误',
+                message: msg
                 });
             }
         }

@@ -19,11 +19,12 @@
             <el-button type="primary" @click="search">查询</el-button>
           </el-col>
           <el-col :span="3" :offset="13">
-            <el-button type="primary" @click="dialogTableVisible = true">添加</el-button>
+            <el-button type="primary" @click="showAddDilog(null)">添加</el-button>
           </el-col>
         </el-row>
       </div>
       <dragTreeTable
+        v-loading="loading"
         style="background:white"
         :data="treeData"
         :onDrag="onTreeDataChange"
@@ -40,7 +41,7 @@
           <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item label="所属部门" :label-width="formLabelWidth">
+        <!-- <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
             placeholder="选择部门"
             :options="this.treeData.children"
@@ -48,11 +49,11 @@
             :change-on-select="true"
             @change="selectDepartment"
           ></el-cascader>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogTableVisible = false">确 定</el-button>
+        <el-button @click="cancerAddDepartment">取 消</el-button>
+        <el-button type="primary" @click="commitAddDepartment">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -68,10 +69,12 @@
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
+            ref="cascader"
             placeholder="试试搜索：工学院"
             :options="this.treeData.children"
             filterable
             change-on-select
+            @change="selectDepartment"
           ></el-cascader>
         </el-form-item>
       </el-form>
@@ -88,8 +91,10 @@ import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
 import dragTreeTable from "drag-tree-table";
+import { constants } from "crypto";
 export default {
   name: "department",
+  inject: ["reload"],
   data() {
     return {
       parentName: "",
@@ -98,6 +103,10 @@ export default {
       searchParam: "",
       formLabelWidth: "120px",
       dialogTableVisible: false,
+      selectItem: {},
+      loading: false,
+      // selectDepartmentId: 0,
+      selectParientId: 0, //父级部门id
       treeData: {
         columns: [],
         children: [],
@@ -110,14 +119,14 @@ export default {
       },
       department: {
         departmentName: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
+        parent_id: 0,
         departmentIntroduction: ""
       }
+      // newDepartment: {
+      //   departmentName: "",
+      //   instroduction: "",
+      //   parent_id: 0
+      // }
     };
   },
   components: {
@@ -165,15 +174,24 @@ export default {
       };
       this.treeData = { ...newTreeData };
     },
+
+    getAllchildDepartments(department, childList) {
+      if (department.children == null) {
+        return;
+      } else {
+        let lists = department.children;
+        for (let i = 0; i < lists.length; i++) {
+          childList.push(lists[i]);
+          this.getAllchildDepartments(lists[i], childList);
+        }
+      }
+    },
     getDepartmentsTree() {
+      this.loading = true;
       getRequest("/api/admin/getAllDepartments")
         .then(result => {
           if (result.data.code === 200) {
             this.treeData.children = result.data.data;
-            console.log(this.treeData);
-            // console.log( this.treeData.children);
-
-            // this.total = result.data.data.total;
           } else {
             alert("获取失败");
           }
@@ -181,6 +199,7 @@ export default {
         .catch(e => {
           console.log(e);
         });
+        this.loading = false;
     },
     openChildList(node) {
       node.child = true;
@@ -205,6 +224,20 @@ export default {
       })
         .then(result => {
           if (result == "confirm") {
+            getRequest("/api/admin/delDepartmentById", {
+              departmentId: item.id
+            })
+              .then(result => {
+                if (result.data.code === 200) {
+                  this.getDepartmentsTree;
+                  this.reload();
+                } else {
+                  alert("获取失败");
+                }
+              })
+              .catch(e => {
+                console.log(e);
+              });
           }
         })
         .catch(err => {});
@@ -230,11 +263,14 @@ export default {
      * 打开编辑部门窗口
      * @param item 选中部门
      */
-    opEditDialog(item) {
+    showEditDialog(item) {
       console.log("修改", item);
+      this.selectItem = item;
       this.dialogTableVisible1 = true;
       this.department.departmentName = item.name;
       this.department.departmentIntroduction = item.instroduction;
+      this.department.id = item.id;
+      this.department.parent_id = item.parent_id;
     },
 
     /**
@@ -243,28 +279,72 @@ export default {
      */
     commitEditDepartment(option) {
       if (option == 0) {
-
+        let obj = {};
+        obj.stopPropagation = () => {};
+        this.$refs.cascader.clearValue(obj);
+        this.selectParientId = 0;
       } else if (option == 1) {
-
-      } else {
+        let childList = [];
+        this.getAllchildDepartments(this.selectItem, childList);
+        for (let i = 0; i < childList.length; i++) {
+          if (childList[i].id == this.selectParientId) {
+            this.$notify.error({
+              title: "错误",
+              message: "所属部门不能为下级部门"
+            });
+            return;
+          }
+        }
+        if (this.department.id == this.selectParientId) {
+          this.$notify.error({
+            title: "错误",
+            message: "所属部门不能为本部门"
+          });
+          return;
+        }
+        postJsonRequest("/api/admin/editDepartment", {
+          name: this.department.departmentName,
+          instroduction: this.department.departmentIntroduction,
+          id: this.department.id,
+          parent_id:
+            this.selectParientId == 0
+              ? this.department.parent_id
+              : this.selectParientId
+        })
+          .then(result => {
+            if (result.data.code === 200) {
+              this.getDepartmentsTree;
+              this.reload();
+            } else {
+              alert(result.data.msg);
+            }
+          })
+          .catch(e => {
+            console.log(e);
+          });
       }
       this.dialogTableVisible1 = false;
       this.department = {
         departmentName: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
+        parent_id: 0,
         departmentIntroduction: ""
       };
     },
 
+    // selectDepartment(data) {
+    //   if (data != null && data.length > 0) {
+    //     this.selectDepartmentId = data[data.length - 1];
+    //     console.log(this.selectDepartmentId);
+    //   }
+    // },
+
+    /**
+     * 选择父部门
+     */
     selectDepartment(data) {
       if (data != null && data.length > 0) {
-        this.selectDepartmentId = data[data.length - 1];
-        console.log(this.selectDepartmentId);
+        this.selectParientId = data[data.length - 1];
+        console.log(this.selectParientId);
       }
     },
 
@@ -278,6 +358,56 @@ export default {
           }
           return getParentName(item.parent_id) + this.parentName;
         }
+      }
+    },
+
+    commitAddDepartment() {
+      let a = typeof this.department.departmentName;
+      console.log(a);
+      if (
+        this.department.departmentName == null ||
+        this.department.departmentName.match(/^[ ]*$/)
+      ) {
+        this.$notify.error({
+          title: "错误",
+          message: "部门名字不能为空"
+        });
+      } else {
+        postJsonRequest("/api/admin/addDepartment", {
+          parent_id: this.selectParientId,
+          name: this.department.departmentName,
+          instroduction: this.department.departmentIntroduction
+        })
+          .then(result => {
+            if (result.data.code === 200) {
+              this.getDepartmentsTree;
+              this.reload();
+            } else {
+              alert(result.data.msg);
+            }
+          })
+          .catch(e => {
+            console.log(e);
+          });
+        this.dialogTableVisible = false;
+        this.department = {
+          departmentName: "",
+          departmentIntroduction: "",
+          parent_id: 0
+        };
+      }
+    },
+    cancerAddDepartment() {
+      this.dialogTableVisible = false;
+      this.selectParientId = 0;
+      this.department.departmentName = "";
+      this.department.departmentIntroduction = "";
+    },
+    showAddDilog(item) {
+      this.dialogTableVisible = true;
+      if (item == null) {
+      } else {
+        this.selectParientId = item.id;
       }
     }
   },
@@ -318,6 +448,13 @@ export default {
         align: "center",
         actions: [
           {
+            text: "增加",
+            onclick: this.showAddDilog,
+            formatter: item => {
+              return "<i style='color:rgb(103, 194, 58);font-size:20px;margin-right:10px' class='el-icon-lx-add'></i>";
+            }
+          },
+          {
             text: "删除",
             onclick: this.deleteDepatment,
             formatter: item => {
@@ -326,7 +463,7 @@ export default {
           },
           {
             text: "修改",
-            onclick: this.opEditDialog,
+            onclick: this.showEditDialog,
             formatter: item => {
               return "<i style='color:rgb(64, 158, 255);font-size:20px' class='el-icon-lx-edit'></i>";
             }

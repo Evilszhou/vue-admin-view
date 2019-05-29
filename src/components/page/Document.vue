@@ -93,7 +93,7 @@
                             type="primary"
                             size="mini"
                             style="margin-right:25px;margin-left:25px"
-                            @click="downLoadAnnex(item.annexId)"
+                            @click="downLoadAnnex(item)"
                           >下载</el-button>
                         </span>
                       </el-form-item>
@@ -264,8 +264,9 @@ export default {
       });
     },
     download(row) {
-      console.log(row);
+      // console.log(row);
       console.log(row.url);
+      console.log("row.url")
       let url = row.url + "&token="+localStorage.getItem("token");
       console.log("url:"+url);
       window.location.href = url;
@@ -291,8 +292,11 @@ export default {
       this.checkList = val ? this.allCheckList : [];
       this.isIndeterminate = false;
     },
-    downLoadAnnex(id) {
-      console.log(id);
+    downLoadAnnex(annex) {
+      console.log(annex)
+      console.log('Annex');
+      let url = annex.annexPath + "&token="+localStorage.getItem("token");
+      window.location.href = url;
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
