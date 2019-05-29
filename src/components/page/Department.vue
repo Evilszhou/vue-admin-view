@@ -27,8 +27,7 @@
         v-loading="loading"
         style="background:white"
         :data="treeData"
-        :onDrag="onTreeDataChange"
-        :isdraggable="true"
+        :isdraggable="false"
       ></dragTreeTable>
     </div>
     <!-- 新增组织 -->
@@ -193,30 +192,36 @@ export default {
           if (result.data.code === 200) {
             this.treeData.children = result.data.data;
           } else {
-            alert("获取失败");
+            this.$notify.error({
+              title: "错误",
+              message: result.data.msg
+            });
           }
         })
         .catch(e => {
-          console.log(e);
+          this.$notify.error({
+            title: "错误",
+            message: "获取部门失败"
+          });
         });
-        this.loading = false;
+      this.loading = false;
     },
     openChildList(node) {
       node.child = true;
     },
-    onTreeDataChange(list) {
-      this.$confirm("确认要移动该部门吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消"
-      })
-        .then(result => {
-          if (result == "confirm") {
-            console.log(list);
-            this.treeData.children = list;
-          }
-        })
-        .catch(err => {});
-    },
+    // onTreeDataChange(list) {
+    //   this.$confirm("确认要移动该部门吗?", "提示", {
+    //     confirmButtonText: "确定",
+    //     cancelButtonText: "取消"
+    //   })
+    //     .then(result => {
+    //       if (result == "confirm") {
+    //         console.log(list);
+    //         this.treeData.children = list;
+    //       }
+    //     })
+    //     .catch(err => {});
+    // },
     deleteDepatment(item) {
       this.$confirm("确认要删除该部门吗,下级部门也将会删除,谨慎操作?", "提示", {
         confirmButtonText: "确定",
@@ -231,12 +236,22 @@ export default {
                 if (result.data.code === 200) {
                   this.getDepartmentsTree;
                   this.reload();
+                  this.$notify.success({
+                    title: "提示",
+                    message: result.data.msg
+                  });
                 } else {
-                  alert("获取失败");
+                  this.$notify.error({
+                    title: "提示",
+                    message: result.data.msg
+                  });
                 }
               })
               .catch(e => {
-                console.log(e);
+                this.$notify.error({
+                  title: "错误",
+                  message: "操作失败"
+                });
               });
           }
         })
@@ -256,7 +271,6 @@ export default {
       //   .catch(e => {
       //     console.log(e);
       //   });
-      console.log("删除", item);
     },
 
     /**
@@ -302,6 +316,13 @@ export default {
           });
           return;
         }
+        if (this.department.departmentName.match(/^[ ]*$/)) {
+          this.$notify.error({
+            title: "错误",
+            message: "部门名字不能为空"
+          });
+          return;
+        }
         postJsonRequest("/api/admin/editDepartment", {
           name: this.department.departmentName,
           instroduction: this.department.departmentIntroduction,
@@ -315,12 +336,22 @@ export default {
             if (result.data.code === 200) {
               this.getDepartmentsTree;
               this.reload();
+              this.$notify.success({
+                title: "提示",
+                message: result.data.msg
+              });
             } else {
-              alert(result.data.msg);
+              this.$notify.error({
+                title: "提示",
+                message: result.data.msg
+              });
             }
           })
           .catch(e => {
-            console.log(e);
+            this.$notify.error({
+              title: "提示",
+              message: "操作失败"
+            });
           });
       }
       this.dialogTableVisible1 = false;
@@ -382,12 +413,22 @@ export default {
             if (result.data.code === 200) {
               this.getDepartmentsTree;
               this.reload();
+              this.$notify.success({
+                title: "提示",
+                message: "增加成功"
+              });
             } else {
-              alert(result.data.msg);
+              this.$notify.error({
+                title: "错误",
+                message: result.data.msg
+              });
             }
           })
           .catch(e => {
-            console.log(e);
+            this.$notify.error({
+              title: "错误",
+              message: "操作失败"
+            });
           });
         this.dialogTableVisible = false;
         this.department = {
