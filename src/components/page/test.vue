@@ -3,7 +3,7 @@
         <pdf :src="src" :page = "currentPage1" style="width:80%;height:40%;margin:0 auto" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
         <!-- <el-button type="primary" @click="download"></el-button> -->
         <el-pagination
-        style="margin-left:900px"
+        style="margin-left:750px"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page.sync="currentPage1"
