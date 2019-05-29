@@ -425,7 +425,7 @@ export default {
         type: "selection",
         title: "机构名称",
         field: "name",
-        width: 100,
+        width: 200,
         align: "left",
         formatter: item => {
           return "<span>" + item.name + "</span>";
@@ -435,7 +435,7 @@ export default {
         title: "机构描述",
         field: "introduction",
         width: 200,
-        align: "center",
+        align: "left",
         flex: 1,
         formatter: item => {
           return "<span>" + item.instroduction + "</span>";
