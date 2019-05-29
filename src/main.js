@@ -138,6 +138,10 @@ router.beforeEach((to, from, next) => {
     // console.log(to.meta.title == arr[6])
     // console.log(arr.contains(to.meta.title));
       let permissions = localStorage.getItem("permissions");
+      if(permissions == null){
+        next();
+        return;
+      }
     let arr = permissions.split(",");
     const token = localStorage.getItem("token");
     if(!token && to.path !== '/login'){
