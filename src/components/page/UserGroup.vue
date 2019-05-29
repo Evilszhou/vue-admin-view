@@ -45,14 +45,24 @@
             <el-dialog
               title="编辑分组"
               :visible.sync="centerDialogVisible"
-              width="30%"
+              width="40%"
               style="height:1000px"
              >
              <el-form :model="form">
                 <el-form-item label="用户组名" :label-width="formLabelWidth">
                   <el-input v-model="form.groupName" style="width:85%" autocomplete="off"></el-input>
                 </el-form-item>
-                
+                 <el-form-item label="页面权限" :label-width="formLabelWidth">
+                  <el-checkbox-group v-model="form.pagePermission" >
+                    <el-checkbox label="文件管理"></el-checkbox>
+                    <el-checkbox label="用户管理"></el-checkbox>
+                    <el-checkbox label="权限管理"></el-checkbox>
+                    <el-checkbox label="日志管理"></el-checkbox>
+                    <el-checkbox label="标签管理"></el-checkbox>
+                    <el-checkbox label="机构管理"></el-checkbox>
+                    <el-checkbox label="文件上传"></el-checkbox>
+                  </el-checkbox-group>
+                </el-form-item>
                 <el-form-item label="用户权限" :label-width="formLabelWidth" >
                    <el-checkbox-group v-model="form.groupPermission" @change="changePermissions">
                     <el-checkbox label="预览"></el-checkbox>
@@ -144,10 +154,11 @@ export default {
       handleEdit(index, row) {
         console.log(row)
         let permissions = row.groupPermission.split(",");
+        let pagepermissions = row.pagePermission.split(";");
         console.log(permissions)
         this.form.groupName = row.groupName;
         this.form.groupPermission = permissions;
-       
+        this.form.pagePermission = pagepermissions;
         this.centerDialogVisible = true;
       },
       getallUserGroup(){
@@ -200,9 +211,18 @@ export default {
             name = name + this.form.groupPermission[i]+","
           }
         }
+        let pagePermissions = "";
+        for(let i = 0; i < this.form.pagePermission.length;i++){
+          if(i == this.form.pagePermission.length - 1){
+            pagePermissions = pagePermissions + this.form.pagePermission[i];
+          }else{
+            pagePermissions = pagePermissions + this.form.pagePermission[i]+";"
+          }
+        }
         let userGroup = {
           groupName:this.form.groupName,
-          groupPermission:name
+          groupPermission:name,
+          pagePermission:pagePermissions
         }
         postJsonRequest("/api/updateUserGroup",userGroup).then((result) => {
           console.log(result);
