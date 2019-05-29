@@ -162,7 +162,7 @@
               :total="pageCount">
             </el-pagination>
                 <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:80%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
-               
+
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="dialogVisible = false">取 消</el-button>
                   <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -322,9 +322,9 @@ export default {
         //  console.log(result.data.data[0].pagePermission.splice(";"))
         //  let permissions = result.data.data[0].pagePermission.splice(";")
         //  console.log(permissions)
-         
+
        }).catch((err) => {
-         
+
        });
      },
      open3(msg) {
@@ -366,7 +366,7 @@ export default {
         console.log(`每页 ${val} 条`);
     },
     handlePreCurrentChange(val){
-        
+
         this.currentPage1 = val;
         window.scrollTo(0,0);
     },
@@ -376,7 +376,7 @@ export default {
       },
     perview(node){
       // this.$router.push("/test");
-    
+
       this.src = "";
       console.log(node);
       let data = {
@@ -387,7 +387,7 @@ export default {
       //   return;
       // }
       postRequest("/api/public/preViewFile",data).then((result) => {
-   
+
         let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
         this.src = url;
         if(result.data.code != 200){
@@ -397,7 +397,7 @@ export default {
         this.loading = false;
         // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
       }).catch((err) => {
-        
+
       });
       this.dialogVisible = true;
       window.scrollTo(0,0);
@@ -425,7 +425,7 @@ export default {
             this.url = url;
             // console.log("url:"+url);
             // window.location.href = url;
-  
+
     },
     selectDepartment(data) {
       if (data != null && data.length > 0) {
