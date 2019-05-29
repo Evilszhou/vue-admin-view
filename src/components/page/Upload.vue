@@ -56,7 +56,7 @@
       </el-input>
       <el-button type="primary" style="margin-left:320px;margin-top:-32px;display: flex" @click="chooseType">选择类别</el-button>
     </el-form-item>
-    <el-form-item label="序号:" :label-width="formLabelWidth">
+    <el-form-item label="文件号:" :label-width="formLabelWidth">
       <el-input v-model="form.number" placeholder="请输入内容"></el-input>
     </el-form-item>
     <el-form-item label="日期:" :label-width="formLabelWidth">
@@ -65,9 +65,6 @@
       type="date"
       placeholder="选择日期:">
     </el-date-picker>
-
-
-
     </el-form-item>
   </el-form>
       <el-row style="margin-top:30px" :gutter="20">
@@ -256,12 +253,28 @@ export default {
     console.log(this.tags);
     console.log(JSON.stringify(this.dynamicTags));
     this.getAllTags();
+    this.getDocLabelsTree();
   },
   computed: {},
   components: {
     VueCropper
   },
   methods: {
+    getDocLabelsTree() {
+      getRequest("/api/public/getDocLabelsTree")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.data = result.data.data;
+            console.log(this.data);
+          } else {
+            console.log(result.data.msg);
+          }
+        })
+        .catch(e => {
+          // this.loading = false;
+          console.log(e);
+        });
+    },
     confimType(){
       this.value = [];
       let aKey = this.$refs.tree.getCheckedNodes();
@@ -358,6 +371,18 @@ export default {
     cropImage() {
       //   this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
     },
+    open3(msg) {
+      if(msg == undefined){
+        msg = "上传附件成功!";
+      }else{
+        msg = "上传文件成功!"
+      }
+      this.$notify({
+          title: '成功',
+          message: '上传附件成功!',
+          type: 'success'
+        });
+      },
     submit() {
       this.chooseTags = [];
       let tags = this.form.tags;
@@ -410,7 +435,7 @@ export default {
       this.$refs.uploadannex.submit();
     },
     uploadAnneixSuccess() {
-      console.log("dasdasda");
+      this.open3();
       this.dialogVisible = false;
       this.reload();
     },
@@ -484,7 +509,10 @@ export default {
 
 .el-tag + .el-tag {
   margin-left: 10px;
+  
 }
+
+
 .button-new-tag {
   margin-left: 10px;
   height: 32px;

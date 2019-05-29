@@ -9,12 +9,8 @@
         <div class="container">
              <div class="drag-box">
                 <div class="drag-box-item">
-                    <div class="item-title">标签目录</div>
-                    <el-input
-                    class="el"
-                        placeholder="输入关键字进行过滤"
-                        v-model="filterText">
-                    </el-input>
+                    <div class="item-title" style="width:200px">分类目录</div>
+                  <el-button type="primary" size="mini" style="display:flex;margin-left:240px;margin-top:-30px;height:25px;" @click="dialogVisible = true">增加分类</el-button>
                     <el-tree
                     style="margin-top:10px"
                         ref="tree"
@@ -36,7 +32,7 @@
                     </el-tree>
                 </div>
                 <div class="drag-box-item">
-                    <div class="item-title">待管理标签</div>
+                    <div class="item-title">标签管理</div>
                     <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
                         <transition-group tag="div" id="doing" class="item-ul">
                             <el-tag
@@ -67,12 +63,61 @@
                             </el-tag>
                         </transition-group>
                     </draggable>
-                </div>
-               
+                </div> 
             </div>
-        </div>
- 
+            <el-dialog
+              title="新增分类"
+              :visible.sync="dialogVisible"
+              style="margin-top:100px"
+              width="30%"
+             >
+              <el-form :model="form" label-width="80px">
+                <el-form-item label="分类名:">
+                  <el-input v-model="form.name"></el-input>
+                </el-form-item>
+              </el-form>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addRootLabel">确 定</el-button>
+              </span>
+            </el-dialog>
 
+             <el-dialog
+              title="新增分类"
+              :visible.sync="dialogVisible1"
+              style="margin-top:100px"
+              width="30%"
+             >
+              <el-form :model="form" label-width="80px">
+                <el-form-item label="分类名:">
+                  <el-input v-model="form.name"></el-input>
+                </el-form-item>
+              </el-form>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible1 = false">取 消</el-button>
+                <el-button type="primary" @click="addLabel">确 定</el-button>
+              </span>
+            </el-dialog>
+
+            <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible2"
+            width="30%"
+            
+           >
+              <el-form :model="editform" label-width="80px">
+                <el-form-item label="分类名:">
+                  <el-input v-model="editform.name"></el-input>
+                </el-form-item>
+             
+              </el-form>
+                
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible2 = false">取 消</el-button>
+              <el-button type="primary" @click="confimUpdate">确 定</el-button>
+            </span>
+          </el-dialog>
+        </div>
     </div>
 </section>
 </template>
@@ -92,92 +137,70 @@ export default {
   },
   data() {
     return {
+      type:"",
+      docLabelsTree:[],
+      form:{
+        name:""
+      },
+      editform:{
+        name:"",
+        type:""
+      },
+      nodeValue:"",
       dialogVisible: false,
+      dialogVisible1:false,
+      dialogVisible2:false,
       filterText: "",
       tags: [],
       tags1: [],
       num: 1,
       label: "",
-      data: [
+     data: [
         {
-          id: 1,
-          label: "数据文件",
-          children: [
-            {
-              id: 4,
-              label: "报表",
-              children: [
+            "superId": 0,
+            "children": [
                 {
-                  id: 9,
-                  label: "财务报表"
+                    "superId": 19,
+                    "children": null,
+                    "list": null,
+                    "id": 22,
+                    "label": "表情包"
                 },
                 {
-                  id: 10,
-                  label: "公司财政"
-                },
-                {
-                  id: 11,
-                  label: "人员流动表"
-                },
-                {
-                  id: 12,
-                  label: "图片"
+                    "superId": 19,
+                    "children": [
+                        {
+                            "superId": 26,
+                            "children": null,
+                            "list": null,
+                            "id": 27,
+                            "label": "ppt素材"
+                        }
+                    ],
+                    "list": null,
+                    "id": 26,
+                    "label": "透明素材"
                 }
-              ]
-            },
-            {
-              id: 14,
-              label: "合同",
-              children: [
-                {
-                  id: 15,
-                  label: "财务合同"
-                },
-                {
-                  id: 16,
-                  label: "商务合同"
-                }
-              ]
-            }
-          ]
+            ],
+            "list": null,
+            "id": 19,
+            "label": "图片"
         },
         {
-          id: 2,
-          label: "图片",
-          children: [
-            {
-              id: 5,
-              label: "Basic"
-            },
-            {
-              id: 6,
-              label: "Form"
-            },
-            {
-              id: 7,
-              label: "Data"
-            }
-          ]
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 20,
+            "label": "背景图"
         },
         {
-          id: 3,
-          label: "表格表单",
-          children: [
-            {
-              id: 7,
-              label: "Axure Components"
-            },
-            {
-              id: 8,
-              label: "Sketch Templates"
-            },
-            {
-              id: 15,
-              label: "组件交互文档"
-            }
-          ]
+            "superId": 0,
+            "children": null,
+            "list": null,
+            "id": 21,
+            "label": "风景图"
         }
-      ],
+    ],
       defaultProps: {
         children: "children",
         label: "label"
@@ -234,6 +257,108 @@ export default {
   },
 
   methods: {
+  
+    confimUpdate(){
+      let _this = this;
+      let node = {
+        id:this.nodeValue.id,
+        label:this.editform.name,
+        superId:this.nodeValue.superId
+      }
+      postJsonRequest("/api/public/updateLabels",node).then((result) => {
+        if(result.data.code != 200){
+          this.open6(result.data.msg);
+        }else{
+          this.open3(result.data.msg);
+          this.reload();
+        }
+      }).catch((err) => {
+        
+      });
+
+    },
+    addLabel(node,data){
+      console.log(this.form.name);
+      let _this = this;
+      let node1 = {
+        label:this.form.name,
+        superId:this.nodeValue.id
+      }
+      console.log(node1);
+      postJsonRequest("/api/public/addLabels",node1).then((result) => {
+        console.log(result);
+        if(result.data.code != 200){
+          this.open6(result.data.msg);
+        }else if(result.data.code == 200){
+          this.open3(result.data.msg);
+          this.reload();
+        }
+      }).catch((err) => {
+        
+      });
+      this.dialogVisible1 = false;
+
+    },
+    addRootLabel(){
+      console.log(this.form.name);
+      let _this = this;
+      let node = {
+        label:this.form.name,
+        superId:0
+      };
+      postJsonRequest("/api/public/addLabels",node).then((result) => {
+        console.log(result);
+        if(result.data.code != 200){
+          this.open6(result.data.msg);
+        }else if(result.data.code == 200){
+          this.open3(result.data.msg);
+          this.reload();
+        }
+        
+      }).catch((err) => {
+        
+      });
+      this.dialogVisible = false;
+
+    },
+    open3(msg) {
+      if(msg == undefined){
+        msg = '这是一条成功的提示消息';
+      }
+        this.$notify({
+          title: '成功',
+          message: msg,
+          type: 'success'
+        });
+      },
+     open6(msg) {
+       if(msg == undefined){
+         msg = "这是一条错误的提示消息"
+       }
+        this.$notify.error({
+          title: '错误',
+          message: msg
+        });
+    },
+    addTag(node){
+      console.log(node);
+      console.log(node.data)        
+    },
+     getDocLabelsTree() {
+      getRequest("/api/public/getDocLabelsTree")
+        .then(result => {
+          if (result.data.code === 200) {
+            this.data = result.data.data;
+            console.log(this.data);
+          } else {
+            console.log(result.data.msg);
+          }
+        })
+        .catch(e => {
+          // this.loading = false;
+          console.log(e);
+        });
+    },
     removetag(){
       let _this = this;
      
@@ -244,7 +369,6 @@ export default {
       postJsonRequest("/api/public/getAllTags")
         .then(result => {
           for (let i = 0; i < result.data.data.length; i++) {
-            
             let obj = {
               name: result.data.data[i].tagName,
               type: "success"
@@ -273,6 +397,17 @@ export default {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
     },
+    getNode(node,data){
+      console.log(data);
+      this.nodeValue = data;
+      this.dialogVisible1 = true;
+    },
+    getEditNode(node,data){
+      console.log(data);
+      this.nodeValue = data;
+      this.editform.name = this.nodeValue.label;
+      this.dialogVisible2 = true;
+    },
     renderContent(h, { node, data, store }) {
       return (
         <span class="custom-tree-node">
@@ -281,6 +416,13 @@ export default {
             {node.label}
           </span>
           <span>
+          <i class="el-icon-lx-roundadd"
+          on-click = {() => this.getNode(node,data)}
+          style="margin-right:2px"
+           />
+           <i class="el-icon-lx-edit"
+           style="margin-right:2px"
+           on-click = {() => this.getEditNode(node,data)}></i>
             <i
               class="el-icon-lx-roundclose"
               on-click={() => this.remove(node, data)}
@@ -310,6 +452,8 @@ export default {
       this.data.push(newChild);
     },
     remove(node, data) {
+      console.log(node);
+      
       this.$confirm("确认要删除该标签吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -317,10 +461,20 @@ export default {
       })
         .then(result => {
           if (result == "confirm") {
-            const parent = node.parent;
-            const children = parent.data.children || parent.data;
-            const index = children.findIndex(d => d.id === data.id);
-            children.splice(index, 1);
+            console.log("hh ")
+            // console.log(eval +"node:")
+            postJsonRequest("/api/public/deleteLabels",data).then((result) => {
+             console.log(result);
+             if(result.data.code != 200){
+               this.open6(result.data.msg);
+             }else{
+               this.open3(result.data.msg);
+               this.reload();
+             }
+           
+            }).catch((err) => {
+              
+            });
           } else {
           }
         })
@@ -334,19 +488,35 @@ export default {
       console.log("drag start", node);
     },
     handleDragEnter(draggingNode, dropNode, ev) {
-      console.log("tree drag enter: ", dropNode.label);
+      // console.log("tree drag enter: ", dropNode.label);
     },
     handleDragLeave(draggingNode, dropNode, ev) {
-      console.log("tree drag leave: ", dropNode.label);
+      // console.log("tree drag leave: ", dropNode.label);
     },
     handleDragOver(draggingNode, dropNode, ev) {
-      console.log("tree drag over: ", dropNode.label);
+      // console.log("tree drag over: ", dropNode.label);
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
-      console.log("tree drag end: ", dropNode && dropNode.label, dropType);
+      console.log("tree drag end: ",  draggingNode.data.label,dropNode.label, dropType);
+      let data = {
+        oldNode:draggingNode.data.label,
+        newNode:dropNode.label,
+        event:dropType
+      }
+      let _this = this;
+      postRequest("/api/public/dragLabel",data).then((result) => {
+         if(result.data.code != 200){
+               this.open6(result.data.msg);
+             }else{
+               this.open3(result.data.msg);
+               this.reload();
+             }
+      }).catch((err) => {
+        
+      });
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
-      console.log("tree drop: ", dropNode.label, dropType);
+      // console.log("tree drop: ", dropNode.label, dropType);
     },
     allowDrop(draggingNode, dropNode, type) {
       if (dropNode.data.label === "二级 3-1") {
@@ -361,6 +531,7 @@ export default {
   },
   mounted() {
     this.getAllTags();
+    this.getDocLabelsTree();
   }
 };
 </script>

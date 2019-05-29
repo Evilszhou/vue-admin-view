@@ -11,10 +11,10 @@ module.exports = {
                 }
             },
             '/file':{
-                target:'http://39.106.189.251/',
+                target:'http://localhost:88',
                 changeOrigin:true,
                 pathRewrite:{
-                    '^/file':"http://39.106.189.251/"
+                    '^/file':"http://localhost:88" 
                 }
             },
             // '/admin':{
