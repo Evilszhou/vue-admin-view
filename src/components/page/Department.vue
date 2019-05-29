@@ -218,7 +218,7 @@ export default {
         .catch(err => {});
     },
     deleteDepatment(item) {
-      this.$confirm("确认要删除该部门吗?", "提示", {
+      this.$confirm("确认要删除该部门吗,下级部门也将会删除,谨慎操作?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
