@@ -142,13 +142,13 @@ export default {
           if (child.name == this.searchParam) {
             result.isInclude = true;
           }
-          console.log(child);
+          // console.log(child);
           result.nodes.push(child);
           let isInclude = this.deepTraversal(child.children).isInclude;
           if (isInclude) {
             child.open = true;
             result.isInclude = true;
-            console.log(child.name + "is true");
+            // console.log(child.name + "is true");
           } else {
             child.open = false;
           }
@@ -158,7 +158,7 @@ export default {
     },
     search() {
       let result = this.deepTraversal(this.treeData.children);
-      console.log(result);
+      // console.log(result);
       let newTreeDataChildren = result.nodes;
       let isInclude = result.isInclude;
       let newTreeData = {
@@ -278,7 +278,7 @@ export default {
      * @param item 选中部门
      */
     showEditDialog(item) {
-      console.log("修改", item);
+      // console.log("修改", item);
       this.selectItem = item;
       this.dialogTableVisible1 = true;
       this.department.departmentName = item.name;
@@ -375,7 +375,7 @@ export default {
     selectDepartment(data) {
       if (data != null && data.length > 0) {
         this.selectParientId = data[data.length - 1];
-        console.log(this.selectParientId);
+        // console.log(this.selectParientId);
       }
     },
 
@@ -394,7 +394,7 @@ export default {
 
     commitAddDepartment() {
       let a = typeof this.department.departmentName;
-      console.log(a);
+      // console.log(a);
       if (
         this.department.departmentName == null ||
         this.department.departmentName.match(/^[ ]*$/)
@@ -456,7 +456,7 @@ export default {
     searchParam(val) {
       if (val != "") {
         this.searchParam = val;
-        console.log(this.searchParam);
+        // console.log(this.searchParam);
       }
     }
   },
