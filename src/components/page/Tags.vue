@@ -71,7 +71,7 @@
               style="margin-top:100px"
               width="30%"
              >
-              <el-form :model="form" label-width="80px">
+              <el-form :model="form" label-width="80px" :rules="rule1">
                 <el-form-item label="分类名:">
                   <el-input v-model="form.name"></el-input>
                 </el-form-item>
@@ -389,7 +389,13 @@ export default {
       };
       postJsonRequest("/api/public/updateTag", obj)
         .then(result => {
+          if(result.data.code == 200){
+            this.open3(result.data.msg);
             this.reload();
+          }else{
+            this.open6(result.data.msg);
+          }
+         
         })
         .catch(err => {});
     },

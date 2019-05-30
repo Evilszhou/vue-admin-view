@@ -146,6 +146,25 @@ export default {
     this.getDepartmentsTree();
   },
   methods: {
+     open3(msg) {
+      if(msg == undefined){
+        msg = '这是一条成功的提示消息';
+      }
+        this.$notify({
+          title: '成功',
+          message: msg,
+          type: 'success'
+        });
+      },
+     open6(msg) {
+       if(msg == undefined){
+         msg = "这是一条错误的提示消息"
+       }
+        this.$notify.error({
+          title: '错误',
+          message: msg
+        });
+    },
     
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
@@ -175,7 +194,13 @@ export default {
       postJsonRequest("api/public/updateUserMessage", this.updateuser)
         .then(result => {
           console.log(result);
-          this.reload();
+          if(result.data.code != 200){
+            this.open6(result.data.msg);
+          }else{
+            this.open3(result.data.msg);
+             this.reload();
+          }
+         
         })
         .catch(err => {});
       this.dialogTableVisible1 = false;
@@ -190,10 +215,11 @@ export default {
         .then(result => {
           console.log(result);
           if (result.data.code == 200) {
+            this.open3(result.data.msg);
             this.reload();
             // _this.tableData = result.data.data
           } else if (result.data.code == -1) {
-            this.open6();
+            this.open6(result.data.msg);
           }
         })
         .catch(err => {});

@@ -55,7 +55,7 @@
                 </el-col>
                 <el-col :span="4">
                   <el-cascader
-                    v-model="departs"
+                   
                     placeholder="输入部门"
                     :options="departments"
                     filterable
@@ -120,7 +120,7 @@
                     <el-button
                       type="primary"
                       size="mini"
-                      @click="handleEdit(scope.$index, scope.row)"
+                      @click="openEditWindows(scope.row)"
                     >编辑</el-button>
                     <el-button
                     size="mini"
@@ -153,7 +153,7 @@
                 width="50%"
                 style="height:100%;">
                  <el-pagination
-                style="margin-left:20%;margin-top:-50px"
+                style="margin-left:20%;margin-top:-10px"
               @size-change="handlePreSizeChange"
               @current-change="handlePreCurrentChange"
               :current-page.sync="currentPage1"
@@ -161,7 +161,7 @@
               layout="total, prev, pager, next"
               :total="pageCount">
             </el-pagination>
-                <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:80%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
+                <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:90%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
 
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="dialogVisible = false">取 消</el-button>
@@ -174,13 +174,61 @@
                 title="提示"
                 :visible.sync="dialogVisible1"
                 width="30%"
-                :before-close="handleClose">
+                >
                 <span>是否选择下载文件及附件?</span>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="singledownload">取 消</el-button>
                   <el-button type="primary" @click="batchdownload">确 定</el-button>
                 </span>
               </el-dialog>
+
+
+              <el-dialog
+              title="编辑"
+              :visible.sync="dialogVisible2"
+              width="50%">
+              <el-form :model="editForm" label-width="120px">
+                  <el-form-item label="文件名:">
+                    <el-input v-model="editForm.filename" style="width:80%"></el-input>
+                  </el-form-item>
+                  <el-form-item v-model="editForm.department" label="所属部门" >
+                     <el-cascader
+                    placeholder="输入部门"
+                    :options="departments"
+                    filterable
+                    :change-on-select="true"
+                    @change="selectDepartment"
+                    clearable
+                  ></el-cascader>
+                  </el-form-item>
+                  <el-form-item label="所属分类" style="width:60%">
+                    <el-input readonly="true" style="width:300px" placeholder="请选择文件类型" v-model="value">
+                    </el-input>
+                  </el-form-item>
+                  <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
+              </el-form>
+              </el-dialog>
+
+
+                 <el-dialog
+  title="选择文本分类"
+  :visible.sync="dialogVisible3"
+  width="30%"
+  :before-close="handleClose">
+  <el-tree
+  ref="tree"
+  :data="docLabelsTree"
+  show-checkbox
+  node-key="id"
+  default-expand-all
+  :default-checked-keys="[5]"
+  :props="defaultProps">
+</el-tree>
+  <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible3 = false">取 消</el-button>
+    <el-button type="primary" @click="confimType">确 定</el-button>
+  </span>
+</el-dialog>
 
               <!-- <el-checkbox
                 class="document-display-checkAll"
@@ -307,6 +355,14 @@ export default {
         this.src = pdf.createLoadingTask(this.src)
   },
   methods: {
+    choosetp(){
+      this.dialogVisible3 = true;
+
+    },
+    openEditWindows(row){
+      console.log(row);
+      this.dialogVisible2 = true;
+    },
      getPagePermissions(){
        let _this = this;
        postJsonRequest("/api/public/getPagePermission").then((result) => {
@@ -316,7 +372,7 @@ export default {
          console.log(str)
          str.push("login");
          str.push("403")
-         console.log(str);
+         console.log(str+"-----------------------------------------------------------------------------------------");
          localStorage.setItem("permissions",str);
         //  console.log(typeof result.data.data[0].pagePermission)
         //  console.log(result.data.data[0].pagePermission.splice(";"))
@@ -387,14 +443,17 @@ export default {
       //   return;
       // }
       postRequest("/api/public/preViewFile",data).then((result) => {
-
-        let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
-        this.src = url;
         if(result.data.code != 200){
+          // this.dialogVisible = false;
           this.open6(result.data.msg);
-
-        }
+        }else{
+           let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
+        this.src = url;
+   
         this.loading = false;
+        }
+
+       
         // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
       }).catch((err) => {
 
@@ -739,8 +798,14 @@ export default {
       currentPage1:1,
       pageCount:0,
       url:"",
+      editForm:{
+        filename:""
+
+      },
       dialogVisible: false,
       dialogVisible1:false,
+      dialogVisible2:false,
+      dialogVisible3:false,
       departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
