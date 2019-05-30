@@ -220,7 +220,7 @@ export default {
       filterTagArray: [
         { text: "用户管理", value: "用户管理" },
         { text: "文件管理", value: "文件管理" },
-        { text: "文件标签管理", value: "文件标签管理" },
+        { text: "类别管理", value: "类别管理" },
         { text: "组织机构管理", value: "组织机构管理" },
         { text: "文件根目录管理", value: "文件根目录管理" }
       ]
