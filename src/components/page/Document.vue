@@ -39,14 +39,15 @@
             <div class="document-search">
               <el-row :gutter="25" class="document-search-label">
                 <ul>
-                    <el-tag
-                            :key="tag.tagId"
-                            v-for="tag in allTags"
-                            @click="chooseTag(tag)"
-                            :type="tag.type"
-                            :disable-transitions="true"
-                            @close="handleClose(tag)"
-                    >{{tag.tagName}}</el-tag>
+                  <el-tag
+                    style="cursor:pointer"
+                    :key="tag.tagId"
+                    v-for="tag in allTags"
+                    @click="chooseTag(tag)"
+                    :type="tag.type"
+                    :disable-transitions="true"
+                    @close="handleClose(tag)"
+                  >{{tag.tagName}}</el-tag>
                 </ul>
               </el-row>
               <el-row :gutter="25" class="document-search-multipleConditions">
@@ -112,27 +113,14 @@
                 ></el-table-column>
                 <el-table-column label="操作" width="300">
                   <template slot-scope="scope">
-                    <el-button
-                      @click="download(scope.row)"
-                      size="mini"
-                      type="success">
-                      下载 </el-button>
+                    <el-button @click="download(scope.row)" size="mini" type="success">下载</el-button>
                     <el-button
                       type="primary"
                       size="mini"
                       @click="handleEdit(scope.$index, scope.row)"
                     >编辑</el-button>
-                    <el-button
-                    size="mini"
-                    @click="perview(scope.row)"
-                    type="normal">
-                    预览
-                    </el-button>
-                    <el-button
-                      size="mini"
-                      type="danger"
-                      @click="handleDelete(scope.$index, scope.row)"
-                    >删除</el-button>
+                    <el-button size="mini" @click="perview(scope.row)" type="normal">预览</el-button>
+                    <el-button size="mini" type="danger" @click="delDoc(scope.$index, scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -147,21 +135,24 @@
                 ></el-pagination>
               </div>
 
-              <el-dialog
-                title="预览"
-                :visible.sync="dialogVisible"
-                width="50%"
-                style="height:100%;">
-                 <el-pagination
-                style="margin-left:20%;margin-top:-50px"
-              @size-change="handlePreSizeChange"
-              @current-change="handlePreCurrentChange"
-              :current-page.sync="currentPage1"
-              :page-size="1"
-              layout="total, prev, pager, next"
-              :total="pageCount">
-            </el-pagination>
-                <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:80%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
+              <el-dialog title="预览" :visible.sync="dialogVisible" width="50%" style="height:100%;">
+                <el-pagination
+                  style="margin-left:20%;margin-top:-50px"
+                  @size-change="handlePreSizeChange"
+                  @current-change="handlePreCurrentChange"
+                  :current-page.sync="currentPage1"
+                  :page-size="1"
+                  layout="total, prev, pager, next"
+                  :total="pageCount"
+                ></el-pagination>
+                <pdf
+                  :src="src"
+                  v-loading="loading"
+                  :page="currentPage1"
+                  style="width:80%;height:30%;margin:0 auto;margin-top:20px"
+                  @loaded="loadPdfHandler"
+                  @num-pages="pageCount = $event"
+                ></pdf>
 
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="dialogVisible = false">取 消</el-button>
@@ -169,12 +160,12 @@
                 </span>
               </el-dialog>
 
-
               <el-dialog
                 title="提示"
                 :visible.sync="dialogVisible1"
                 width="30%"
-                :before-close="handleClose">
+                :before-close="handleClose"
+              >
                 <span>是否选择下载文件及附件?</span>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="singledownload">取 消</el-button>
@@ -284,148 +275,141 @@
 </template>
 
 <script>
-import pdf from 'vue-pdf';
+import pdf from "vue-pdf";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
 
 export default {
-  components:{
-      pdf
+  components: {
+    pdf
   },
-   created(){
-      var headers = {
-        'Authorization': 'Bearer SOME_TOKEN',
-        'x-ipp-device-uuid': 'SOME_UUID',
-        'x-ipp-client': 'SOME_ID',
-        'x-ipp-client-version': 'SOME_VERSION'
-        };
-        var loadingTask = pdf.createLoadingTask({
-            url:this.src,
-            httpHeaders:headers
-        });
-        this.src = pdf.createLoadingTask(this.src)
+  created() {
+    var headers = {
+      Authorization: "Bearer SOME_TOKEN",
+      "x-ipp-device-uuid": "SOME_UUID",
+      "x-ipp-client": "SOME_ID",
+      "x-ipp-client-version": "SOME_VERSION"
+    };
+    var loadingTask = pdf.createLoadingTask({
+      url: this.src,
+      httpHeaders: headers
+    });
+    this.src = pdf.createLoadingTask(this.src);
   },
   methods: {
-     getPagePermissions(){
-       let _this = this;
-       postJsonRequest("/api/public/getPagePermission").then((result) => {
-        //  console.log(result)
-        //  console.log(result.data.data[0].pagePermission);
-         let str = result.data.data[0].pagePermission.split(";");
-         console.log(str)
-         str.push("login");
-         str.push("403")
-         console.log(str);
-         localStorage.setItem("permissions",str);
-        //  console.log(typeof result.data.data[0].pagePermission)
-        //  console.log(result.data.data[0].pagePermission.splice(";"))
-        //  let permissions = result.data.data[0].pagePermission.splice(";")
-        //  console.log(permissions)
-
-       }).catch((err) => {
-
-       });
-     },
-     open3(msg) {
-      if(msg == undefined){
-        msg = '这是一条成功的提示消息';
-      }
-        this.$notify({
-          title: '成功',
-          message: msg,
-          type: 'success'
-        });
-      },
-     open6(msg) {
-       if(msg == undefined){
-         msg = "这是一条错误的提示消息"
-       }
-        this.$notify.error({
-          title: '错误',
-          message: msg
-        });
+    getPagePermissions() {
+      let _this = this;
+      postJsonRequest("/api/public/getPagePermission")
+        .then(result => {
+          //  console.log(result)
+          //  console.log(result.data.data[0].pagePermission);
+          let str = result.data.data[0].pagePermission.split(";");
+          console.log(str);
+          str.push("login");
+          str.push("403");
+          console.log(str);
+          localStorage.setItem("permissions", str);
+          //  console.log(typeof result.data.data[0].pagePermission)
+          //  console.log(result.data.data[0].pagePermission.splice(";"))
+          //  let permissions = result.data.data[0].pagePermission.splice(";")
+          //  console.log(permissions)
+        })
+        .catch(err => {});
     },
-    batchdownload(){
-      console.log("单一")
+    open3(msg) {
+      if (msg == undefined) {
+        msg = "这是一条成功的提示消息";
+      }
+      this.$notify({
+        title: "成功",
+        message: msg,
+        type: "success"
+      });
+    },
+    open6(msg) {
+      if (msg == undefined) {
+        msg = "这是一条错误的提示消息";
+      }
+      this.$notify.error({
+        title: "错误",
+        message: msg
+      });
+    },
+    batchdownload() {
+      console.log("单一");
       //  window.location.href = this.url;
-      console.log(this.url.split("?"))
+      console.log(this.url.split("?"));
       let res = this.url.split("?");
-      let url = "/api/public/downloadZip?"+ res[1];
+      let url = "/api/public/downloadZip?" + res[1];
       console.log(url);
       window.location.href = url;
       this.dialogVisible1 = false;
     },
-    singledownload(){
+    singledownload() {
       console.log("批量");
-      console.log(this.url)
+      console.log(this.url);
       window.location.href = this.url;
       this.dialogVisible1 = false;
     },
-    handlePreSizeChange(val){
-        console.log(`每页 ${val} 条`);
+    handlePreSizeChange(val) {
+      console.log(`每页 ${val} 条`);
     },
-    handlePreCurrentChange(val){
-
-        this.currentPage1 = val;
-        window.scrollTo(0,0);
+    handlePreCurrentChange(val) {
+      this.currentPage1 = val;
+      window.scrollTo(0, 0);
     },
-      loadPdfHandler(){
-          this.currentPage1 = 1;
-
-      },
-    perview(node){
+    loadPdfHandler() {
+      this.currentPage1 = 1;
+    },
+    perview(node) {
       // this.$router.push("/test");
 
       this.src = "";
       console.log(node);
       let data = {
-        FilePath:node.docSavePath
-      }
+        FilePath: node.docSavePath
+      };
       // if(node.suffixName != ".docx" || node.suffixName!=".xls" || node.suffixName != ".doc" || node.suffixName != ".ppt" || node.suffixName != ".pptx" || node.suffixName != ".jpg" || node.suffixName != ".png"){
       //   this.open6("该文件类型不支持预览!");
       //   return;
       // }
-      postRequest("/api/public/preViewFile",data).then((result) => {
-
-        let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
-        this.src = url;
-        if(result.data.code != 200){
-          this.open6(result.data.msg);
-
-        }
-        this.loading = false;
-        // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
-      }).catch((err) => {
-
-      });
+      postRequest("/api/public/preViewFile", data)
+        .then(result => {
+          let url =
+            "/file/" +
+            result.data.data.substring(result.data.data.lastIndexOf("\\") + 1);
+          this.src = url;
+          if (result.data.code != 200) {
+            this.open6(result.data.msg);
+          }
+          this.loading = false;
+          // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
+        })
+        .catch(err => {});
       this.dialogVisible = true;
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     },
-    getherf(row){
-      console.log(4444)
-    
-      return row.url;
+    getherf(row) {
+      console.log(4444);
 
+      return row.url;
     },
-    downLoadFileAndAnnex(item){
+    downLoadFileAndAnnex(item) {
       let _this = this;
       console.log(item);
-      postJsonRequest("/api/public/downloadFileAndAnnex",item).then((result) => {
-        
-      }).catch((err) => {
-        
-      });
+      postJsonRequest("/api/public/downloadFileAndAnnex", item)
+        .then(result => {})
+        .catch(err => {});
     },
     download(row) {
-     this.dialogVisible1 = true;
-            // console.log(row);
-            // console.log(row.url);
-            let url = row.url + "&token="+localStorage.getItem("token");
-            this.url = url;
-            // console.log("url:"+url);
-            // window.location.href = url;
-
+      this.dialogVisible1 = true;
+      // console.log(row);
+      // console.log(row.url);
+      let url = row.url + "&token=" + localStorage.getItem("token");
+      this.url = url;
+      // console.log("url:"+url);
+      // window.location.href = url;
     },
     selectDepartment(data) {
       if (data != null && data.length > 0) {
@@ -449,7 +433,11 @@ export default {
     },
     downLoadAnnex(item) {
       console.log(item);
-      window.location.href = "/api/getName?name="+item.annexName + "&token="+localStorage.getItem("token");
+      window.location.href =
+        "/api/getName?name=" +
+        item.annexName +
+        "&token=" +
+        localStorage.getItem("token");
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
@@ -462,6 +450,27 @@ export default {
     filterNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
+    },
+    delDoc(index, row) {
+      this.$confirm("是否要删除该文件?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
+        .then(result => {
+          if (result == "confirm") {
+            this.$notify.success({
+              title: "提示",
+              message: "文件删除成功"
+            });
+            console.log(row);
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].docId == row.docId) {
+                this.tableData.splice(i, 1);
+              }
+            }
+          }
+        })
+        .catch(err => {});
     },
     handleOpen() {},
     handleClose() {},
@@ -479,23 +488,22 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
-      chooseTag(item) {
-          console.log(item);
-          if (item.type === "normal") {
-              item.type = "danger";
-              this.tags.push(item);
-          } else {
-              item.type = "normal";
-              console.log(this.tags.indexOf(item))
-              for(let i=0;i<this.tags.length;i++){
-                  if(this.tags[i].tagId == item.tagId){
-                      this.tags.splice(i,1);
-                  }
-              }
-
+    chooseTag(item) {
+      console.log(item);
+      if (item.type === "normal") {
+        item.type = "danger";
+        this.tags.push(item);
+      } else {
+        item.type = "normal";
+        console.log(this.tags.indexOf(item));
+        for (let i = 0; i < this.tags.length; i++) {
+          if (this.tags[i].tagId == item.tagId) {
+            this.tags.splice(i, 1);
           }
-          console.log(this.tags)
-      },
+        }
+      }
+      console.log(this.tags);
+    },
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
@@ -545,24 +553,24 @@ export default {
           if (result.data.code === 200) {
             // this.tableData = result.data.data.list;
             console.log(result.data.data);
-             let table = [];
-            for(let i = 0;i < result.data.data.list.length;i++ ){
+            let table = [];
+            for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
               let tableobj = {
-                annexes:item.annexes,
-                departmentId:item.departmentId,
-                departmentName:item.departmentName,
-                docId:item.docId,
-                docLabels:item.docLabels,
-                docName:item.docName,
-                docPostTime:item.docPostTime,
-                docSavePath:item.docSavePath,
-                suffixName:item.suffixName,
-                userId:item.userId,
-                url:"/api/getName?name="+item.docName
-              }
+                annexes: item.annexes,
+                departmentId: item.departmentId,
+                departmentName: item.departmentName,
+                docId: item.docId,
+                docLabels: item.docLabels,
+                docName: item.docName,
+                docPostTime: item.docPostTime,
+                docSavePath: item.docSavePath,
+                suffixName: item.suffixName,
+                userId: item.userId,
+                url: "/api/getName?name=" + item.docName
+              };
               table.push(tableobj);
-              console.log("table:"+table);
+              console.log("table:" + table);
             }
             this.tableData = table;
             console.log(this.tableData);
@@ -593,26 +601,25 @@ export default {
             // this.tableData = result.data.data.list;
             console.log(result.data.data);
             let table = [];
-            for(let i = 0;i < result.data.data.list.length;i++ ){
+            for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
               let tableobj = {
-                annexes:item.annexes,
-                departmentId:item.departmentId,
-                departmentName:item.departmentName,
-                docId:item.docId,
-                docLabels:item.docLabels,
-                docName:item.docName,
-                docPostTime:item.docLabels,
-                docSavePath:item.docSavePath,
-                suffixName:item.suffixName,
-                userId:item.userId,
-                url:"/api/getName?name="+item.docName+"&token"
-              }
+                annexes: item.annexes,
+                departmentId: item.departmentId,
+                departmentName: item.departmentName,
+                docId: item.docId,
+                docLabels: item.docLabels,
+                docName: item.docName,
+                docPostTime: item.docLabels,
+                docSavePath: item.docSavePath,
+                suffixName: item.suffixName,
+                userId: item.userId,
+                url: "/api/getName?name=" + item.docName + "&token"
+              };
               table.push(tableobj);
-             
             }
             this.tableData = table;
-         
+
             this.total = result.data.data.total;
             this.loading = false;
           } else {
@@ -656,27 +663,27 @@ export default {
           console.log(e);
         });
     },
-      getAllTags() {
-          let _this = this;
-          postJsonRequest("/api/public/getAllTags")
-              .then(result => {
-                  console.log(result);
-                  for (let i = 0; i < result.data.data.length; i++) {
-                      if (result.data.data[i].isuse == 1) {
-                          let obj = {
-                              type: "normal",
-                              isuse: result.data.data[i].isuse,
-                              tagName: result.data.data[i].tagName,
-                              tagId: result.data.data[i].tagId
-                          };
-                          _this.allTags.push(obj);
-                      }
-                  }
-                  console.log(this.tags)
-                  console.log("this.tags")
-              })
-              .catch(err => {});
-      },
+    getAllTags() {
+      let _this = this;
+      postJsonRequest("/api/public/getAllTags")
+        .then(result => {
+          console.log(result);
+          for (let i = 0; i < result.data.data.length; i++) {
+            if (result.data.data[i].isuse == 1) {
+              let obj = {
+                type: "normal",
+                isuse: result.data.data[i].isuse,
+                tagName: result.data.data[i].tagName,
+                tagId: result.data.data[i].tagId
+              };
+              _this.allTags.push(obj);
+            }
+          }
+          console.log(this.tags);
+          console.log("this.tags");
+        })
+        .catch(err => {});
+    },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -712,11 +719,11 @@ export default {
       this.$refs.tree.filter(val);
     },
     departs(val) {
-        if(val !=null && val.length == 0){
-            this.selectDepartmentId = -1;
-        }
-        console.log(this.selectDepartmentId);
-        console.log("this.selectDepartmentId")
+      if (val != null && val.length == 0) {
+        this.selectDepartmentId = -1;
+      }
+      console.log(this.selectDepartmentId);
+      console.log("this.selectDepartmentId");
     }
   },
 
@@ -725,7 +732,7 @@ export default {
     // for (let i = 0; i < this.items.length; i++) {
     //   this.allCheckList.push(this.items[i].id);
     // }
-      this.getAllTags();
+    this.getAllTags();
     this.getDocLabelsTree();
     this.getMyChildDepartments();
     this.getDocsBySearchParam();
@@ -734,13 +741,13 @@ export default {
   },
   data() {
     return {
-      loading:true,
-      src:"",
-      currentPage1:1,
-      pageCount:0,
-      url:"",
+      loading: true,
+      src: "",
+      currentPage1: 1,
+      pageCount: 0,
+      url: "",
       dialogVisible: false,
-      dialogVisible1:false,
+      dialogVisible1: false,
       departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
