@@ -261,41 +261,52 @@ export default {
     confimUpdate(){
       let _this = this;
       let node = {
-        id:this.nodeValue.id,
-        label:this.editform.name,
-        superId:this.nodeValue.superId
-      }
-      postJsonRequest("/api/public/updateLabels",node).then((result) => {
-        if(result.data.code != 200){
-          this.open6(result.data.msg);
-        }else{
-          this.open3(result.data.msg);
-          this.reload();
-        }
-      }).catch((err) => {
-        
-      });
-
+        id: this.nodeValue.id,
+        label: this.editform.name,
+        superId: this.nodeValue.superId
+      };
+      postJsonRequest("/api/public/updateLabels", node)
+        .then(result => {
+          if (result.data.code != 200) {
+            this.$notify.error({
+              title: "错误",
+              message: result.data.msg
+            });
+          } else {
+            this.reload();
+            this.$notify.success({
+              title: "成功",
+              message: result.data.msg
+            });
+          }
+        })
+        .catch(err => {});
     },
     addLabel(node,data){
       console.log(this.form.name);
       let _this = this;
       let node1 = {
-        label:this.form.name,
-        superId:this.nodeValue.id
-      }
+        label: this.form.name,
+        superId: this.nodeValue.id
+      };
       console.log(node1);
-      postJsonRequest("/api/public/addLabels",node1).then((result) => {
-        console.log(result);
-        if(result.data.code != 200){
-          this.open6(result.data.msg);
-        }else if(result.data.code == 200){
-          this.open3(result.data.msg);
-          this.reload();
-        }
-      }).catch((err) => {
-        
-      });
+      postJsonRequest("/api/public/addLabels", node1)
+        .then(result => {
+          console.log(result);
+          if (result.data.code != 200) {
+            this.$notify.error({
+              title: "错误",
+              message: result.data.msg
+            });
+          } else if (result.data.code == 200) {
+            this.reload();
+            this.$notify.success({
+              title: "成功",
+              message: result.data.msg
+            });
+          }
+        })
+        .catch(err => {});
       this.dialogVisible1 = false;
 
     },
@@ -306,45 +317,50 @@ export default {
         label:this.form.name,
         superId:0
       };
-      postJsonRequest("/api/public/addLabels",node).then((result) => {
-        console.log(result);
-        if(result.data.code != 200){
-          this.open6(result.data.msg);
-        }else if(result.data.code == 200){
-          this.open3(result.data.msg);
-          this.reload();
-        }
-        
-      }).catch((err) => {
-        
-      });
+      postJsonRequest("/api/public/addLabels", node)
+        .then(result => {
+          console.log(result);
+          if (result.data.code != 200) {
+            this.$notify.error({
+              title: "错误",
+              message: result.data.msg
+            });
+          } else if (result.data.code == 200) {
+            this.reload();
+            this.$notify.success({
+              title: "成功",
+              message: result.data.msg
+            });
+          }
+        })
+        .catch(err => {});
       this.dialogVisible = false;
 
     },
     open3(msg) {
-      if(msg == undefined){
-        msg = '这是一条成功的提示消息';
+      if (msg == undefined) {
+        msg = "这是一条成功的提示消息";
       }
-        this.$notify({
-          title: '成功',
-          message: msg,
-          type: 'success'
-        });
-      },
-     open6(msg) {
-       if(msg == undefined){
-         msg = "这是一条错误的提示消息"
-       }
-        this.$notify.error({
-          title: '错误',
-          message: msg
-        });
+      this.$notify({
+        title: "成功",
+        message: msg,
+        type: "success"
+      });
+    },
+    open6(msg) {
+      if (msg == undefined) {
+        msg = "这是一条错误的提示消息";
+      }
+      this.$notify.error({
+        title: "错误",
+        message: msg
+      });
     },
     addTag(node){
       console.log(node);
       console.log(node.data)        
     },
-     getDocLabelsTree() {
+    getDocLabelsTree() {
       getRequest("/api/public/getDocLabelsTree")
         .then(result => {
           if (result.data.code === 200) {
@@ -383,19 +399,26 @@ export default {
         .catch(err => {});
     },
     updateTag(item) {
-      console.log(item);
-      let obj = {
-        tagName: item.name
-      };
-      postJsonRequest("/api/public/updateTag", obj)
+      this.$confirm("是否确认该操作", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
         .then(result => {
-          if(result.data.code == 200){
-            this.open3(result.data.msg);
-            this.reload();
-          }else{
-            this.open6(result.data.msg);
+          if (result == "confirm") {
+            console.log(item);
+            let obj = {
+              tagName: item.name
+            };
+            postJsonRequest("/api/public/updateTag", obj)
+              .then(result => {
+                this.reload();
+                this.$notify.success({
+                  title: "提示",
+                  message: result.data.msg
+                });
+              })
+              .catch(err => {});
           }
-         
         })
         .catch(err => {});
     },
@@ -477,9 +500,9 @@ export default {
                this.open3(result.data.msg);
                this.reload();
              }
-           
+
             }).catch((err) => {
-              
+
             });
           } else {
           }

@@ -39,14 +39,15 @@
             <div class="document-search">
               <el-row :gutter="25" class="document-search-label">
                 <ul>
-                    <el-tag
-                            :key="tag.tagId"
-                            v-for="tag in allTags"
-                            @click="chooseTag(tag)"
-                            :type="tag.type"
-                            :disable-transitions="true"
-                            @close="handleClose(tag)"
-                    >{{tag.tagName}}</el-tag>
+                  <el-tag
+                    style="cursor:pointer"
+                    :key="tag.tagId"
+                    v-for="tag in allTags"
+                    @click="chooseTag(tag)"
+                    :type="tag.type"
+                    :disable-transitions="true"
+                    @close="handleClose(tag)"
+                  >{{tag.tagName}}</el-tag>
                 </ul>
               </el-row>
               <el-row :gutter="25" class="document-search-multipleConditions">
@@ -55,7 +56,7 @@
                 </el-col>
                 <el-col :span="4">
                   <el-cascader
-                   
+                    v-model="departs"
                     placeholder="输入部门"
                     :options="departments"
                     filterable
@@ -112,27 +113,14 @@
                 ></el-table-column>
                 <el-table-column label="操作" width="300">
                   <template slot-scope="scope">
-                    <el-button
-                      @click="download(scope.row)"
-                      size="mini"
-                      type="success">
-                      下载 </el-button>
+                    <el-button @click="download(scope.row)" size="mini" type="success">下载</el-button>
                     <el-button
                       type="primary"
                       size="mini"
                       @click="openEditWindows(scope.row)"
                     >编辑</el-button>
-                    <el-button
-                    size="mini"
-                    @click="perview(scope.row)"
-                    type="normal">
-                    预览
-                    </el-button>
-                    <el-button
-                      size="mini"
-                      type="danger"
-                      @click="handleDelete(scope.$index, scope.row)"
-                    >删除</el-button>
+                    <el-button size="mini" @click="perview(scope.row)" type="normal">预览</el-button>
+                    <el-button size="mini" type="danger" @click="delDoc(scope.$index, scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -338,21 +326,21 @@ import moment from "moment";
 import { isNull } from "util";
 
 export default {
-  components:{
-      pdf
+  components: {
+    pdf
   },
-   created(){
-      var headers = {
-        'Authorization': 'Bearer SOME_TOKEN',
-        'x-ipp-device-uuid': 'SOME_UUID',
-        'x-ipp-client': 'SOME_ID',
-        'x-ipp-client-version': 'SOME_VERSION'
-        };
-        var loadingTask = pdf.createLoadingTask({
-            url:this.src,
-            httpHeaders:headers
-        });
-        this.src = pdf.createLoadingTask(this.src)
+  created() {
+    var headers = {
+      Authorization: "Bearer SOME_TOKEN",
+      "x-ipp-device-uuid": "SOME_UUID",
+      "x-ipp-client": "SOME_ID",
+      "x-ipp-client-version": "SOME_VERSION"
+    };
+    var loadingTask = pdf.createLoadingTask({
+      url: this.src,
+      httpHeaders: headers
+    });
+    this.src = pdf.createLoadingTask(this.src);
   },
   methods: {
     choosetp(){
@@ -387,20 +375,20 @@ export default {
       if(msg == undefined){
         msg = '这是一条成功的提示消息';
       }
-        this.$notify({
-          title: '成功',
-          message: msg,
-          type: 'success'
-        });
-      },
-     open6(msg) {
-       if(msg == undefined){
-         msg = "这是一条错误的提示消息"
-       }
-        this.$notify.error({
-          title: '错误',
-          message: msg
-        });
+      this.$notify({
+        title: "成功",
+        message: msg,
+        type: "success"
+      });
+    },
+    open6(msg) {
+      if (msg == undefined) {
+        msg = "这是一条错误的提示消息";
+      }
+      this.$notify.error({
+        title: "错误",
+        message: msg
+      });
     },
     batchdownload(){
       console.log("单一")
@@ -443,17 +431,14 @@ export default {
       //   return;
       // }
       postRequest("/api/public/preViewFile",data).then((result) => {
-        if(result.data.code != 200){
-          // this.dialogVisible = false;
-          this.open6(result.data.msg);
-        }else{
-           let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
-        this.src = url;
-   
-        this.loading = false;
-        }
 
-       
+        let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
+        this.src = url;
+        if(result.data.code != 200){
+          this.open6(result.data.msg);
+
+        }
+        this.loading = false;
         // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
       }).catch((err) => {
 
@@ -521,6 +506,27 @@ export default {
     filterNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
+    },
+    delDoc(index, row) {
+      this.$confirm("是否要删除该文件?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
+        .then(result => {
+          if (result == "confirm") {
+            this.$notify.success({
+              title: "提示",
+              message: "文件删除成功"
+            });
+            console.log(row);
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].docId == row.docId) {
+                this.tableData.splice(i, 1);
+              }
+            }
+          }
+        })
+        .catch(err => {});
     },
     handleOpen() {},
     handleClose() {},
@@ -604,24 +610,24 @@ export default {
           if (result.data.code === 200) {
             // this.tableData = result.data.data.list;
             console.log(result.data.data);
-             let table = [];
-            for(let i = 0;i < result.data.data.list.length;i++ ){
+            let table = [];
+            for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
               let tableobj = {
-                annexes:item.annexes,
-                departmentId:item.departmentId,
-                departmentName:item.departmentName,
-                docId:item.docId,
-                docLabels:item.docLabels,
-                docName:item.docName,
-                docPostTime:item.docPostTime,
-                docSavePath:item.docSavePath,
-                suffixName:item.suffixName,
-                userId:item.userId,
-                url:"/api/getName?name="+item.docName
-              }
+                annexes: item.annexes,
+                departmentId: item.departmentId,
+                departmentName: item.departmentName,
+                docId: item.docId,
+                docLabels: item.docLabels,
+                docName: item.docName,
+                docPostTime: item.docPostTime,
+                docSavePath: item.docSavePath,
+                suffixName: item.suffixName,
+                userId: item.userId,
+                url: "/api/getName?name=" + item.docName
+              };
               table.push(tableobj);
-              console.log("table:"+table);
+              console.log("table:" + table);
             }
             this.tableData = table;
             console.log(this.tableData);
@@ -652,21 +658,21 @@ export default {
             // this.tableData = result.data.data.list;
             console.log(result.data.data);
             let table = [];
-            for(let i = 0;i < result.data.data.list.length;i++ ){
+            for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
               let tableobj = {
-                annexes:item.annexes,
-                departmentId:item.departmentId,
-                departmentName:item.departmentName,
-                docId:item.docId,
-                docLabels:item.docLabels,
-                docName:item.docName,
-                docPostTime:item.docLabels,
-                docSavePath:item.docSavePath,
-                suffixName:item.suffixName,
-                userId:item.userId,
-                url:"/api/getName?name="+item.docName+"&token"
-              }
+                annexes: item.annexes,
+                departmentId: item.departmentId,
+                departmentName: item.departmentName,
+                docId: item.docId,
+                docLabels: item.docLabels,
+                docName: item.docName,
+                docPostTime: item.docLabels,
+                docSavePath: item.docSavePath,
+                suffixName: item.suffixName,
+                userId: item.userId,
+                url: "/api/getName?name=" + item.docName + "&token"
+              };
               table.push(tableobj);
              
             }
@@ -715,27 +721,27 @@ export default {
           console.log(e);
         });
     },
-      getAllTags() {
-          let _this = this;
-          postJsonRequest("/api/public/getAllTags")
-              .then(result => {
-                  console.log(result);
-                  for (let i = 0; i < result.data.data.length; i++) {
-                      if (result.data.data[i].isuse == 1) {
-                          let obj = {
-                              type: "normal",
-                              isuse: result.data.data[i].isuse,
-                              tagName: result.data.data[i].tagName,
-                              tagId: result.data.data[i].tagId
-                          };
-                          _this.allTags.push(obj);
-                      }
-                  }
-                  console.log(this.tags)
-                  console.log("this.tags")
-              })
-              .catch(err => {});
-      },
+    getAllTags() {
+      let _this = this;
+      postJsonRequest("/api/public/getAllTags")
+        .then(result => {
+          console.log(result);
+          for (let i = 0; i < result.data.data.length; i++) {
+            if (result.data.data[i].isuse == 1) {
+              let obj = {
+                type: "normal",
+                isuse: result.data.data[i].isuse,
+                tagName: result.data.data[i].tagName,
+                tagId: result.data.data[i].tagId
+              };
+              _this.allTags.push(obj);
+            }
+          }
+          console.log(this.tags);
+          console.log("this.tags");
+        })
+        .catch(err => {});
+    },
     openMessageBox(title, label) {
       this.$confirm(title, "是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -771,11 +777,11 @@ export default {
       this.$refs.tree.filter(val);
     },
     departs(val) {
-        if(val !=null && val.length == 0){
-            this.selectDepartmentId = -1;
-        }
-        console.log(this.selectDepartmentId);
-        console.log("this.selectDepartmentId")
+      if (val != null && val.length == 0) {
+        this.selectDepartmentId = -1;
+      }
+      console.log(this.selectDepartmentId);
+      console.log("this.selectDepartmentId");
     }
   },
 
@@ -784,7 +790,7 @@ export default {
     // for (let i = 0; i < this.items.length; i++) {
     //   this.allCheckList.push(this.items[i].id);
     // }
-      this.getAllTags();
+    this.getAllTags();
     this.getDocLabelsTree();
     this.getMyChildDepartments();
     this.getDocsBySearchParam();

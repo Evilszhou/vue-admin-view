@@ -73,6 +73,7 @@
             style="font-family: 'PingFang SC';font-size: 16px;margin-right: 20px;line-height: 1.7;color: rgb(129, 129, 129)"
           >标签:</label>
           <el-tag
+            style="cursor:pointer"
             :key="tag"
             v-for="tag in form.tags"
             @click="chooseTag(tag)"
