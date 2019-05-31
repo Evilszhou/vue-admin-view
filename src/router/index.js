@@ -137,6 +137,7 @@ export default new Router({
                     component: resolve => require(['../components/page/test.vue'],resolve),
                     meta:{title:"测试"}
                 }
+
             ]
         },
         {
