@@ -100,7 +100,6 @@
           <el-cascader
             placeholder="输入部门"
             :options="departments"
-         
             filterable
             :change-on-select="true"
             @change="selectEditDepartment"
@@ -146,26 +145,6 @@ export default {
     this.getDepartmentsTree();
   },
   methods: {
-     open3(msg) {
-      if(msg == undefined){
-        msg = '这是一条成功的提示消息';
-      }
-        this.$notify({
-          title: '成功',
-          message: msg,
-          type: 'success'
-        });
-      },
-     open6(msg) {
-       if(msg == undefined){
-         msg = "这是一条错误的提示消息"
-       }
-        this.$notify.error({
-          title: '错误',
-          message: msg
-        });
-    },
-    
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
         return "warning-row";
@@ -191,7 +170,13 @@ export default {
       }
     },
     sendUpdateUser() {
-      postJsonRequest("api/public/updateUserMessage", this.updateuser)
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/updateUserMessage";
+      } else {
+        url = "/public/updateUserMessage";
+      }
+      postJsonRequest(url, this.updateuser)
         .then(result => {
           console.log(result);
           if(result.data.code != 200){
@@ -200,16 +185,22 @@ export default {
             this.open3(result.data.msg);
              this.reload();
           }
-         
+
         })
         .catch(err => {});
       this.dialogTableVisible1 = false;
     },
     handleDelete(index, row) {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/deleteUser";
+      } else {
+        url = "/public/deleteUser";
+      }
       console.log(row);
       console.log(row.userId);
       let _this = this;
-      postRequest("/api/public/deleteUser", {
+      postRequest(url, {
         userId: row.userId
       })
         .then(result => {
@@ -225,7 +216,13 @@ export default {
         .catch(err => {});
     },
     createUser() {
-      postJsonRequest("/api/public/createUser", this.user)
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/createUser";
+      } else {
+        url = "/public/createUser";
+      }
+      postJsonRequest(url, this.user)
         .then(result => {
           console.log(result);
           if (result.data.code == 200) {
@@ -243,7 +240,7 @@ export default {
      * 得到增加选中的部门
      */
     selectAddDepartment(data) {
-        if (data != null && data.length > 0) {
+      if (data != null && data.length > 0) {
         this.user.departmentId = data[data.length - 1];
         console.log(this.user.departmentId);
         console.log("console.log(this.user.departmentId);");
@@ -266,7 +263,13 @@ export default {
      */
      
     getDepartmentsTree() {
-      getRequest("/api/admin/getAllDepartments")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getAllDepartments";
+      } else {
+        url = "/admin/getAllDepartments";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.departments = result.data.data;
@@ -294,7 +297,13 @@ export default {
     getData() {
       console.log("hhhh");
       let that = this;
-      postRequest("/api/public/getAllUsers", {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllUsers";
+      } else {
+        url = "/public/getAllUsers";
+      }
+      postRequest(url, {
         page: this.cur_page
       })
         .then(result => {
@@ -314,7 +323,13 @@ export default {
     getAllPermissions() {
       let _this = this;
       let roles = [];
-      postJsonRequest("/api/getAllUserGroup")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllUserGroup";
+      } else {
+        url = "/getAllUserGroup";
+      }
+      postJsonRequest(url)
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {

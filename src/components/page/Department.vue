@@ -187,8 +187,16 @@ export default {
     },
     getDepartmentsTree() {
       this.loading = true;
-      getRequest("/api/admin/getAllDepartments")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getAllDepartments";
+      } else {
+        url = "/admin/getAllDepartments";
+      }
+      getRequest(url)
         .then(result => {
+          console.log(result);
+          console.log("result----------");
           if (result.data.code === 200) {
             this.treeData.children = result.data.data;
           } else {
@@ -223,13 +231,19 @@ export default {
     //     .catch(err => {});
     // },
     deleteDepatment(item) {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/delDepartmentById";
+      } else {
+        url = "/admin/delDepartmentById";
+      }
       this.$confirm("确认要删除该部门吗,下级部门也将会删除,谨慎操作?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
         .then(result => {
           if (result == "confirm") {
-            getRequest("/api/admin/delDepartmentById", {
+            getRequest(url, {
               departmentId: item.id
             })
               .then(result => {
@@ -292,6 +306,12 @@ export default {
      * @param option 操作
      */
     commitEditDepartment(option) {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/editDepartment";
+      } else {
+        url = "/admin/editDepartment";
+      }
       if (option == 0) {
         let obj = {};
         obj.stopPropagation = () => {};
@@ -323,7 +343,7 @@ export default {
           });
           return;
         }
-        postJsonRequest("/api/admin/editDepartment", {
+        postJsonRequest(url, {
           name: this.department.departmentName,
           instroduction: this.department.departmentIntroduction,
           id: this.department.id,
@@ -393,6 +413,12 @@ export default {
     },
 
     commitAddDepartment() {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/addDepartment";
+      } else {
+        url = "/admin/addDepartment";
+      }
       let a = typeof this.department.departmentName;
       // console.log(a);
       if (
@@ -404,7 +430,7 @@ export default {
           message: "部门名字不能为空"
         });
       } else {
-        postJsonRequest("/api/admin/addDepartment", {
+        postJsonRequest(url, {
           parent_id: this.selectParientId,
           name: this.department.departmentName,
           instroduction: this.department.departmentIntroduction

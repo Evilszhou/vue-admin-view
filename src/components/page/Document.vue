@@ -157,7 +157,6 @@
                 </span>
               </el-dialog>
 
-
               <el-dialog
                 title="提示"
                 :visible.sync="dialogVisible1"
@@ -320,7 +319,7 @@
 </template>
 
 <script>
-import pdf from 'vue-pdf';
+import pdf from "vue-pdf";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
@@ -343,37 +342,42 @@ export default {
     this.src = pdf.createLoadingTask(this.src);
   },
   methods: {
-    choosetp(){
-      this.dialogVisible3 = true;
+      choosetp(){
+          this.dialogVisible3 = true;
 
+      },
+      openEditWindows(row){
+          console.log(row);
+          this.dialogVisible2 = true;
+      },
+    getPagePermissions() {
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getPagePermission";
+      } else {
+        url = "/public/getPagePermission";
+      }
+      postJsonRequest(url)
+        .then(result => {
+          //  console.log(result)
+          //  console.log(result.data.data[0].pagePermission);
+          let str = result.data.data[0].pagePermission.split(";");
+          console.log(str);
+          str.push("login");
+          str.push("403");
+          console.log(str);
+          localStorage.setItem("permissions", str);
+          //  console.log(typeof result.data.data[0].pagePermission)
+          //  console.log(result.data.data[0].pagePermission.splice(";"))
+          //  let permissions = result.data.data[0].pagePermission.splice(";")
+          //  console.log(permissions)
+        })
+        .catch(err => {});
     },
-    openEditWindows(row){
-      console.log(row);
-      this.dialogVisible2 = true;
-    },
-     getPagePermissions(){
-       let _this = this;
-       postJsonRequest("/api/public/getPagePermission").then((result) => {
-        //  console.log(result)
-        //  console.log(result.data.data[0].pagePermission);
-         let str = result.data.data[0].pagePermission.split(";");
-         console.log(str)
-         str.push("login");
-         str.push("403")
-         console.log(str+"-----------------------------------------------------------------------------------------");
-         localStorage.setItem("permissions",str);
-        //  console.log(typeof result.data.data[0].pagePermission)
-        //  console.log(result.data.data[0].pagePermission.splice(";"))
-        //  let permissions = result.data.data[0].pagePermission.splice(";")
-        //  console.log(permissions)
-
-       }).catch((err) => {
-
-       });
-     },
-     open3(msg) {
-      if(msg == undefined){
-        msg = '这是一条成功的提示消息';
+    open3(msg) {
+      if (msg == undefined) {
+        msg = "这是一条成功的提示消息";
       }
       this.$notify({
         title: "成功",
@@ -390,92 +394,86 @@ export default {
         message: msg
       });
     },
-    batchdownload(){
-      console.log("单一")
+    batchdownload() {
+      console.log("单一");
       //  window.location.href = this.url;
-      console.log(this.url.split("?"))
+      console.log(this.url.split("?"));
+      let downloadUrl = "";
+      if (process.env.NODE_ENV === "development") {
+        downloadUrl = "/api/public/downloadZip";
+      } else {
+        downloadUrl = "/public/downloadZip";
+      }
       let res = this.url.split("?");
-      let url = "/api/public/downloadZip?"+ res[1];
+      let url = downloadUrl + "?" + res[1];
       console.log(url);
       window.location.href = url;
       this.dialogVisible1 = false;
     },
-    singledownload(){
+    singledownload() {
       console.log("批量");
-      console.log(this.url)
+      console.log(this.url);
       window.location.href = this.url;
       this.dialogVisible1 = false;
     },
-    handlePreSizeChange(val){
-        console.log(`每页 ${val} 条`);
+    handlePreSizeChange(val) {
+      console.log(`每页 ${val} 条`);
     },
-    handlePreCurrentChange(val){
-
-        this.currentPage1 = val;
-        window.scrollTo(0,0);
+    handlePreCurrentChange(val) {
+      this.currentPage1 = val;
+      window.scrollTo(0, 0);
     },
-      loadPdfHandler(){
-          this.currentPage1 = 1;
-
-      },
-    perview(node){
+    loadPdfHandler() {
+      this.currentPage1 = 1;
+    },
+    perview(node) {
       // this.$router.push("/test");
 
       this.src = "";
       console.log(node);
       let data = {
-        FilePath:node.docSavePath
-      }
+        FilePath: node.docSavePath
+      };
       // if(node.suffixName != ".docx" || node.suffixName!=".xls" || node.suffixName != ".doc" || node.suffixName != ".ppt" || node.suffixName != ".pptx" || node.suffixName != ".jpg" || node.suffixName != ".png"){
       //   this.open6("该文件类型不支持预览!");
       //   return;
       // }
-      postRequest("/api/public/preViewFile",data).then((result) => {
-       if(result.data.code == 0){
-          this.open6(result.data.msg);
-        }
-
-        let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
-        this.src = url;
-        let _this = this;
-        // if(result.data.code != 200){
-        //   this.dialogVisible =false;
-        //   _this.open6(result.data.msg);
-
-        // }
-        // this.open6("你没有权限!")
-        this.loading = false;
-        // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
-      }).catch((err) => {
-
-      });
+      postRequest("/public/preViewFile", data)
+        .then(result => {
+          let url =
+            "/file/" +
+            result.data.data.substring(result.data.data.lastIndexOf("\\") + 1);
+          this.src = url;
+          if (result.data.code != 200) {
+            this.open6(result.data.msg);
+          }
+          this.loading = false;
+          // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
+        })
+        .catch(err => {});
       this.dialogVisible = true;
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     },
-    getherf(row){
-      console.log(4444)
-    
-      return row.url;
+    getherf(row) {
+      console.log(4444);
 
+      return row.url;
     },
-    downLoadFileAndAnnex(item){
+    downLoadFileAndAnnex(item) {
       let _this = this;
       console.log(item);
-      postJsonRequest("/api/public/downloadFileAndAnnex",item).then((result) => {
-        
-      }).catch((err) => {
-        
-      });
+      postJsonRequest("/public/downloadFileAndAnnex", item)
+        .then(result => {})
+        .catch(err => {});
     },
     download(row) {
-     this.dialogVisible1 = true;
-            // console.log(row);
-            // console.log(row.url);
-            let url = row.url + "&token="+localStorage.getItem("token");
-            this.url = url;
-            // console.log("url:"+url);
-            // window.location.href = url;
-
+      this.dialogVisible1 = true;
+      // console.log(row);
+      // console.log(row.url);
+      let url = row.url + "&token=" + localStorage.getItem("token");
+      this.url = url;
+      // console.log("url:"+url);
+      // window.location.href = url;
     },
     selectDepartment(data) {
       if (data != null && data.length > 0) {
@@ -499,7 +497,11 @@ export default {
     },
     downLoadAnnex(item) {
       console.log(item);
-      window.location.href = "/api/getName?name="+item.annexName + "&token="+localStorage.getItem("token");
+      window.location.href =
+        "/getName?name=" +
+        item.annexName +
+        "&token=" +
+        localStorage.getItem("token");
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
@@ -550,23 +552,22 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus();
       });
     },
-      chooseTag(item) {
-          console.log(item);
-          if (item.type === "normal") {
-              item.type = "danger";
-              this.tags.push(item);
-          } else {
-              item.type = "normal";
-              console.log(this.tags.indexOf(item))
-              for(let i=0;i<this.tags.length;i++){
-                  if(this.tags[i].tagId == item.tagId){
-                      this.tags.splice(i,1);
-                  }
-              }
-
+    chooseTag(item) {
+      console.log(item);
+      if (item.type === "normal") {
+        item.type = "danger";
+        this.tags.push(item);
+      } else {
+        item.type = "normal";
+        console.log(this.tags.indexOf(item));
+        for (let i = 0; i < this.tags.length; i++) {
+          if (this.tags[i].tagId == item.tagId) {
+            this.tags.splice(i, 1);
           }
-          console.log(this.tags)
-      },
+        }
+      }
+      console.log(this.tags);
+    },
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
@@ -603,8 +604,14 @@ export default {
     },
     getDocsBySearchParam() {
       this.loading = true;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getDocsBySearchParam";
+      } else {
+        url = "/public/getDocsBySearchParam";
+      }
 
-      postJsonRequest("/api/public/getDocsBySearchParam", {
+      postJsonRequest(url, {
         pageInfo: { pageSize: this.pageSize, currentPage: this.currentPage },
         docLabels: this.$refs.tree.getCheckedNodes(),
         tags: this.tags,
@@ -630,7 +637,7 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: "/api/getName?name=" + item.docName
+                url: "/getName?name=" + item.docName
               };
               table.push(tableobj);
               console.log("table:" + table);
@@ -655,7 +662,13 @@ export default {
     },
     getAllDocInfo() {
       this.loading = true;
-      getRequest("/api/public/getAllDocInfo", {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllDocInfo";
+      } else {
+        url = "/public/getAllDocInfo";
+      }
+      getRequest(url, {
         pageSize: this.pageSize,
         currentPage: this.currentPage
       })
@@ -677,13 +690,12 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: "/api/getName?name=" + item.docName + "&token"
+                url: "/getName?name=" + item.docName + "&token"
               };
               table.push(tableobj);
-             
             }
             this.tableData = table;
-         
+
             this.total = result.data.data.total;
             this.loading = false;
           } else {
@@ -697,7 +709,13 @@ export default {
         });
     },
     getMyChildDepartments() {
-      getRequest("/api/admin/getMyChildDepartments")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getMyChildDepartments";
+      } else {
+        url = "/admin/getMyChildDepartments";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.departments = result.data.data;
@@ -713,7 +731,13 @@ export default {
         });
     },
     getDocLabelsTree() {
-      getRequest("/api/public/getDocLabelsTree")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getDocLabelsTree";
+      } else {
+        url = "/public/getDocLabelsTree";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.docLabelsTree = result.data.data;
@@ -729,7 +753,13 @@ export default {
     },
     getAllTags() {
       let _this = this;
-      postJsonRequest("/api/public/getAllTags")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllTags";
+      } else {
+        url = "/public/getAllTags";
+      }
+      postJsonRequest("/public/getAllTags")
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {

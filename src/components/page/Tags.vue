@@ -1,132 +1,121 @@
 <template>
-<section class="main">
+  <section class="main">
     <div>
-        <div class="crumbs">
-            <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-cascades"></i> 标签管理</el-breadcrumb-item>
-            </el-breadcrumb>
+      <div class="crumbs">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item>
+            <i class="el-icon-lx-cascades"></i> 标签管理
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
+      <div class="container">
+        <div class="drag-box">
+          <div class="drag-box-item">
+            <div class="item-title" style="width:200px">分类目录</div>
+            <el-button
+              type="primary"
+              size="mini"
+              style="display:flex;margin-left:240px;margin-top:-30px;height:25px;"
+              @click="dialogVisible = true"
+            >增加分类</el-button>
+            <el-tree
+              style="margin-top:10px"
+              ref="tree"
+              class="tree"
+              :data="data"
+              node-key="id"
+              default-expand-all
+              @node-drag-start="handleDragStart"
+              @node-drag-enter="handleDragEnter"
+              @node-drag-leave="handleDragLeave"
+              @node-drag-over="handleDragOver"
+              @node-drag-end="handleDragEnd"
+              @node-drop="handleDrop"
+              draggable
+              :filter-node-method="filterNode"
+              :render-content="renderContent"
+              :allow-drop="allowDrop"
+              :allow-drag="allowDrag"
+            ></el-tree>
+          </div>
+          <div class="drag-box-item">
+            <div class="item-title">标签管理</div>
+            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+              <transition-group tag="div" id="doing" class="item-ul">
+                <el-tag
+                  class="name"
+                  v-for="tag in tags"
+                  :key="tag.name"
+                  size="mini"
+                  closable
+                  @close="updateTag(tag)"
+                  :type="tag.type"
+                >{{tag.name}}</el-tag>
+              </transition-group>
+            </draggable>
+          </div>
+          <div class="drag-box-item">
+            <div class="item-title">废弃标签</div>
+            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+              <transition-group tag="div" id="doing" class="item-ul">
+                <el-tag
+                  v-for="tag in tags1"
+                  :key="tag.name"
+                  size="mini"
+                  style="height:25px;margin-right:5px;margin-bottom:4px;"
+                  @click="updateTag(tag)"
+                  :type="tag.type"
+                >{{tag.name}}</el-tag>
+              </transition-group>
+            </draggable>
+          </div>
         </div>
-        <div class="container">
-             <div class="drag-box">
-                <div class="drag-box-item">
-                    <div class="item-title" style="width:200px">分类目录</div>
-                  <el-button type="primary" size="mini" style="display:flex;margin-left:240px;margin-top:-30px;height:25px;" @click="dialogVisible = true">增加分类</el-button>
-                    <el-tree
-                    style="margin-top:10px"
-                        ref="tree"
-                        class="tree"
-                        :data="data"
-                        node-key="id"
-                        default-expand-all
-                        @node-drag-start="handleDragStart"
-                        @node-drag-enter="handleDragEnter"
-                        @node-drag-leave="handleDragLeave"
-                        @node-drag-over="handleDragOver"
-                        @node-drag-end="handleDragEnd"
-                        @node-drop="handleDrop"
-                        draggable
-                        :filter-node-method="filterNode"
-                         :render-content="renderContent"
-                        :allow-drop="allowDrop"
-                        :allow-drag="allowDrag">
-                    </el-tree>
-                </div>
-                <div class="drag-box-item">
-                    <div class="item-title">标签管理</div>
-                    <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
-                        <transition-group tag="div" id="doing" class="item-ul">
-                            <el-tag
-                            class="name"
-                            v-for="tag in tags"
-                            :key="tag.name"
-                            size="mini"
-                            closable
-                            @close="updateTag(tag)"
-                            :type="tag.type">
-                            {{tag.name}}
-                            </el-tag>
-                        </transition-group>
-                    </draggable>
-                </div>
-                <div class="drag-box-item">
-                    <div class="item-title">废弃标签</div>
-                    <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
-                        <transition-group tag="div" id="doing" class="item-ul">
-                            <el-tag
-                            v-for="tag in tags1"
-                            :key="tag.name"
-                            size="mini"
-                            style="height:25px;margin-right:5px;margin-bottom:4px;"
-                            @click="updateTag(tag)"
-                            :type="tag.type">
-                            {{tag.name}}
-                            </el-tag>
-                        </transition-group>
-                    </draggable>
-                </div> 
-            </div>
-            <el-dialog
-              title="新增分类"
-              :visible.sync="dialogVisible"
-              style="margin-top:100px"
-              width="30%"
-             >
-              <el-form :model="form" label-width="80px" :rules="rule1">
-                <el-form-item label="分类名:">
-                  <el-input v-model="form.name"></el-input>
-                </el-form-item>
-              </el-form>
-              <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addRootLabel">确 定</el-button>
-              </span>
-            </el-dialog>
+        <el-dialog title="新增分类" :visible.sync="dialogVisible" style="margin-top:100px" width="30%">
+          <el-form :model="form" label-width="80px">
+            <el-form-item label="分类名:">
+              <el-input v-model="form.name"></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="addRootLabel">确 定</el-button>
+          </span>
+        </el-dialog>
 
-             <el-dialog
-              title="新增分类"
-              :visible.sync="dialogVisible1"
-              style="margin-top:100px"
-              width="30%"
-             >
-              <el-form :model="form" label-width="80px">
-                <el-form-item label="分类名:">
-                  <el-input v-model="form.name"></el-input>
-                </el-form-item>
-              </el-form>
-              <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible1 = false">取 消</el-button>
-                <el-button type="primary" @click="addLabel">确 定</el-button>
-              </span>
-            </el-dialog>
+        <el-dialog title="新增分类" :visible.sync="dialogVisible1" style="margin-top:100px" width="30%">
+          <el-form :model="form" label-width="80px">
+            <el-form-item label="分类名:">
+              <el-input v-model="form.name"></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible1 = false">取 消</el-button>
+            <el-button type="primary" @click="addLabel">确 定</el-button>
+          </span>
+        </el-dialog>
 
-            <el-dialog
-            title="提示"
-            :visible.sync="dialogVisible2"
-            width="30%"
-            
-           >
-              <el-form :model="editform" label-width="80px">
-                <el-form-item label="分类名:">
-                  <el-input v-model="editform.name"></el-input>
-                </el-form-item>
-             
-              </el-form>
-                
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible2 = false">取 消</el-button>
-              <el-button type="primary" @click="confimUpdate">确 定</el-button>
-            </span>
-          </el-dialog>
-        </div>
+        <el-dialog title="提示" :visible.sync="dialogVisible2" width="30%">
+          <el-form :model="editform" label-width="80px">
+            <el-form-item label="分类名:">
+              <el-input v-model="editform.name"></el-input>
+            </el-form-item>
+          </el-form>
+
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible2 = false">取 消</el-button>
+            <el-button type="primary" @click="confimUpdate">确 定</el-button>
+          </span>
+        </el-dialog>
+      </div>
     </div>
-</section>
+  </section>
 </template>
 
 <script>
 import draggable from "vuedraggable";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 export default {
-  inject:['reload'],
+  inject: ["reload"],
   components: {
     draggable
   },
@@ -155,52 +144,52 @@ export default {
       tags1: [],
       num: 1,
       label: "",
-     data: [
+      data: [
         {
-            "superId": 0,
-            "children": [
+          superId: 0,
+          children: [
+            {
+              superId: 19,
+              children: null,
+              list: null,
+              id: 22,
+              label: "表情包"
+            },
+            {
+              superId: 19,
+              children: [
                 {
-                    "superId": 19,
-                    "children": null,
-                    "list": null,
-                    "id": 22,
-                    "label": "表情包"
-                },
-                {
-                    "superId": 19,
-                    "children": [
-                        {
-                            "superId": 26,
-                            "children": null,
-                            "list": null,
-                            "id": 27,
-                            "label": "ppt素材"
-                        }
-                    ],
-                    "list": null,
-                    "id": 26,
-                    "label": "透明素材"
+                  superId: 26,
+                  children: null,
+                  list: null,
+                  id: 27,
+                  label: "ppt素材"
                 }
-            ],
-            "list": null,
-            "id": 19,
-            "label": "图片"
+              ],
+              list: null,
+              id: 26,
+              label: "透明素材"
+            }
+          ],
+          list: null,
+          id: 19,
+          label: "图片"
         },
         {
-            "superId": 0,
-            "children": null,
-            "list": null,
-            "id": 20,
-            "label": "背景图"
+          superId: 0,
+          children: null,
+          list: null,
+          id: 20,
+          label: "背景图"
         },
         {
-            "superId": 0,
-            "children": null,
-            "list": null,
-            "id": 21,
-            "label": "风景图"
+          superId: 0,
+          children: null,
+          list: null,
+          id: 21,
+          label: "风景图"
         }
-    ],
+      ],
       defaultProps: {
         children: "children",
         label: "label"
@@ -257,14 +246,20 @@ export default {
   },
 
   methods: {
-  
-    confimUpdate(){
+    confimUpdate() {
       let _this = this;
       let node = {
         id: this.nodeValue.id,
         label: this.editform.name,
         superId: this.nodeValue.superId
       };
+      let url = "";
+        if (process.env.NODE_ENV === 'development') {
+                    url = "/api/public/updateLabels";
+                }else{
+                    url = "/public/updateLabels"
+                }
+
       postJsonRequest("/api/public/updateLabels", node)
         .then(result => {
           if (result.data.code != 200) {
@@ -282,7 +277,7 @@ export default {
         })
         .catch(err => {});
     },
-    addLabel(node,data){
+    addLabel(node, data) {
       console.log(this.form.name);
       let _this = this;
       let node1 = {
@@ -290,7 +285,13 @@ export default {
         superId: this.nodeValue.id
       };
       console.log(node1);
-      postJsonRequest("/api/public/addLabels", node1)
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+          url = "/api/public/updateLabels";
+       }else{
+          url = "/public/updateLabels"
+       }
+      postJsonRequest(url, node1)
         .then(result => {
           console.log(result);
           if (result.data.code != 200) {
@@ -308,16 +309,21 @@ export default {
         })
         .catch(err => {});
       this.dialogVisible1 = false;
-
     },
-    addRootLabel(){
+    addRootLabel() {
       console.log(this.form.name);
       let _this = this;
       let node = {
-        label:this.form.name,
-        superId:0
+        label: this.form.name,
+        superId: 0
       };
-      postJsonRequest("/api/public/addLabels", node)
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/addLabels";
+       }else{
+            url = "/public/addLabels"
+       }
+      postJsonRequest(url, node)
         .then(result => {
           console.log(result);
           if (result.data.code != 200) {
@@ -335,7 +341,6 @@ export default {
         })
         .catch(err => {});
       this.dialogVisible = false;
-
     },
     open3(msg) {
       if (msg == undefined) {
@@ -356,12 +361,18 @@ export default {
         message: msg
       });
     },
-    addTag(node){
+    addTag(node) {
       console.log(node);
-      console.log(node.data)        
+      console.log(node.data);
     },
     getDocLabelsTree() {
-      getRequest("/api/public/getDocLabelsTree")
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/getDocLabelsTree";
+       }else{
+            url = "/public/getDocLabelsTree"
+       }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.data = result.data.data;
@@ -375,14 +386,18 @@ export default {
           console.log(e);
         });
     },
-    removetag(){
+    removetag() {
       let _this = this;
-     
-
     },
     getAllTags() {
       let _this = this;
-      postJsonRequest("/api/public/getAllTags")
+      let url = "";
+      if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/getAllTags";
+       }else{
+            url = "/public/getAllTags"
+       }
+      postJsonRequest(url)
         .then(result => {
           for (let i = 0; i < result.data.data.length; i++) {
             let obj = {
@@ -399,6 +414,12 @@ export default {
         .catch(err => {});
     },
     updateTag(item) {
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/updateTag";
+      }else{
+        url = "/public/updateTag";
+      }
       this.$confirm("是否确认该操作", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
@@ -409,7 +430,7 @@ export default {
             let obj = {
               tagName: item.name
             };
-            postJsonRequest("/api/public/updateTag", obj)
+            postJsonRequest(url, obj)
               .then(result => {
                 this.reload();
                 this.$notify.success({
@@ -426,40 +447,43 @@ export default {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
     },
-    getNode(node,data){
+    getNode(node, data) {
       console.log(data);
       this.nodeValue = data;
       this.dialogVisible1 = true;
     },
-    getEditNode(node,data){
+    getEditNode(node, data) {
       console.log(data);
       this.nodeValue = data;
       this.editform.name = this.nodeValue.label;
       this.dialogVisible2 = true;
     },
-    renderContent(h, { node, data, store }) {
-      return (
-        <span class="custom-tree-node">
+      renderContent(h, { node, data, store }) {
+          return (
+              <span class="custom-tree-node">
+              <span>
+              <i class="el-icon-lx-tag" style="margin-right:5px" />
+              {node.label}
+      </span>
           <span>
-            <i class="el-icon-lx-tag" style="margin-right:5px" />
-            {node.label}
-          </span>
-          <span>
-          <i class="el-icon-lx-roundadd"
-          on-click = {() => this.getNode(node,data)}
+          <i
+      class="el-icon-lx-roundadd"
+          on-click={() => this.getNode(node, data)}
           style="margin-right:2px"
-           />
-           <i class="el-icon-lx-edit"
-           style="margin-right:2px"
-           on-click = {() => this.getEditNode(node,data)}></i>
-            <i
-              class="el-icon-lx-roundclose"
-              on-click={() => this.remove(node, data)}
-            />
+              />
+              <i
+      class="el-icon-lx-edit"
+          style="margin-right:2px"
+          on-click={() => this.getEditNode(node, data)}
+          />
+          <i
+      class="el-icon-lx-roundclose"
+          on-click={() => this.remove(node, data)}
+          />
           </span>
-        </span>
+          </span>
       );
-    },
+      },
     move(item) {
       console.log(item);
       console.log(this.$refs.tree);
@@ -482,7 +506,13 @@ export default {
     },
     remove(node, data) {
       console.log(node);
-      
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/deleteLabels";
+      }else{
+        url = "/public/deleteLabels";
+      }
+
       this.$confirm("确认要删除该标签吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -490,20 +520,19 @@ export default {
       })
         .then(result => {
           if (result == "confirm") {
-            console.log("hh ")
+            console.log("hh ");
             // console.log(eval +"node:")
-            postJsonRequest("/api/public/deleteLabels",data).then((result) => {
-             console.log(result);
-             if(result.data.code != 200){
-               this.open6(result.data.msg);
-             }else{
-               this.open3(result.data.msg);
-               this.reload();
-             }
-
-            }).catch((err) => {
-
-            });
+            postJsonRequest(url, data)
+              .then(result => {
+                console.log(result);
+                if (result.data.code != 200) {
+                  this.open6(result.data.msg);
+                } else {
+                  this.open3(result.data.msg);
+                  this.reload();
+                }
+              })
+              .catch(err => {});
           } else {
           }
         })
@@ -526,23 +555,35 @@ export default {
       // console.log("tree drag over: ", dropNode.label);
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
-      console.log("tree drag end: ",  draggingNode.data.label,dropNode.label, dropType);
+      console.log(
+        "tree drag end: ",
+        draggingNode.data.label,
+        dropNode.label,
+        dropType
+      );
       let data = {
-        oldNode:draggingNode.data.label,
-        newNode:dropNode.label,
-        event:dropType
-      }
+        oldNode: draggingNode.data.label,
+        newNode: dropNode.label,
+        event: dropType
+      };
       let _this = this;
-      postRequest("/api/public/dragLabel",data).then((result) => {
-         if(result.data.code != 200){
-               this.open6(result.data.msg);
-             }else{
-               this.open3(result.data.msg);
-               this.reload();
-             }
-      }).catch((err) => {
-        
-      });
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/dragLabel";
+       }else{
+            url = "/public/dragLabel"
+       }
+
+      postRequest(url, data)
+        .then(result => {
+          if (result.data.code != 200) {
+            this.open6(result.data.msg);
+          } else {
+            this.open3(result.data.msg);
+            this.reload();
+          }
+        })
+        .catch(err => {});
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
       // console.log("tree drop: ", dropNode.label, dropType);

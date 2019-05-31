@@ -11,7 +11,7 @@
       <div class="plugins-tips">将文件拖拽到此处</div>
       <el-upload class="upload-demo"  ref="upload" :data="table" 
       :headers="config"
-      :file-list="fileList" drag action="/api/uploadFile" name="file" 
+      :file-list="fileList" drag :action="uploadFile" name="file" 
       :before-upload="beforeUpload" :on-success="success" :auto-upload="false"
       :limit="1" :on-exceed="overNumber" >
         <i class="el-icon-upload"></i>
@@ -115,7 +115,7 @@
           ref="uploadannex"
           drag
           :auto-upload="false"
-          action="/api/uploadannex"
+          :action="uploadsannex"
           :on-success="uploadAnneixSuccess"
           multiple>
   <i class="el-icon-upload"></i>
@@ -256,13 +256,38 @@ export default {
     this.getAllTags();
     this.getDocLabelsTree();
   },
-  computed: {},
+  computed: {
+    uploadFile:function(){
+      let url = ""
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/uploadFile";
+      }else{
+        url = "/uploadFile";
+      }
+      return url;       
+    },
+    uploadsannex:function(){
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/uploadannex";
+      }else{
+        url = "/uploadannex";
+      }
+      return url;
+    }
+  },
   components: {
     VueCropper
   },
   methods: {
     getDocLabelsTree() {
-      getRequest("/api/public/getDocLabelsTree")
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/getDocLabelsTree";
+      }else{
+        url = "/public/getDocLabelsTree";
+      }       
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.data = result.data.data;
@@ -302,7 +327,13 @@ export default {
     },
     getAllTags() {
       let _this = this;
-      postJsonRequest("/api/public/getAllTags")
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/getAllTags";
+      }else{
+        url = "/public/getAllTags";
+      }       
+      postJsonRequest(url)
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {

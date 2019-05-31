@@ -89,7 +89,13 @@
                 });
             },
             login(){
-                postRequest("/api/public/login",{
+                let url = "";
+                 if (process.env.NODE_ENV === 'development') {
+                    url = "/api/public/login";
+                }else{
+                    url = "/public/login"
+                }
+                postRequest(url,{
                     username:this.ruleForm.username,
                     password:this.ruleForm.password
                 }).then((result) => {

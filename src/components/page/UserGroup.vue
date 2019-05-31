@@ -122,164 +122,176 @@
 </template>
 
 <script>
-import {postJsonRequest,postRequest,getRequest} from '../../main.js';
+import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 export default {
-  inject:['reload'],
-    data(){
-        return{
-          DialogVisible:false,
-          formLabelWidth: '120px',
-          checkList: ['复选框 A'],
-          centerDialogVisible: false,
-          tableData: [],
-          form:{
-            groupName:"",
-            groupPermission:[],
-            pagePermission:[]
-          },
-          userGroup:{
-            groupName:"",
-            groupPermission:[],
-            pagePermission:[]
-          }
-          }
+  inject: ["reload"],
+  data() {
+    return {
+      DialogVisible: false,
+      formLabelWidth: "120px",
+      checkList: ["复选框 A"],
+      centerDialogVisible: false,
+      tableData: [],
+      form: {
+        groupName: "",
+        groupPermission: [],
+        pagePermission: []
+      },
+      userGroup: {
+        groupName: "",
+        groupPermission: [],
+        pagePermission: []
+      }
+    };
+  },
+  methods: {
+    createGroup() {
+      this.DialogVisible = true;
     },
-    methods:{
-      createGroup(){
-        this.DialogVisible = true;
-      },
-      indexMethod(index) {
-        return index + 1;
-      },
-      handleEdit(index, row) {
-        console.log(row)
-        let permissions = row.groupPermission.split(",");
-        let pagepermissions = row.pagePermission.split(";");
-        console.log(permissions)
-        this.form.groupName = row.groupName;
-        this.form.groupPermission = permissions;
-        this.form.pagePermission = pagepermissions;
-        this.centerDialogVisible = true;
-      },
-      getallUserGroup(){
-        let _this = this;
-        postJsonRequest("/api/getAllUserGroup").then((result) => {
+    indexMethod(index) {
+      return index + 1;
+    },
+    handleEdit(index, row) {
+      console.log(row);
+      let permissions = row.groupPermission.split(",");
+      console.log(permissions);
+      this.form.groupName = row.groupName;
+      this.form.groupPermission = permissions;
+
+      this.centerDialogVisible = true;
+    },
+    getallUserGroup() {
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllUserGroup";
+      } else {
+        url = "/getAllUserGroup";
+      }
+      postJsonRequest(url)
+        .then(result => {
           console.log(result.data.data);
 
-          
           _this.tableData = result.data.data;
-        }).catch((err) => {
-          
-        });
-      },
-      handleDelete(index, row) {
-        // console.log(index, row);
-        console.log(row);
-        postJsonRequest("/api/deleteUserGroup",row).then((result) => {
-          if(result.data.code == 200){
-            this.open2(result.data.msg)
-            this.reload();
-          }
-        }).catch((err) => {
-          
-        });
-      },
-      changePermissions(permissions){
-        let name = "";
-        return name;
-        for(let i = 0;i < permissions.length;i++){
-          if(i == permissions.length - 1 ){
-            name = name + permissions[i];
-          }else{
-            name = name + permissions[i]+","
-          }
-        }
-        console.log(name);
-        return name;
-      },
-      choosePermissions(){
-
-      },
-      confimUpdate(){
-        console.log(this.form);
-        let name = "";
-        
-        for(let i = 0 ;i < this.form.groupPermission.length;i++){
-          if(i == this.form.groupPermission.length - 1 ){
-            name = name + this.form.groupPermission[i];
-          }else{
-            name = name + this.form.groupPermission[i]+","
-          }
-        }
-        let pagePermissions = "";
-        for(let i = 0; i < this.form.pagePermission.length;i++){
-          if(i == this.form.pagePermission.length - 1){
-            pagePermissions = pagePermissions + this.form.pagePermission[i];
-          }else{
-            pagePermissions = pagePermissions + this.form.pagePermission[i]+";"
-          }
-        }
-        let userGroup = {
-          groupName:this.form.groupName,
-          groupPermission:name,
-          pagePermission:pagePermissions
-        }
-        postJsonRequest("/api/updateUserGroup",userGroup).then((result) => {
-          console.log(result);
-          if(result.data.code == 200){
-            this.open2(result.data.msg);
-            this.reload();
-          }
-        }).catch((err) => {
-          
-        });
-        this.centerDialogVisible = false;
-      },
-      confimCreateUser(){
-        let permissions = this.userGroup.groupPermission;
-        let name = "";
-        for(let i = 0;i < permissions.length;i++){
-          if(i == permissions.length - 1 ){
-            name = name + permissions[i];
-          }else{
-            name = name + permissions[i]+","
-          }
-        }
-        let pagePermissions = "";
-        for(let i = 0; i < this.userGroup.pagePermission.length;i++){
-          if(i == this.userGroup.pagePermission.length - 1){
-            pagePermissions = pagePermissions + this.userGroup.pagePermission[i];
-          }else{
-            pagePermissions = pagePermissions + this.userGroup.pagePermission[i]+";"
-          }
-        }
-        console.log(pagePermissions);
-        let userGroup = {
-          groupName:this.userGroup.groupName,
-          groupPermission:name,
-          pagePermission:pagePermissions
-        }
-        postJsonRequest("/api/addUserGroup",userGroup).then((result) => {
-          console.log(result);   
-          if(result.data.code === 200){
-            this.open2(result.data.msg);
-            this.reload();
-          }
-        }).catch((err) => {
-        });
-        this.DialogVisible = false;
-      },
-       open2(msg) {
-        this.$message({
-          message:msg,
-          type: 'success'
-        });
-      },
+        })
+        .catch(err => {});
     },
-    mounted(){
-      this.getallUserGroup();
+    handleDelete(index, row) {
+      // console.log(index, row);
+      console.log(row);
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/deleteUserGroup";
+      } else {
+        url = "/deleteUserGroup";
+      }
+      postJsonRequest(url, row)
+        .then(result => {
+          if (result.data.code == 200) {
+            this.open2(result.data.msg);
+            this.reload();
+          }
+        })
+        .catch(err => {});
+    },
+    changePermissions(permissions) {
+      let name = "";
+      return name;
+      for (let i = 0; i < permissions.length; i++) {
+        if (i == permissions.length - 1) {
+          name = name + permissions[i];
+        } else {
+          name = name + permissions[i] + ",";
+        }
+      }
+      console.log(name);
+      return name;
+    },
+    choosePermissions() {},
+    confimUpdate() {
+      console.log(this.form);
+      let name = "";
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/updateUserGroup";
+      } else {
+        url = "/updateUserGroup";
+      }
+      for (let i = 0; i < this.form.groupPermission.length; i++) {
+        if (i == this.form.groupPermission.length - 1) {
+          name = name + this.form.groupPermission[i];
+        } else {
+          name = name + this.form.groupPermission[i] + ",";
+        }
+      }
+      let userGroup = {
+        groupName: this.form.groupName,
+        groupPermission: name
+      };
+      postJsonRequest(url, userGroup)
+        .then(result => {
+          console.log(result);
+          if (result.data.code == 200) {
+            this.open2(result.data.msg);
+            this.reload();
+          }
+        })
+        .catch(err => {});
+      this.centerDialogVisible = false;
+    },
+    confimCreateUser() {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/addUserGroup";
+      } else {
+        url = "/addUserGroup";
+      }
+      let permissions = this.userGroup.groupPermission;
+      let name = "";
+      for (let i = 0; i < permissions.length; i++) {
+        if (i == permissions.length - 1) {
+          name = name + permissions[i];
+        } else {
+          name = name + permissions[i] + ",";
+        }
+      }
+      let pagePermissions = "";
+      for (let i = 0; i < this.userGroup.pagePermission.length; i++) {
+        if (i == this.userGroup.pagePermission.length - 1) {
+          pagePermissions = pagePermissions + this.userGroup.pagePermission[i];
+        } else {
+          pagePermissions =
+            pagePermissions + this.userGroup.pagePermission[i] + ";";
+        }
+      }
+      console.log(pagePermissions);
+      let userGroup = {
+        groupName: this.userGroup.groupName,
+        groupPermission: name,
+        pagePermission: pagePermissions
+      };
+      postJsonRequest(url, userGroup)
+        .then(result => {
+          console.log(result);
+          if (result.data.code === 200) {
+            this.open2(result.data.msg);
+            this.reload();
+          }
+        })
+        .catch(err => {});
+      this.DialogVisible = false;
+    },
+    open2(msg) {
+      this.$message({
+        message: msg,
+        type: "success"
+      });
     }
-}
+  },
+  mounted() {
+    this.getallUserGroup();
+  }
+};
 </script>
 
 <style scoped>
