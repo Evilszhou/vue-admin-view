@@ -224,9 +224,20 @@ export default {
           name = name + this.form.groupPermission[i] + ",";
         }
       }
+
+      let pagePermissions = "";
+      for (let i = 0; i < this.form.pagePermission.length; i++) {
+        if (i == this.form.pagePermission.length - 1) {
+          pagePermissions = pagePermissions + this.form.pagePermission[i];
+        } else {
+          pagePermissions =
+            pagePermissions + this.form.pagePermission[i] + ";";
+        }
+      }
       let userGroup = {
         groupName: this.form.groupName,
-        groupPermission: name
+        groupPermission: name,
+        pagePermission: pagePermissions
       };
       postJsonRequest(url, userGroup)
         .then(result => {
