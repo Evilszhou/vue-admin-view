@@ -279,6 +279,7 @@ import pdf from "vue-pdf";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
+import { constants } from "crypto";
 
 export default {
   components: {
@@ -300,7 +301,13 @@ export default {
   methods: {
     getPagePermissions() {
       let _this = this;
-      postJsonRequest("/api/public/getPagePermission")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getPagePermission";
+      } else {
+        url = "/public/getPagePermission";
+      }
+      postJsonRequest(url)
         .then(result => {
           //  console.log(result)
           //  console.log(result.data.data[0].pagePermission);
@@ -340,8 +347,14 @@ export default {
       console.log("单一");
       //  window.location.href = this.url;
       console.log(this.url.split("?"));
+      let downloadUrl = "";
+      if (process.env.NODE_ENV === "development") {
+        downloadUrl = "/api/public/downloadZip";
+      } else {
+        downloadUrl = "/public/downloadZip";
+      }
       let res = this.url.split("?");
-      let url = "/api/public/downloadZip?" + res[1];
+      let url = downloadUrl + "?" + res[1];
       console.log(url);
       window.location.href = url;
       this.dialogVisible1 = false;
@@ -374,7 +387,7 @@ export default {
       //   this.open6("该文件类型不支持预览!");
       //   return;
       // }
-      postRequest("/api/public/preViewFile", data)
+      postRequest("/public/preViewFile", data)
         .then(result => {
           let url =
             "/file/" +
@@ -398,7 +411,7 @@ export default {
     downLoadFileAndAnnex(item) {
       let _this = this;
       console.log(item);
-      postJsonRequest("/api/public/downloadFileAndAnnex", item)
+      postJsonRequest("/public/downloadFileAndAnnex", item)
         .then(result => {})
         .catch(err => {});
     },
@@ -434,7 +447,7 @@ export default {
     downLoadAnnex(item) {
       console.log(item);
       window.location.href =
-        "/api/getName?name=" +
+        "/getName?name=" +
         item.annexName +
         "&token=" +
         localStorage.getItem("token");
@@ -540,8 +553,14 @@ export default {
     },
     getDocsBySearchParam() {
       this.loading = true;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getDocsBySearchParam";
+      } else {
+        url = "/public/getDocsBySearchParam";
+      }
 
-      postJsonRequest("/api/public/getDocsBySearchParam", {
+      postJsonRequest(url, {
         pageInfo: { pageSize: this.pageSize, currentPage: this.currentPage },
         docLabels: this.$refs.tree.getCheckedNodes(),
         tags: this.tags,
@@ -567,7 +586,7 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: "/api/getName?name=" + item.docName
+                url: "/getName?name=" + item.docName
               };
               table.push(tableobj);
               console.log("table:" + table);
@@ -592,7 +611,13 @@ export default {
     },
     getAllDocInfo() {
       this.loading = true;
-      getRequest("/api/public/getAllDocInfo", {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllDocInfo";
+      } else {
+        url = "/public/getAllDocInfo";
+      }
+      getRequest(url, {
         pageSize: this.pageSize,
         currentPage: this.currentPage
       })
@@ -614,7 +639,7 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: "/api/getName?name=" + item.docName + "&token"
+                url: "/getName?name=" + item.docName + "&token"
               };
               table.push(tableobj);
             }
@@ -633,7 +658,13 @@ export default {
         });
     },
     getMyChildDepartments() {
-      getRequest("/api/admin/getMyChildDepartments")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getMyChildDepartments";
+      } else {
+        url = "/admin/getMyChildDepartments";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.departments = result.data.data;
@@ -649,7 +680,13 @@ export default {
         });
     },
     getDocLabelsTree() {
-      getRequest("/api/public/getDocLabelsTree")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getDocLabelsTree";
+      } else {
+        url = "/public/getDocLabelsTree";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.docLabelsTree = result.data.data;
@@ -665,7 +702,13 @@ export default {
     },
     getAllTags() {
       let _this = this;
-      postJsonRequest("/api/public/getAllTags")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllTags";
+      } else {
+        url = "/public/getAllTags";
+      }
+      postJsonRequest("/public/getAllTags")
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {

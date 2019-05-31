@@ -1,5 +1,5 @@
 module.exports = {
-    baseUrl: '/',
+    baseUrl: './',
     productionSourceMap: false,
     devServer: {
         proxy: {
@@ -10,6 +10,20 @@ module.exports = {
                    '^/api': '/'
                 }
             },
+            // '/admin':{
+            //     target:'http://localhost:8082',
+            //     changeOrigin:true,
+            //     pathRewrite:{
+            //         '^/admin': '/admin'
+            //     }
+            // },
+            // '/public':{
+            //     target:'http://localhost:8082',
+            //     changeOrigin:true,
+            //     pathRewrite:{
+            //         '^/public': '/public'
+            //     }
+            // },
             '/file':{
                 target:'http://localhost:88',
                 changeOrigin:true,
@@ -30,4 +44,5 @@ module.exports = {
             }
         }
     }
+
 }

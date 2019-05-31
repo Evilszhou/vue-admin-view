@@ -253,6 +253,13 @@ export default {
         label: this.editform.name,
         superId: this.nodeValue.superId
       };
+      let url = "";
+        if (process.env.NODE_ENV === 'development') {
+                    url = "/api/public/updateLabels";
+                }else{
+                    url = "/public/updateLabels"
+                }
+
       postJsonRequest("/api/public/updateLabels", node)
         .then(result => {
           if (result.data.code != 200) {
@@ -278,7 +285,13 @@ export default {
         superId: this.nodeValue.id
       };
       console.log(node1);
-      postJsonRequest("/api/public/addLabels", node1)
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+          url = "/api/public/updateLabels";
+       }else{
+          url = "/public/updateLabels"
+       }      
+      postJsonRequest(url, node1)
         .then(result => {
           console.log(result);
           if (result.data.code != 200) {
@@ -304,7 +317,13 @@ export default {
         label: this.form.name,
         superId: 0
       };
-      postJsonRequest("/api/public/addLabels", node)
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/addLabels";
+       }else{
+            url = "/public/addLabels"
+       }
+      postJsonRequest(url, node)
         .then(result => {
           console.log(result);
           if (result.data.code != 200) {
@@ -347,7 +366,13 @@ export default {
       console.log(node.data);
     },
     getDocLabelsTree() {
-      getRequest("/api/public/getDocLabelsTree")
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/getDocLabelsTree";
+       }else{
+            url = "/public/getDocLabelsTree"
+       }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.data = result.data.data;
@@ -366,7 +391,13 @@ export default {
     },
     getAllTags() {
       let _this = this;
-      postJsonRequest("/api/public/getAllTags")
+      let url = "";
+      if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/getAllTags";
+       }else{
+            url = "/public/getAllTags"
+       }
+      postJsonRequest(url)
         .then(result => {
           for (let i = 0; i < result.data.data.length; i++) {
             let obj = {
@@ -383,6 +414,12 @@ export default {
         .catch(err => {});
     },
     updateTag(item) {
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/updateTag";
+      }else{
+        url = "/public/updateTag";
+      }
       this.$confirm("是否确认该操作", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
@@ -393,7 +430,7 @@ export default {
             let obj = {
               tagName: item.name
             };
-            postJsonRequest("/api/public/updateTag", obj)
+            postJsonRequest(url, obj)
               .then(result => {
                 this.reload();
                 this.$notify.success({
@@ -469,6 +506,12 @@ export default {
     },
     remove(node, data) {
       console.log(node);
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/deleteLabels";
+      }else{
+        url = "/public/deleteLabels";
+      } 
 
       this.$confirm("确认要删除该标签吗?", "提示", {
         confirmButtonText: "确定",
@@ -479,7 +522,7 @@ export default {
           if (result == "confirm") {
             console.log("hh ");
             // console.log(eval +"node:")
-            postJsonRequest("/api/public/deleteLabels", data)
+            postJsonRequest(url, data)
               .then(result => {
                 console.log(result);
                 if (result.data.code != 200) {
@@ -524,7 +567,14 @@ export default {
         event: dropType
       };
       let _this = this;
-      postRequest("/api/public/dragLabel", data)
+      let url = "";
+       if (process.env.NODE_ENV === 'development') {
+            url = "/api/public/dragLabel";
+       }else{
+            url = "/public/dragLabel"
+       }
+      
+      postRequest(url, data)
         .then(result => {
           if (result.data.code != 200) {
             this.open6(result.data.msg);

@@ -122,7 +122,13 @@ export default {
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
     getAllLogs() {
-      getRequest("/api/admin/getAllLogs", {
+       let url = "";
+                 if (process.env.NODE_ENV === 'development') {
+                    url = "/api/admin/getAllLogs";
+                }else{
+                    url = "/admin/getAllLogs"
+                }
+      getRequest(url, {
         pageSize: this.pageSize,
         currentPage: this.cur_page
       })
@@ -139,7 +145,13 @@ export default {
         });
     },
     getLogsBySearchParam() {
-      postJsonRequest("/api/admin/getLogsBySearchParam", {
+        let url = "";
+                 if (process.env.NODE_ENV === 'development') {
+                    url = "/api/admin/getLogsBySearchParam";
+                }else{
+                    url = "/admin/getLogsBySearchParam"
+                }
+      postJsonRequest(url, {
         pageSize: this.pageSize,
         currentPage: this.cur_page,
         userName: this.userName,
