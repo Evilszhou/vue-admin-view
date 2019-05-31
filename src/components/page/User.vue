@@ -100,7 +100,6 @@
           <el-cascader
             placeholder="输入部门"
             :options="departments"
-         
             filterable
             :change-on-select="true"
             @change="selectEditDepartment"
@@ -138,7 +137,7 @@
 
 <script>
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
-import { truncate } from "fs";
+
 export default {
   inject: ["reload"],
   mounted() {
@@ -146,7 +145,6 @@ export default {
     this.getDepartmentsTree();
   },
   methods: {
-    
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex % 4 === 1) {
         return "warning-row";
@@ -172,7 +170,13 @@ export default {
       }
     },
     sendUpdateUser() {
-      postJsonRequest("api/public/updateUserMessage", this.updateuser)
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/updateUserMessage";
+      } else {
+        url = "/public/updateUserMessage";
+      }
+      postJsonRequest(url, this.updateuser)
         .then(result => {
           console.log(result);
           this.reload();
@@ -181,10 +185,16 @@ export default {
       this.dialogTableVisible1 = false;
     },
     handleDelete(index, row) {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/deleteUser";
+      } else {
+        url = "/public/deleteUser";
+      }
       console.log(row);
       console.log(row.userId);
       let _this = this;
-      postRequest("/api/public/deleteUser", {
+      postRequest(url, {
         userId: row.userId
       })
         .then(result => {
@@ -199,7 +209,13 @@ export default {
         .catch(err => {});
     },
     createUser() {
-      postJsonRequest("/api/public/createUser", this.user)
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/createUser";
+      } else {
+        url = "/public/createUser";
+      }
+      postJsonRequest(url, this.user)
         .then(result => {
           console.log(result);
           if (result.data.code == 200) {
@@ -217,13 +233,13 @@ export default {
      * 得到增加选中的部门
      */
     selectAddDepartment(data) {
-        if (data != null && data.length > 0) {
+      if (data != null && data.length > 0) {
         this.user.departmentId = data[data.length - 1];
         console.log(this.user.departmentId);
         console.log("console.log(this.user.departmentId);");
       }
     },
-    
+
     /**
      * 得到编辑选中的部门
      */
@@ -238,9 +254,15 @@ export default {
     /**
      * 得到部门列表
      */
-     
+
     getDepartmentsTree() {
-      getRequest("/api/admin/getAllDepartments")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getAllDepartments";
+      } else {
+        url = "/admin/getAllDepartments";
+      }
+      getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
             this.departments = result.data.data;
@@ -268,7 +290,13 @@ export default {
     getData() {
       console.log("hhhh");
       let that = this;
-      postRequest("/api/public/getAllUsers", {
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllUsers";
+      } else {
+        url = "/public/getAllUsers";
+      }
+      postRequest(url, {
         page: this.cur_page
       })
         .then(result => {
@@ -288,7 +316,13 @@ export default {
     getAllPermissions() {
       let _this = this;
       let roles = [];
-      postJsonRequest("/api/getAllUserGroup")
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllUserGroup";
+      } else {
+        url = "/getAllUserGroup";
+      }
+      postJsonRequest(url)
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {
@@ -323,7 +357,6 @@ export default {
   },
   data() {
     return {
-      
       value4: "100",
       roles: [],
       radio: 1,
@@ -340,7 +373,7 @@ export default {
         password: "",
         realname: "",
         department: "",
-        departmentId:"",
+        departmentId: "",
         role: ""
       },
       departments: [],
