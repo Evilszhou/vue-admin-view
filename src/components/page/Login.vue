@@ -103,6 +103,7 @@
                 //    console.log(result.data.msg);
                    if(result.data.code === 200){
                        localStorage.setItem("token",result.data.data);
+                       localStorage.setItem("username",this.ruleForm.username);
                        this.$router.push("/document");
                    }else if(result.data.code == -100){
                        this.open7();

@@ -126,19 +126,19 @@ export default {
   },
   data() {
     return {
-      type: "",
-      docLabelsTree: [],
-      form: {
-        name: ""
+      type:"",
+      docLabelsTree:[],
+      form:{
+        name:""
       },
-      editform: {
-        name: "",
-        type: ""
+      editform:{
+        name:"",
+        type:""
       },
-      nodeValue: "",
+      nodeValue:"",
       dialogVisible: false,
-      dialogVisible1: false,
-      dialogVisible2: false,
+      dialogVisible1:false,
+      dialogVisible2:false,
       filterText: "",
       tags: [],
       tags1: [],
@@ -290,7 +290,7 @@ export default {
           url = "/api/public/updateLabels";
        }else{
           url = "/public/updateLabels"
-       }      
+       }
       postJsonRequest(url, node1)
         .then(result => {
           console.log(result);
@@ -458,32 +458,32 @@ export default {
       this.editform.name = this.nodeValue.label;
       this.dialogVisible2 = true;
     },
-    renderContent(h, { node, data, store }) {
-      return (
-        <span class="custom-tree-node">
+      renderContent(h, { node, data, store }) {
+          return (
+              <span class="custom-tree-node">
+              <span>
+              <i class="el-icon-lx-tag" style="margin-right:5px" />
+              {node.label}
+      </span>
           <span>
-            <i class="el-icon-lx-tag" style="margin-right:5px" />
-            {node.label}
+          <i
+      class="el-icon-lx-roundadd"
+          on-click={() => this.getNode(node, data)}
+          style="margin-right:2px"
+              />
+              <i
+      class="el-icon-lx-edit"
+          style="margin-right:2px"
+          on-click={() => this.getEditNode(node, data)}
+          />
+          <i
+      class="el-icon-lx-roundclose"
+          on-click={() => this.remove(node, data)}
+          />
           </span>
-          <span>
-            <i
-              class="el-icon-lx-roundadd"
-              on-click={() => this.getNode(node, data)}
-              style="margin-right:2px"
-            />
-            <i
-              class="el-icon-lx-edit"
-              style="margin-right:2px"
-              on-click={() => this.getEditNode(node, data)}
-            />
-            <i
-              class="el-icon-lx-roundclose"
-              on-click={() => this.remove(node, data)}
-            />
           </span>
-        </span>
       );
-    },
+      },
     move(item) {
       console.log(item);
       console.log(this.$refs.tree);
@@ -511,7 +511,7 @@ export default {
         url = "/api/public/deleteLabels";
       }else{
         url = "/public/deleteLabels";
-      } 
+      }
 
       this.$confirm("确认要删除该标签吗?", "提示", {
         confirmButtonText: "确定",
@@ -573,7 +573,7 @@ export default {
        }else{
             url = "/public/dragLabel"
        }
-      
+
       postRequest(url, data)
         .then(result => {
           if (result.data.code != 200) {

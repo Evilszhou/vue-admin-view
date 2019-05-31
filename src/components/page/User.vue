@@ -137,7 +137,7 @@
 
 <script>
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
-
+import { truncate } from "fs";
 export default {
   inject: ["reload"],
   mounted() {
@@ -179,7 +179,13 @@ export default {
       postJsonRequest(url, this.updateuser)
         .then(result => {
           console.log(result);
-          this.reload();
+          if(result.data.code != 200){
+            this.open6(result.data.msg);
+          }else{
+            this.open3(result.data.msg);
+             this.reload();
+          }
+
         })
         .catch(err => {});
       this.dialogTableVisible1 = false;
@@ -200,10 +206,11 @@ export default {
         .then(result => {
           console.log(result);
           if (result.data.code == 200) {
+            this.open3(result.data.msg);
             this.reload();
             // _this.tableData = result.data.data
           } else if (result.data.code == -1) {
-            this.open6();
+            this.open6(result.data.msg);
           }
         })
         .catch(err => {});
@@ -239,7 +246,7 @@ export default {
         console.log("console.log(this.user.departmentId);");
       }
     },
-
+    
     /**
      * 得到编辑选中的部门
      */
@@ -254,7 +261,7 @@ export default {
     /**
      * 得到部门列表
      */
-
+     
     getDepartmentsTree() {
       let url = "";
       if (process.env.NODE_ENV === "development") {
@@ -357,6 +364,7 @@ export default {
   },
   data() {
     return {
+      
       value4: "100",
       roles: [],
       radio: 1,
@@ -373,7 +381,7 @@ export default {
         password: "",
         realname: "",
         department: "",
-        departmentId: "",
+        departmentId:"",
         role: ""
       },
       departments: [],
