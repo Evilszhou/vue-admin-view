@@ -190,15 +190,15 @@
                   ></el-cascader>
                   </el-form-item>
                   <el-form-item label="所属分类" style="width:60%">
-                    <el-input readonly="true" style="width:300px" placeholder="请选择文件类型" v-model="value">
-                    </el-input>
+                    <!-- <el-input readonly="true" style="width:300px" placeholder="请选择文件类型" v-model="value"> -->
+                    <!-- </el-input> -->
                   </el-form-item>
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
               </el-form>
               </el-dialog>
 
 
-                 <el-dialog
+                 <!-- <el-dialog
   title="选择文本分类"
   :visible.sync="dialogVisible3"
   width="30%"
@@ -216,7 +216,7 @@
     <el-button @click="dialogVisible3 = false">取 消</el-button>
     <el-button type="primary" @click="confimType">确 定</el-button>
   </span>
-</el-dialog>
+</el-dialog> -->
 
               <!-- <el-checkbox
                 class="document-display-checkAll"
@@ -431,13 +431,19 @@ export default {
       //   return;
       // }
       postRequest("/api/public/preViewFile",data).then((result) => {
+       if(result.data.code == 0){
+          this.open6(result.data.msg);
+        }
 
         let url = "/file/"+result.data.data.substring(result.data.data.lastIndexOf('\\')+1)
         this.src = url;
-        if(result.data.code != 200){
-          this.open6(result.data.msg);
+        let _this = this;
+        // if(result.data.code != 200){
+        //   this.dialogVisible =false;
+        //   _this.open6(result.data.msg);
 
-        }
+        // }
+        // this.open6("你没有权限!")
         this.loading = false;
         // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
       }).catch((err) => {
