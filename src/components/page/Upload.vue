@@ -12,7 +12,7 @@
       <el-upload class="upload-demo"  ref="upload" :data="table" 
       :headers="config"
       :file-list="fileList" drag :action="uploadFile" name="file" 
-      :before-upload="beforeUpload" :on-success="success" :auto-upload="false"
+      :before-upload="beforeUpload" :on-success="success" :on-error="wrong" :auto-upload="false"
       :limit="1" :on-exceed="overNumber" >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">
@@ -123,7 +123,7 @@
   <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
 </el-upload>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button @click="dialogVisible = false;this.$router.push('/document')">取 消</el-button>
           <el-button type="primary" @click="uploadAnneix">确 定</el-button>
         </span>
       </el-dialog>
@@ -132,8 +132,7 @@
       <el-dialog
   title="选择文本分类"
   :visible.sync="dialogVisible3"
-  width="30%"
-  :before-close="handleClose">
+  width="30%">
   <el-tree
   ref="tree"
   :data="data"
@@ -148,6 +147,9 @@
     <el-button type="primary" @click="confimType">确 定</el-button>
   </span>
 </el-dialog>
+
+
+
 
   </div>
 </template>
@@ -210,6 +212,7 @@ export default {
         }
     ],
       dialogVisible3:false,
+      dialogVisible4:false,
       value: [],
       table: {
         department: "",
@@ -325,6 +328,19 @@ export default {
         item.type = "normal";
       }
     },
+    wrong(err){
+      console.log(err);
+
+    },
+     open6(msg) {
+      if (msg == undefined) {
+        msg = "这是一条错误的提示消息";
+      }
+      this.$notify.error({
+        title: "错误",
+        message: msg
+      });
+    },
     getAllTags() {
       let _this = this;
       let url = "";
@@ -361,6 +377,8 @@ export default {
       });
     },
     success(res) {
+      console.log(res)
+      this.open6(res.msg)
       console.log(this.form.tags);
       if (res.code == 200) {
         this.open3(res.msg);
@@ -368,9 +386,11 @@ export default {
         console.log(localStorage.getItem("file"));
         this.$confirm("要继续上传附件吗?", "提示", {
           confirmButtonText: "确定",
-          cancelButtonText: "取消"
+          cancelButtonText: "取消",
+          showCancelButton:true
         })
           .then(result => {
+            console.log(result)
             if (result == "confirm") {
               let _this = this;
               setTimeout(function() {
@@ -378,8 +398,15 @@ export default {
               }, 500);
               //  _this.reload();
             }
+            
           })
-          .catch(err => {});
+          .catch(err => {
+            console.log(err)
+            if(err){
+              this.$router.push("/document");
+            }
+          });
+        
       } else {
       }
       //
@@ -416,6 +443,7 @@ export default {
         });
       },
     submit() {
+      
       this.chooseTags = [];
       let tags = this.form.tags;
       let _this = this;
@@ -468,6 +496,7 @@ export default {
     },
     uploadAnneixSuccess() {
       this.open3();
+      this.$router.push("/document")
       this.dialogVisible = false;
       this.reload();
     },
