@@ -134,6 +134,7 @@
   :visible.sync="dialogVisible3"
   width="30%">
   <el-tree
+  check-strictly
   ref="tree"
   :data="data"
   show-checkbox

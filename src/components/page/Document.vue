@@ -16,6 +16,7 @@
             <div class="drag-box-item">
               <el-input class="el" placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
               <el-tree
+                check-strictly
                 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;  display: block;margin-top:10px"
                 ref="tree"
                 show-checkbox
@@ -386,7 +387,9 @@ export default {
   methods: {
     deleteAnnex(item){
       console.log(item);
-      let url = "";
+      this.$confirm("确认删除该附件吗?","提示").then((res) => {
+        if(res){
+            let url = "";
       if(process.env.NODE_ENV === 'development'){
         url = "/api/public/deleteAnnex";
       }else{
@@ -403,6 +406,12 @@ export default {
       }).catch((err) => {
         
       });
+
+        }
+      }).catch((err) => {
+
+      })
+    
       // if()
 
     },
@@ -621,7 +630,7 @@ export default {
       this.$router.push({ path: "Upload" });
     },
     selectDocument(item) {
-      console.log(item);
+      // console.log(item);
       this.selectDocumentInfo = item;
       this.dynamicTags = this.selectDocumentInfo.tags;
       this.checkfileList.push(item);
@@ -934,7 +943,7 @@ export default {
       } else {
         url = "/public/getAllTags";
       }
-      postJsonRequest("/public/getAllTags")
+      postJsonRequest(url)
         .then(result => {
           console.log(result);
           for (let i = 0; i < result.data.data.length; i++) {
@@ -976,12 +985,12 @@ export default {
   },
 
   watch: {
-    docSearchName(val) {
-      if (val != "") {
-        this.docSearchName = val;
-        console.log("docSearchName" + this.docSearchName);
-      }
-    },
+    // docSearchName(val) {
+    //   if (val != "") {
+    //     this.docSearchName = val;
+    //     console.log("docSearchName" + this.docSearchName);
+    //   }
+    // },
 
     filterText(val) {
       console.log(val);
@@ -991,7 +1000,7 @@ export default {
       if (val != null && val.length == 0) {
         this.selectDepartmentId = -1;
       }
-      console.log(this.selectDepartmentId);
+      // console.log(this.selectDepartmentId);
       console.log("this.selectDepartmentId");
     }
   },
