@@ -154,9 +154,11 @@ export default {
     handleEdit(index, row) {
       console.log(row);
       let permissions = row.groupPermission.split(",");
+      let pagePermissions =  row.pagePermission.split(";");
       console.log(permissions);
       this.form.groupName = row.groupName;
       this.form.groupPermission = permissions;
+      this.form.pagePermission = pagePermissions;
 
       this.centerDialogVisible = true;
     },
@@ -178,7 +180,12 @@ export default {
     },
     handleDelete(index, row) {
       // console.log(index, row);
-      console.log(row);
+      this.$confirm("是否删除该权限?","提示",{
+        confirmButtonText:"确定",
+        cancelButtonText:"取消"
+      }).then((result) => {
+        if(result){
+            console.log(row);
       let url = "";
       if (process.env.NODE_ENV === "development") {
         url = "/api/deleteUserGroup";
@@ -193,6 +200,13 @@ export default {
           }
         })
         .catch(err => {});
+
+        }
+        
+      }).catch((err) => {
+        
+      });
+    
     },
     changePermissions(permissions) {
       let name = "";

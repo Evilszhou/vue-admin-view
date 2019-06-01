@@ -191,7 +191,12 @@ export default {
       this.dialogTableVisible1 = false;
     },
     handleDelete(index, row) {
-      let url = "";
+      this.$confirm("是否删除该用户?","提示",{
+        confirmButtonText:"确定",
+        cancelButtonText:"取消"
+      }).then((result) => {
+        if(result){
+           let url = "";
       if (process.env.NODE_ENV === "development") {
         url = "/api/public/deleteUser";
       } else {
@@ -214,6 +219,12 @@ export default {
           }
         })
         .catch(err => {});
+
+        }
+      }).catch((err) => {
+        
+      });
+     
     },
     createUser() {
       let url = "";

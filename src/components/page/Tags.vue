@@ -15,7 +15,7 @@
             <el-button
               type="primary"
               size="mini"
-              style="display:flex;margin-left:240px;margin-top:-30px;height:25px;"
+              style="display:flex;margin-left:270px;margin-top:-30px;height:25px;"
               @click="dialogVisible = true"
             >增加分类</el-button>
             <el-tree
@@ -38,7 +38,7 @@
               :allow-drag="allowDrag"
             ></el-tree>
           </div>
-          <div class="drag-box-item">
+              <div class="drag-box-item">
             <div class="item-title">标签管理</div>
             <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
               <transition-group tag="div" id="doing" class="item-ul">
@@ -70,6 +70,40 @@
             </draggable>
           </div>
         </div>
+<!--         
+        <div class="drag-box" style="width:1000px;height:800px;background:red">
+            <div class="drag-box-item">
+            <div class="item-title">标签管理</div>
+            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+              <transition-group tag="div" id="doing" class="item-ul">
+                <el-tag
+                  class="name"
+                  v-for="tag in tags"
+                  :key="tag.name"
+                  size="mini"
+                  closable
+                  @close="updateTag(tag)"
+                  :type="tag.type"
+                >{{tag.name}}</el-tag>
+              </transition-group>
+            </draggable>
+          </div>
+          <div class="drag-box-item">
+            <div class="item-title">废弃标签</div>
+            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+              <transition-group tag="div" id="doing" class="item-ul">
+                <el-tag
+                  v-for="tag in tags1"
+                  :key="tag.name"
+                  size="mini"
+                  style="height:25px;margin-right:5px;margin-bottom:4px;"
+                  @click="updateTag(tag)"
+                  :type="tag.type"
+                >{{tag.name}}</el-tag>
+              </transition-group>
+            </draggable>
+          </div>
+        </div> -->
         <el-dialog title="新增分类" :visible.sync="dialogVisible" style="margin-top:100px" width="30%">
           <el-form :model="form" label-width="80px">
             <el-form-item label="分类名:">
@@ -631,7 +665,7 @@ export default {
 .container .drag-box-item {
   flex: 1;
   max-width: 330px;
-  min-width: 300px;
+  min-width: 360px;
   background-color: #eff1f5;
   margin-right: 16px;
   border-radius: 6px;
