@@ -132,46 +132,70 @@ export default {
     dragTreeTable
   },
   methods: {
-    deepTraversal(list) {
-      let nodes = [];
-      let isInclude = false;
-      let result = { isInclude: isInclude, nodes: nodes };
+    // deepTraversal(list) {
+    //   let nodes = [];
+    //   let isInclude = false;
+    //   let result = { isInclude: isInclude, nodes: nodes };
+    //   if (list !== null) {
+    //     for (let i = 0; i < list.length; i++) {
+    //       let child = list[i];
+    //       if (child.name == this.searchParam) {
+    //         result.isInclude = true;
+    //       }
+    //       // console.log(child);
+    //       result.nodes.push(child);
+    //       let isInclude = this.deepTraversal(child.children).isInclude;
+    //       if (isInclude) {
+    //         child.open = true;
+    //         result.isInclude = true;
+    //         // console.log(child.name + "is true");
+    //       } else {
+    //         child.open = false;
+    //       }
+    //     }
+    //   }
+    //   return result;
+    // },
+    deepTraversal(list, result) {
       if (list !== null) {
         for (let i = 0; i < list.length; i++) {
           let child = list[i];
-          if (child.name == this.searchParam) {
-            result.isInclude = true;
-          }
-          // console.log(child);
-          result.nodes.push(child);
-          let isInclude = this.deepTraversal(child.children).isInclude;
-          if (isInclude) {
-            child.open = true;
-            result.isInclude = true;
-            // console.log(child.name + "is true");
+          if (child == null) {
+            return;
           } else {
-            child.open = false;
+            if (child.name == this.searchParam) {
+              console.log(child.name + "chile.name==searchParam");
+              result.push(child);
+            }
           }
+          this.deepTraversal(child.children, result);
+          console.log(child.name == this.searchParam);
         }
       }
-      return result;
     },
     search() {
-      let result = this.deepTraversal(this.treeData.children);
-      // console.log(result);
-      let newTreeDataChildren = result.nodes;
-      let isInclude = result.isInclude;
-      let newTreeData = {
-        columns: [...this.treeData.columns],
-        children: newTreeDataChildren,
-        custom_field: {
-          id: "id",
-          order: "sort",
-          lists: "children",
-          parent_id: "parent_id"
-        }
-      };
-      this.treeData = { ...newTreeData };
+      if (this.searchParam != null && this.searchParam != "") {
+        var result = [];
+        this.deepTraversal(this.treeData.children, result);
+        console.log(result);
+        let newTreeDataChildren = result;
+        // let isInclude = result.isInclude;
+        let newTreeData = {
+          columns: [...this.treeData.columns],
+          children: newTreeDataChildren,
+          custom_field: {
+            id: "id",
+            order: "sort",
+            lists: "children",
+            parent_id: "parent_id"
+          }
+        };
+        this.treeData = { ...newTreeData };
+        console.log(this.treeData);
+        console.log("this.new T");
+      }else{
+        this.getDepartmentsTree();
+      }
     },
 
     getAllchildDepartments(department, childList) {

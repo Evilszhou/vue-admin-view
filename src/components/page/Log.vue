@@ -25,15 +25,24 @@
           ></el-date-picker>
         </el-col>
         <el-col :span="4">
-          <el-input v-model="opLabel" placeholder="操作类型"></el-input>
+          <!-- <el-input v-model="opLabel" placeholder="操作类型"></el-input> -->
+          <el-cascader
+            placeholder="操作类型"
+            :options="allOpLabels"
+            filterable
+            :change-on-select="true"
+            @change="selectOpLabel"
+            clearable
+          ></el-cascader>
         </el-col>
         <el-col :span="3">
-          <el-button type="primary" @click="getLogsBySearchParam">查询</el-button>
+          <el-button type="primary" @click="search">查询</el-button>
         </el-col>
       </el-row>
       <el-table
+        v-loading="loading"
         :data="tableData"
-        stripe=""
+        stripe
         style="width: 100%;margin-top:10px"
         :row-class-name="tableRowClassName"
       >
@@ -44,9 +53,7 @@
         <el-table-column
           prop="opLabel"
           label="操作类型"
-          :filters="filterTagArray"
-          :filter-method="filterTag"
-          filter-placement="bottom-end"
+
         >
           <template slot-scope="scope">
             <el-tag
@@ -69,6 +76,7 @@
           layout="prev, pager, next"
           :page-size="10"
           :total="total"
+          :current-page="currentPage"
         ></el-pagination>
       </div>
     </div>
@@ -79,17 +87,18 @@
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
 import moment from "moment";
 import { isNull } from "util";
+import { truncate } from 'fs';
 
 export default {
   methods: {
-    tableRowClassName({row, rowIndex}) {
-        if (rowIndex % 4 === 1) {
-          return 'warning-row';
-        } else if (rowIndex % 4 === 3) {
-          return 'success-row';
-        }
-        return '';
-      },
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex % 4 === 1) {
+        return "warning-row";
+      } else if (rowIndex % 4 === 3) {
+        return "success-row";
+      }
+      return "";
+    },
     tableRowClassName({ row, rowIndex }) {
       // if (rowIndex % 4 === 1) {
       //   return "warning-row";
@@ -98,18 +107,22 @@ export default {
       // }
       // return "";
     },
-    handleEdit(index, row) {
-      console.log(index, row);
-    },
-    handleDelete(index, row) {
-      console.log(index, row);
+    // handleEdit(index, row) {
+    //   console.log(index, row);
+    // },
+    // handleDelete(index, row) {
+    //   console.log(index, row);
+    // },
+    search() {
+      this.handleCurrentChange(1);
     },
     handleCurrentChange(val) {
-      this.cur_page = val;
-      this.getAllLogs();
+      // console.log(val);
+      this.currentPage = val;
+      this.getLogsBySearchParam();
     },
     indexMethod(index) {
-      return index + 1 + (this.cur_page - 1) * this.pageSize;
+      return index + 1 + (this.currentPage - 1) * this.pageSize;
     },
     filterTag(value, row) {
       return row.opLabel === value;
@@ -122,94 +135,118 @@ export default {
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
     getAllLogs() {
-       let url = "";
-                 if (process.env.NODE_ENV === 'development') {
-                    url = "/api/admin/getAllLogs";
-                }else{
-                    url = "/admin/getAllLogs"
-                }
+      this.loading = true;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getAllLogs";
+      } else {
+        url = "/admin/getAllLogs";
+      }
       getRequest(url, {
         pageSize: this.pageSize,
-        currentPage: this.cur_page
+        currentPage: this.currentPage
       })
         .then(result => {
           if (result.data.code === 200) {
             this.tableData = result.data.data.list;
             this.total = result.data.data.total;
           } else {
-            alert("获取失败");
+             this.$notify({
+              title: "错误",
+              message: result.data.msg,
+              type: "error"
+            });
           }
         })
         .catch(e => {
-          console.log(e);
+          this.$notify({
+              title: "错误",
+              message: "数据获取失败",
+              type: "error"
+            });
         });
+        this.loading = false;
     },
+
+    selectOpLabel(opLabel) {
+      this.searchOpLabel = opLabel;
+    },
+
     getLogsBySearchParam() {
-        let url = "";
-                 if (process.env.NODE_ENV === 'development') {
-                    url = "/api/admin/getLogsBySearchParam";
-                }else{
-                    url = "/admin/getLogsBySearchParam"
-                }
+      this.loading = true;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/admin/getLogsBySearchParam";
+      } else {
+        url = "/admin/getLogsBySearchParam";
+      }
       postJsonRequest(url, {
         pageSize: this.pageSize,
-        currentPage: this.cur_page,
+        currentPage: this.currentPage,
         userName: this.userName,
         opName: this.opName,
-        opLabel: this.opLabel,
+        opLabel: this.searchOpLabel[0],
         startTime: this.startTime,
         endTime: this.endTime
       })
         .then(result => {
           if (result.data.code === 200) {
-              this.$message({
-                  message: result.data.msg,
-                  type: 'success'
-              });
+            // this.$notify({
+            //   title: "成功",
+            //   message: result.data.msg,
+            //   type: "success"
+            // });
             this.tableData = result.data.data.list;
             this.total = result.data.data.total;
           } else {
-            console.log(result.data.msg);
+             this.$notify({
+              title: "错误",
+              message: result.data.msg,
+              type: "error"
+            });
           }
         })
         .catch(e => {
-          console.log(e);
+           this.$notify({
+              title: "错误",
+              message:'数据获取失败',
+              type: "error"
+            });
         });
+        this.loading = false;
     }
   },
   watch: {
-    userName(val) {
-      if (val != "") {
-        this.userName = val;
-        console.log("userName" + this.userName);
-      }
-    },
+    // userName(val) {
+    //   if (val != "") {
+    //     this.userName = val;
+    //     console.log("userName" + this.userName);
+    //   }
+    // },
     opName(val) {
       if (val != "") {
         this.opName = val;
-        console.log("opName" + this.opName);
+        // console.log("opName" + this.opName);
       }
     },
-    opLabel(val) {
-      if (val != "") {
-        this.opLabel = val;
-        console.log("opLabel" + this.opLabel);
-        console.log(this.time[0]);
-        console.log(this.time[1]);
-      }
-    },
+    // opLabel(val) {
+    //   if (val != "") {
+    //     this.opLabel = val;
+    //     console.log("opLabel" + this.opLabel);
+    //     console.log(this.time[0]);
+    //     console.log(this.time[1]);
+    //   }
+    // },
     time(val) {
       if (!isNull(val)) {
         if (!isNull(val[0]) && !isNull(val[1])) {
           this.startTime = moment(val[0]).format("YYYY-MM-DD HH:mm:ss");
           this.endTime = moment(val[1]).format("YYYY-MM-DD HH:mm:ss");
         }
-      }else {
+      } else {
         this.startTime = null;
         this.endTime = null;
       }
-      console.log(this.startTime);
-      console.log(this.endTime);
     }
   },
 
@@ -219,12 +256,36 @@ export default {
   data() {
     return {
       input: "",
-      cur_page: 1,
+      currentPage: 1,
       total: 0,
       pageSize: 10,
       tableData: [],
       userName: "",
       opLabel: "",
+      searchOpLabel: "",
+      loading: false,
+      allOpLabels: [
+        {
+          value: "用户管理",
+          label: "用户管理"
+        },
+        {
+          value: "文件管理",
+          label: "文件管理"
+        },
+        {
+          value: "类别管理",
+          label: "类别管理"
+        },
+        {
+          value: "部门管理",
+          label: "部门管理"
+        },
+        {
+          value: "标签管理",
+          label: "标签管理"
+        }
+      ],
       opName: "",
       time: [],
       startTime: "",
@@ -233,8 +294,7 @@ export default {
         { text: "用户管理", value: "用户管理" },
         { text: "文件管理", value: "文件管理" },
         { text: "类别管理", value: "类别管理" },
-        { text: "组织机构管理", value: "组织机构管理" },
-        { text: "文件根目录管理", value: "文件根目录管理" }
+        { text: "组织机构管理", value: "组织机构管理" }
       ]
     };
   }

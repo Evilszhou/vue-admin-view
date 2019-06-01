@@ -135,6 +135,7 @@
   width="30%"
   :before-close="handleClose">
   <el-tree
+  check-strictly
   ref="tree"
   :data="data"
   show-checkbox
