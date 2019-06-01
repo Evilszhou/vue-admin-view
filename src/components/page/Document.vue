@@ -89,15 +89,21 @@
                   <template slot-scope="props">
                     <el-form label-position="left" inline class="demo-table-expand">
                       <el-form-item label="附件:">
-                        <span v-for="item in props.row.annexes" :key="item.annexId">
+                        <span v-for="item in props.row.annexes" :key="item.annexId" style="margin-left:10px">
                           {{ item.annexName }}
-                          <el-button
+                           <i class="el-icon-lx-down"  @click="downLoadAnnex(item)" style="margin-left:5px;margin-right:5px;color:blue;cursor:pointer" />
+                           <i class="el-icon-lx-delete" @click="deleteAnnex(item)" style="margin-right:10px;color:red;cursor:pointer"></i>
+                          <!-- <el-button
                             type="primary"
                             size="mini"
-                            style="margin-right:25px;margin-left:25px"
+                            style="margin-right:0px;margin-left:5px"
                             @click="downLoadAnnex(item)"
                           >下载</el-button>
+                          <el-button type="danger" style="margin-right:10px" size="mini">删除</el-button> -->
                         </span>
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="primary" size="mini" @click="addAnnex(props.row)">添加附件</el-button>
                       </el-form-item>
                     </el-form>
                   </template>
@@ -163,10 +169,10 @@
                 :visible.sync="dialogVisible1"
                 width="30%"
                 >
-                <span>是否选择下载文件及附件?</span>
+                <span>是否下载附件?</span>
                 <span slot="footer" class="dialog-footer">
-                  <el-button @click="singledownload">取 消</el-button>
-                  <el-button type="primary" @click="batchdownload">确 定</el-button>
+                  <el-button @click="singledownload">否</el-button>
+                  <el-button type="primary" @click="batchdownload">是</el-button>
                 </span>
               </el-dialog>
 
@@ -190,23 +196,24 @@
                   ></el-cascader>
                   </el-form-item>
                   <el-form-item label="所属分类" style="width:60%">
-                    <!-- <el-input readonly="true" style="width:300px" placeholder="请选择文件类型" v-model="value"> -->
-                    <!-- </el-input> -->
+                     <el-input  style="width:300px" placeholder="请选择文件类型" v-model="value"> 
+                     </el-input> 
                   </el-form-item>
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
               </el-form>
               </el-dialog>
 
 
-                 <!-- <el-dialog
+                 <el-dialog
   title="选择文本分类"
   :visible.sync="dialogVisible3"
   width="30%"
-  :before-close="handleClose">
+  >
   <el-tree
   ref="tree"
   :data="docLabelsTree"
   show-checkbox
+  check-strictly
   node-key="id"
   default-expand-all
   :default-checked-keys="[5]"
@@ -216,7 +223,30 @@
     <el-button @click="dialogVisible3 = false">取 消</el-button>
     <el-button type="primary" @click="confimType">确 定</el-button>
   </span>
-</el-dialog> -->
+</el-dialog>
+
+<el-dialog title="添加附件" :visible.sync="dialogVisible4" width="40%">
+   <el-upload
+        :data="args"
+        style="margin-left:100px"
+          :headers="config"
+          class="upload-demo"
+          name="file"
+          ref="uploadannex"
+          drag
+          :auto-upload="false"
+          :action="uploadsannex"
+          :on-success="upannex"
+          multiple>
+  <i class="el-icon-upload"></i>
+  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+  <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+</el-upload>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible4 = false">取 消</el-button>
+          <el-button type="primary" @click="uploadAnneix">确 定</el-button>
+        </span>
+</el-dialog>
 
               <!-- <el-checkbox
                 class="document-display-checkAll"
@@ -326,6 +356,7 @@ import moment from "moment";
 import { isNull } from "util";
 
 export default {
+  inject: ["reload"],
   components: {
     pdf
   },
@@ -342,7 +373,54 @@ export default {
     });
     this.src = pdf.createLoadingTask(this.src);
   },
+  computed:{
+     uploadsannex:function(){
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/uploadannex";
+      }else{
+        url = "/uploadannex";
+      }
+      return url;
+    }
+  },
   methods: {
+    deleteAnnex(item){
+      console.log(item);
+      let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/deleteAnnex";
+      }else{
+        url = "/public/deleteAnnex";
+      }
+      postJsonRequest(url,item).then((result) => {
+        if(result.data.code != 200){
+          this.open6(result.data.msg)
+        }else{
+          this.open3(result.data.msg);
+          this.reload();
+        }
+        
+      }).catch((err) => {
+        
+      });
+      // if()
+
+    },
+    upannex(){
+      this.open3("添加附件成功!")
+      this.reload();
+    },
+    uploadAnneix(){
+      this.$refs.uploadannex.submit();
+      this.dialogVisible4 = false;
+    },
+    addAnnex(item){
+      console.log(item);
+      this.args.filename = item.docName;
+      this.dialogVisible4 = true;
+
+    },
       choosetp(){
           this.dialogVisible3 = true;
 
@@ -363,10 +441,25 @@ export default {
         .then(result => {
           //  console.log(result)
           //  console.log(result.data.data[0].pagePermission);
+          console.log(result.data.data[0]);
           let str = result.data.data[0].pagePermission.split(";");
+          let perstr = result.data.data[0].groupPermission.split(",")
+          let i = 0;
+          for(;i <perstr.length;i++){
+            if("下载" == perstr[i]){
+              break;
+            }
+          }
+
+          if(i <= perstr.length - 1){
+            this.isdownload = 1;
+          }else{
+            this.isdownload = 0;
+          }
           console.log(str);
           str.push("login");
           str.push("403");
+       
           console.log(str);
           localStorage.setItem("permissions", str);
           //  console.log(typeof result.data.data[0].pagePermission)
@@ -395,7 +488,28 @@ export default {
         message: msg
       });
     },
+      getallUserGroup() {
+      let _this = this;
+      let url = "";
+      let name = localStorage.getItem("username");
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllUserGroup";
+      } else {
+        url = "/getAllUserGroup";
+      }
+      postJsonRequest(url)
+        .then(result => {
+          console.log(result.data.data);
+
+         
+        })
+        .catch(err => {});
+    },
     batchdownload() {
+      if(this.isdownload == 0){
+        this.open6("你没有此权限!");
+        return;
+      }
       console.log("单一");
       //  window.location.href = this.url;
       console.log(this.url.split("?"));
@@ -412,8 +526,13 @@ export default {
       this.dialogVisible1 = false;
     },
     singledownload() {
+       if(this.isdownload == 0){
+        this.open6("你没有此权限!");
+        return;
+      }
       console.log("批量");
       console.log(this.url);
+      
       window.location.href = this.url;
       this.dialogVisible1 = false;
     },
@@ -431,28 +550,45 @@ export default {
       // this.$router.push("/test");
 
       this.src = "";
-      console.log(node);
+      console.log(node.suffixName);
       let data = {
         FilePath: node.docSavePath
       };
-      // if(node.suffixName != ".docx" || node.suffixName!=".xls" || node.suffixName != ".doc" || node.suffixName != ".ppt" || node.suffixName != ".pptx" || node.suffixName != ".jpg" || node.suffixName != ".png"){
-      //   this.open6("该文件类型不支持预览!");
-      //   return;
-      // }
-      postRequest("/public/preViewFile", data)
+      if(node.suffixName != ".docx" && node.suffixName!=".xls" && node.suffixName != ".doc" && node.suffixName != ".ppt" && node.suffixName != ".pptx" && node.suffixName != ".jpg" && node.suffixName != ".png"){
+        this.open6("该文件类型不支持预览!");
+        return;
+      }
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/preViewFile";
+      } else {
+        url = "/public/preViewFile";
+      }
+      postRequest(url, data)
         .then(result => {
-          let url =
+          console.log(result)
+          if(result.data.code != 200){
+            this.open6(result.data.msg);
+          }else{
+            let url12 =
             "/file/" +
             result.data.data.substring(result.data.data.lastIndexOf("\\") + 1);
-          this.src = url;
-          if (result.data.code != 200) {
-            this.open6(result.data.msg);
+            this.src = url12;
+            this.dialogVisible = true;
           }
-          this.loading = false;
+         
+          // console.log(result);
+          // if (result.data.code != 200) {
+          //   this.open6(result.data.msg);
+          // }else{
+           
+          //   this.dialogVisible = true;
+          // }
+          // this.loading = false;
           // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
         })
         .catch(err => {});
-      this.dialogVisible = true;
+    
       window.scrollTo(0, 0);
     },
     getherf(row) {
@@ -497,9 +633,19 @@ export default {
       this.isIndeterminate = false;
     },
     downLoadAnnex(item) {
+       if(this.isdownload == 0){
+        this.open6("你没有此权限!");
+        return;
+      }
       console.log(item);
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+              url = "/api/getName";
+            } else {
+              url = "/getName";
+            }
       window.location.href =
-        "/getName?name=" +
+        url+"?name=" +
         item.annexName +
         "&token=" +
         localStorage.getItem("token");
@@ -517,22 +663,45 @@ export default {
       return data.label.indexOf(value) !== -1;
     },
     delDoc(index, row) {
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/deleteFile";
+      } else {
+        url = "/deleteFile";
+      }
       this.$confirm("是否要删除该文件?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
         .then(result => {
           if (result == "confirm") {
-            this.$notify.success({
-              title: "提示",
-              message: "文件删除成功"
-            });
-            console.log(row);
-            for (let i = 0; i < this.tableData.length; i++) {
-              if (this.tableData[i].docId == row.docId) {
-                this.tableData.splice(i, 1);
+            postJsonRequest(url,row).then((result) => {
+              console.log(result);
+              if(result.data.code != 200){
+                this.open6(result.data.msg);
+              }else{
+                this.open3(result.data.msg);
+                this.reload();
+            //        for (let i = 0; i < this.tableData.length; i++) {
+            //   if (this.tableData[i].docId == row.docId) {
+            //     this.tableData.splice(i, 1);
+            //   }
+            // }
               }
-            }
+            }).catch((err) => {
+              
+            });
+            // this.$notify.success({
+            //   title: "提示",
+            //   message: "文件删除成功"
+            // });
+            // console.log(row);
+            // for (let i = 0; i < this.tableData.length; i++) {
+            //   if (this.tableData[i].docId == row.docId) {
+            //     this.tableData.splice(i, 1);
+            //   }
+            // }
           }
         })
         .catch(err => {});
@@ -623,6 +792,12 @@ export default {
         .then(result => {
           if (result.data.code === 200) {
             // this.tableData = result.data.data.list;
+            let url = "";
+            if (process.env.NODE_ENV === "development") {
+              url = "/api/getName";
+            } else {
+              url = "/getName";
+            }
             console.log(result.data.data);
             let table = [];
             for (let i = 0; i < result.data.data.list.length; i++) {
@@ -638,7 +813,7 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: "/getName?name=" + item.docName
+                url: url+"?name=" + item.docName
               };
               table.push(tableobj);
               console.log("table:" + table);
@@ -832,10 +1007,18 @@ export default {
     this.getMyChildDepartments();
     this.getDocsBySearchParam();
     this.getPagePermissions();
+    // this.getallUserGroup();
     // this.getAllDocInfo();
   },
   data() {
     return {
+      config: {
+        token: localStorage.getItem("token")
+      },
+      args: {
+        filename: ""
+      },
+      isdownload:1,
       loading:true,
       src:"",
       currentPage1:1,
@@ -849,6 +1032,7 @@ export default {
       dialogVisible1:false,
       dialogVisible2:false,
       dialogVisible3:false,
+      dialogVisible4:false,
       departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
