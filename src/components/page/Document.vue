@@ -387,7 +387,9 @@ export default {
   methods: {
     deleteAnnex(item){
       console.log(item);
-      let url = "";
+      this.$confirm("确认删除该附件吗?","提示").then((res) => {
+        if(res){
+            let url = "";
       if(process.env.NODE_ENV === 'development'){
         url = "/api/public/deleteAnnex";
       }else{
@@ -404,6 +406,12 @@ export default {
       }).catch((err) => {
         
       });
+
+        }
+      }).catch((err) => {
+
+      })
+    
       // if()
 
     },
