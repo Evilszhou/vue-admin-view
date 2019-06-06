@@ -39,7 +39,7 @@
         <el-form-item label="组织简介" :label-width="formLabelWidth">
           <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
         </el-form-item>
-      
+
 
         <!-- <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
@@ -70,7 +70,7 @@
         <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
             ref="cascader"
-            placeholder="试试搜索：工学院"
+            :placeholder="department.departmentName"
             :options="this.treeData.children"
             filterable
             change-on-select

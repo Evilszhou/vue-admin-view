@@ -98,7 +98,7 @@
 
         <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
-            placeholder="输入部门"
+            :placeholder="updateuser.department"
             :options="departments"
             filterable
             :change-on-select="true"
@@ -162,6 +162,7 @@ export default {
       this.updateuser.userName = row.userName;
       this.updateuser.password = row.password;
       this.updateuser.role = row.role;
+      this.updateuser.department = row.department;
       this.updateuser.realname = "高富帅";
       if (row.islocked == "未锁定") {
         this.updateuser.islocked = false;
