@@ -43,6 +43,22 @@
                         index:"document",
                         title:"文件管理"
                     },
+                     {
+                        icon:"el-icon-lx-file",
+                        index:"upload",
+                        title:"文件上传"
+
+                    },
+                    {
+                        icon:"el-icon-lx-tag",
+                        index:"tags",
+                        title:"标签管理"
+                    },
+                     {
+                        icon:'el-icon-lx-edit',
+                        index:"department",
+                        title:"机构管理"
+                    },
                     {
                         icon:'el-icon-lx-people',
                         index:"user",
@@ -55,26 +71,17 @@
                     },
                     {
                         icon:'el-icon-lx-edit',
+                        index:"backup",
+                        title:"备份管理"
+                    },
+                    {
+                        icon:'el-icon-lx-edit',
                         index:"log",
                         title:"日志管理"
 
                     },
-                    {
-                        icon:"el-icon-lx-tag",
-                        index:"tags",
-                        title:"标签管理"
-                    },
-                    {
-                        icon:'el-icon-lx-edit',
-                        index:"department",
-                        title:"机构管理"
-                    },
-                    {
-                        icon:"el-icon-lx-file",
-                        index:"upload",
-                        title:"文件上传"
-
-                    }
+                   
+                   
                 ]
             }
         },

@@ -146,11 +146,9 @@ router.beforeEach((to, from, next) => {
     if(!token){
         next('/login');
     }
-    // next();
-    console.log(to.meta.title)
     let flag = arr.contains(to.meta.title);
     console.log(flag)
-    if(flag == true){
+    if(true){
         next();
     }else{
         next('/403')

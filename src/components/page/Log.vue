@@ -165,7 +165,10 @@ export default {
               type: "error"
             });
         });
-        this.loading = false;
+      let _this = this;
+      setTimeout(function () {
+          _this.loading = false;
+      },1000)
     },
 
     selectOpLabel(opLabel) {
@@ -213,7 +216,10 @@ export default {
               type: "error"
             });
         });
-        this.loading = false;
+        let _this = this;
+        setTimeout(function () {
+            _this.loading = false;
+        },1000);
     }
   },
   watch: {
