@@ -136,6 +136,11 @@ export default new Router({
                     path:"/test",
                     component: resolve => require(['../components/page/test.vue'],resolve),
                     meta:{title:"测试"}
+                },
+                {
+                    path:"/backup",
+                    component: resolve => require(['../components/page/Backup.vue'],resolve),
+                    meta:{title:"备份管理"}
                 }
 
             ]

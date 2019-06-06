@@ -39,6 +39,7 @@
         <el-form-item label="组织简介" :label-width="formLabelWidth">
           <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
         </el-form-item>
+      
 
         <!-- <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
@@ -119,7 +120,8 @@ export default {
       department: {
         departmentName: "",
         parent_id: 0,
-        departmentIntroduction: ""
+        departmentIntroduction: "",
+        docTotalNum: 0
       }
       // newDepartment: {
       //   departmentName: "",
@@ -526,10 +528,20 @@ export default {
         title: "机构描述",
         field: "introduction",
         width: 200,
-        align: "left",
+        align: "center",
         flex: 1,
         formatter: item => {
           return "<span>" + item.instroduction + "</span>";
+        }
+      },
+       {
+        title: "文件数量",
+        field: "docTotalNum",
+        width: 200,
+        align: "center",
+        flex: 1,
+        formatter: item => {
+          return "<span>" + item.docTotalNum + "</span>";
         }
       },
       {

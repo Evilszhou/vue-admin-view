@@ -24,7 +24,7 @@
         <el-table-column prop="userName" label="用户名" width="180"></el-table-column>
         <el-table-column prop="realname" label="真实姓名"></el-table-column>
         <el-table-column prop="department" label="所属部门"></el-table-column>
-        <el-table-column prop="role" label="所有权限"></el-table-column>
+        <el-table-column prop="role" label="所属权限组"></el-table-column>
 
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -65,7 +65,7 @@
             @change="selectAddDepartment"
           ></el-cascader>
         </el-form-item>
-        <el-form-item label="所有权限" :label-width="formLabelWidth">
+        <el-form-item label="所属权限组" :label-width="formLabelWidth">
           <el-radio-group
             @change="choosePermission"
             v-model="user.role"
@@ -106,7 +106,7 @@
           ></el-cascader>
         </el-form-item>
 
-        <el-form-item label="所有权限" :label-width="formLabelWidth">
+        <el-form-item label="所有属权限组" :label-width="formLabelWidth">
           <el-radio-group
             @change="choosePermission"
             v-model="updateuser.role"
