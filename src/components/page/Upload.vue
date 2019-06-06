@@ -257,6 +257,7 @@ export default {
   mounted() {
     console.log(this.tags);
     console.log(JSON.stringify(this.dynamicTags));
+    // this.reload();
     this.getAllTags();
     this.getDocLabelsTree();
   },
@@ -283,6 +284,7 @@ export default {
   components: {
     VueCropper
   },
+ 
   methods: {
     getDocLabelsTree() {
       let url = "";
@@ -496,6 +498,7 @@ export default {
       this.$refs.uploadannex.submit();
     },
     uploadAnneixSuccess() {
+      
       this.open3();
       this.$router.push("/document")
       this.dialogVisible = false;
@@ -522,8 +525,10 @@ export default {
     }
   },
   created() {
+    // this.reload();
     this.cropImg = this.defaultSrc;
-  }
+  },
+  
 };
 </script>
 
