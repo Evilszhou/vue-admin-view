@@ -39,16 +39,6 @@
         <el-form-item label="组织简介" :label-width="formLabelWidth">
           <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
         </el-form-item>
-
-        <!-- <el-form-item label="所属部门" :label-width="formLabelWidth">
-          <el-cascader
-            placeholder="选择部门"
-            :options="this.treeData.children"
-            filterable
-            :change-on-select="true"
-            @change="selectDepartment"
-          ></el-cascader>
-        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancerAddDepartment">取 消</el-button>
@@ -69,7 +59,7 @@
         <el-form-item label="所属部门" :label-width="formLabelWidth">
           <el-cascader
             ref="cascader"
-            placeholder="试试搜索：工学院"
+            :placeholder="department.departmentName"
             :options="this.treeData.children"
             filterable
             change-on-select
@@ -121,41 +111,13 @@ export default {
         parent_id: 0,
         departmentIntroduction: ""
       }
-      // newDepartment: {
-      //   departmentName: "",
-      //   instroduction: "",
-      //   parent_id: 0
-      // }
     };
   },
   components: {
     dragTreeTable
   },
   methods: {
-    // deepTraversal(list) {
-    //   let nodes = [];
-    //   let isInclude = false;
-    //   let result = { isInclude: isInclude, nodes: nodes };
-    //   if (list !== null) {
-    //     for (let i = 0; i < list.length; i++) {
-    //       let child = list[i];
-    //       if (child.name == this.searchParam) {
-    //         result.isInclude = true;
-    //       }
-    //       // console.log(child);
-    //       result.nodes.push(child);
-    //       let isInclude = this.deepTraversal(child.children).isInclude;
-    //       if (isInclude) {
-    //         child.open = true;
-    //         result.isInclude = true;
-    //         // console.log(child.name + "is true");
-    //       } else {
-    //         child.open = false;
-    //       }
-    //     }
-    //   }
-    //   return result;
-    // },
+  
     deepTraversal(list, result) {
       if (list !== null) {
         for (let i = 0; i < list.length; i++) {

@@ -196,34 +196,36 @@
                   ></el-cascader>
                   </el-form-item>
                   <el-form-item label="所属分类" style="width:60%">
-                     <el-input  style="width:300px" placeholder="请选择文件类型" v-model="value"> 
+                     <el-input v-model="editForm.docLabelArrayList"  style="width:300px" placeholder="请选择文件类型"> 
                      </el-input> 
                   </el-form-item>
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
-              </el-form>
-              </el-dialog>
-
-
+                  </el-form>
+                  <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible2 = false">取 消</el-button>
+                    <el-button type="primary" @click="confimupdate">确 定</el-button>
+                  </span>
+                  </el-dialog>
                  <el-dialog
-  title="选择文本分类"
-  :visible.sync="dialogVisible3"
-  width="30%"
-  >
-  <el-tree
-  ref="tree"
-  :data="docLabelsTree"
-  show-checkbox
-  check-strictly
-  node-key="id"
-  default-expand-all
-  :default-checked-keys="[5]"
-  :props="defaultProps">
-</el-tree>
-  <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogVisible3 = false">取 消</el-button>
-    <el-button type="primary" @click="confimType">确 定</el-button>
-  </span>
-</el-dialog>
+                  title="选择文本分类"
+                  :visible.sync="dialogVisible3"
+                  width="30%"
+                  >
+                  <el-tree
+                  ref="tree"
+                  :data="docLabelsTree"
+                  show-checkbox
+                  check-strictly
+                  node-key="id"
+                  default-expand-all
+                  :default-checked-keys="[5]"
+                  :props="defaultProps">
+                </el-tree>
+                  <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible3 = false">取 消</el-button>
+                    <el-button type="primary" @click="confimType">确 定</el-button>
+                  </span>
+                </el-dialog>
 
 <el-dialog title="添加附件" :visible.sync="dialogVisible4" width="40%">
    <el-upload
@@ -385,6 +387,41 @@ export default {
     }
   },
   methods: {
+    confimupdate(){
+      this.editForm.tagArrayList = "非重要文件";
+       let url = "";
+      if(process.env.NODE_ENV === 'development'){
+        url = "/api/public/editDoc";
+      }else{
+        url = "/public/editDoc";
+      }
+      console.log(this.editForm);
+      // this.open3("编辑成功");
+      // this.
+      // postJsonRequest(url,this.editForm).then((result) => {
+      //   console.log(result);
+      // }).catch((err) => {
+        
+      // });
+      
+
+    },
+    confimType(){
+       let aKey = this.$refs.tree.getCheckedNodes();
+       let types = "";
+       for(let i = 0;i < aKey.length;i++){
+         if(i == aKey.length - 1){
+           types = types + aKey[i].label
+         }else{
+             types = types + aKey[i].label+",";
+
+         }
+        
+       }
+       this.editForm.docLabelArrayList = types
+       this.dialogVisible3 = false;
+
+    },
     deleteAnnex(item){
       console.log(item);
       this.$confirm("确认删除该附件吗?","提示").then((res) => {
@@ -415,8 +452,14 @@ export default {
       // if()
 
     },
-    upannex(){
-      this.open3("添加附件成功!")
+    upannex(res){
+      // this.open3("添加附件成功!")
+      console.log(res);
+      if(res.code!=200){
+        this.open6(res.msg)
+      }else{
+        this.open3(res.msg)
+      }
       this.reload();
     },
     uploadAnneix(){
@@ -435,6 +478,18 @@ export default {
       },
       openEditWindows(row){
           console.log(row);
+          this.editForm.docId = row.docId;
+          this.editForm.filename = row.docName;
+          this.editForm.departmentId = row.departmentId;
+          if(row.docLabelArrayList != null){
+            let labels = "";
+            for(let i = 0;i < row.docLabelArrayList.length;i++){
+              labels = labels + row.docLabelArrayList[i].label
+            }
+            this.editForm.docLabelArrayList = labels;
+          }else{
+            this.editForm.docLabelArrayList = ""
+          }
           this.dialogVisible2 = true;
       },
     getPagePermissions() {
@@ -467,6 +522,7 @@ export default {
           console.log(str);
           str.push("login");
           str.push("403");
+          str.push("测试")
        
           console.log(str);
           localStorage.setItem("permissions", str);
@@ -584,16 +640,6 @@ export default {
             this.src = url12;
             this.dialogVisible = true;
           }
-         
-          // console.log(result);
-          // if (result.data.code != 200) {
-          //   this.open6(result.data.msg);
-          // }else{
-           
-          //   this.dialogVisible = true;
-          // }
-          // this.loading = false;
-          // console.log(result.data.data.substring(result.data.data.lastIndexOf('/')))
         })
         .catch(err => {});
     
@@ -821,7 +867,9 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: url+"?name=" + item.docName
+                url: url+"?name=" + item.docName,
+                tagArrayList:item.tagArrayList,
+                docLabelArrayList:item.docLabelArrayList
               };
               table.push(tableobj);
               console.log("table:" + table);
@@ -1033,8 +1081,15 @@ export default {
       pageCount:0,
       url:"",
       editForm:{
-        filename:""
-
+        docId:"",
+        docName:"",
+        docSavePath:"",
+        userId:"",
+        departmentId:"",
+        tagList:"",
+        suffixName:"",
+        tagArrayList:"",
+        docLabelArrayList:""
       },
       dialogVisible: false,
       dialogVisible1:false,
