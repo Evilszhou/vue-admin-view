@@ -173,6 +173,7 @@
               <el-dialog
               title="编辑"
               :visible.sync="dialogVisible2"
+              @close="canelUpdate"
               width="50%">
               <el-form :model="editForm" label-width="120px">
                   <el-form-item label="文件名:">
@@ -218,7 +219,7 @@
                   </el-form-item>
                   </el-form>
                   <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible2 = false">取 消</el-button>
+                    <el-button @click="canelUpdate">取 消</el-button>
                     <el-button type="primary" @click="confimupdate">确 定</el-button>
                   </span>
                   </el-dialog>
@@ -392,6 +393,14 @@ export default {
     }
   },
   methods: {
+ 
+    canelUpdate(){
+      console.log("haha");
+      for(let i = 0;i < this.allTags.length;i++){
+        this.allTags[i].type = "normal";
+      }
+      this.dialogVisible2 = false;
+    },
     tipTag(item){
       console.log(item);
       if(item.type == 'danger'){
@@ -429,15 +438,25 @@ export default {
         departmentId: this.editForm.departmentId,
         tagList:this.editForm.tagArrayList,
         suffixName: this.editForm.suffixName,
-       
         docLabelList:this.editForm.docLabelArrayList,
-       
       }
       console.log(edit);
+      let _this = this;
+
       postJsonRequest(url,edit).then((result) => {
         console.log(result);
+        if(result.data.code == 200){
+         
+        }
+         for(let i = 0;i < _this.allTags.length;i++){
+            _this.allTags[i].type = "normal";
+          }
+          _this.dialogVisible2 = false;
       }).catch((err) => {
-        
+         for(let i = 0;i < _this.allTags.length;i++){
+            _this.allTags[i].type = "normal";
+          }
+          _this.dialogVisible2 = false;
       });
       
     },
@@ -550,25 +569,29 @@ export default {
       }else{
         this.defaultKey = [];
       }
-      console.log(this.allTags);
+      console.log(this.allTags_1);
       console.log(row.tagArrayList);
       let _this = this;
       if(row.tagArrayList != null){
         for(let i = 0;i < row.tagArrayList.length;i++){
-            for(let j = 0;j <this.allTags.length;j++){
-              if(row.tagArrayList[i].tagName === this.allTags[j].tagName){
-                _this.allTags[i].type = "danger";
+            for(let j = 0;j <this.allTags_1.length;j++){
+              if(row.tagArrayList[i].tagName === this.allTags_1[j].tagName){
+                _this.allTags_1[i].type = "danger";
               }
             }
           }
       }
-     
-  
+
+    
+      console.log("1")
       console.log(this.allTags);
-      this.editForm.dynamicTags = this.allTags;
-      
+      console.log("2")
+      console.log(this.allTags_1)
+      // this.allTags_1 = this.allTags;
+      this.editForm.dynamicTags = this.allTags_1;
+
       // this.$refs.tree.setCheckedKeys([44])
-      console.log(this.$refs.tree)
+      // console.log(this.$refs.tree)
       this.dialogVisible2 = true;
     },
     getPagePermissions() {
@@ -1079,6 +1102,7 @@ export default {
                 tagId: result.data.data[i].tagId
               };
               _this.allTags.push(obj);
+              _this.allTags_1.push(obj);
             }
           }
           console.log(this.tags);
@@ -1192,6 +1216,7 @@ export default {
       tableData: [],
       docLabelsTree: [],
       allTags: [],
+      allTags_1:[],
       tags: [],
       fitterItems: [],
       checkList: [],
