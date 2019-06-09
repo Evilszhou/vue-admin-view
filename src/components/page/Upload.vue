@@ -75,6 +75,7 @@
           <el-tag
             style="cursor:pointer"
             :key="tag"
+            
             v-for="tag in form.tags"
             @click="chooseTag(tag)"
             :type="tag.type"
@@ -255,6 +256,7 @@ export default {
     };
   },
   mounted() {
+    // this.reload();
     console.log(this.tags);
     console.log(JSON.stringify(this.dynamicTags));
     // this.reload();
@@ -405,8 +407,13 @@ export default {
           })
           .catch(err => {
             console.log(err)
+            let _this = this;
             if(err){
-              this.$router.push("/document");
+              _this.reload();
+              setTimeout(function(){
+                _this.$router.push("/document");
+              },1000)
+             
             }
           });
         
@@ -441,7 +448,7 @@ export default {
       }
       this.$notify({
           title: '成功',
-          message: '上传附件成功!',
+          message:msg,
           type: 'success'
         });
       },
@@ -500,9 +507,17 @@ export default {
     uploadAnneixSuccess() {
       
       this.open3();
-      this.$router.push("/document")
-      this.dialogVisible = false;
+      console.log(this.fileList);
       this.reload();
+      this.dialogVisible = false;
+
+     let _this = this;
+     setTimeout(function(){
+        _this.$router.push("/document")
+     },1000)
+     
+      
+      // this.reload();
     },
     showInput() {
       this.inputVisible = true;
