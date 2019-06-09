@@ -765,9 +765,12 @@ export default {
       // window.location.href = url;
     },
     selectDepartment(data) {
+      console.log(data);
+      let _this = this;
       if (data != null && data.length > 0) {
         this.selectDepartmentId = data[data.length - 1];
         console.log(this.selectDepartmentId);
+        _this.editForm.departmentId = this.selectDepartmentId;
       }
     },
     toUploadPage() {
