@@ -404,9 +404,9 @@ export default {
       this.editForm.tagArrayList = "非重要文件";
       let url = "";
       if (process.env.NODE_ENV === "development") {
-        url = "/api/public/editDocInfo";
+        url = "/api/public/editDoc";
       } else {
-        url = "/public/editDocInfo";
+        url = "/public/editDoc";
       }
       let tagList = "";
       for(let i = 0;i < this.editForm.dynamicTags.length;i++){
