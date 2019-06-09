@@ -25,6 +25,7 @@
                 :data="docLabelsTree"
                 node-key="id"
                 :filter-node-method="filterNode"
+                
               >
                 <span class="span-ellipsis" slot-scope="{ node }">
                   <span :title="node.label">{{ node.label }}</span>
@@ -47,7 +48,6 @@
                     @click="chooseTag(tag)"
                     :type="tag.type"
                     :disable-transitions="true"
-                    @close="handleClose(tag)"
                   >{{tag.tagName}}</el-tag>
                 </ul>
               </el-row>
@@ -93,13 +93,6 @@
                           {{ item.annexName }}
                            <i class="el-icon-lx-down"  @click="downLoadAnnex(item)" style="margin-left:5px;margin-right:5px;color:blue;cursor:pointer" />
                            <i class="el-icon-lx-delete" @click="deleteAnnex(item)" style="margin-right:10px;color:red;cursor:pointer"></i>
-                          <!-- <el-button
-                            type="primary"
-                            size="mini"
-                            style="margin-right:0px;margin-left:5px"
-                            @click="downLoadAnnex(item)"
-                          >下载</el-button>
-                          <el-button type="danger" style="margin-right:10px" size="mini">删除</el-button> -->
                         </span>
                       </el-form-item>
                       <el-form-item>
@@ -183,11 +176,11 @@
               width="50%">
               <el-form :model="editForm" label-width="120px">
                   <el-form-item label="文件名:">
-                    <el-input v-model="editForm.filename" style="width:80%"></el-input>
+                    <el-input v-model="editForm.docName" style="width:80%"></el-input>
                   </el-form-item>
                   <el-form-item v-model="editForm.department" label="所属部门" >
                      <el-cascader
-                    placeholder="输入部门"
+                    :placeholder="editForm.departmentName"
                     :options="departments"
                     filterable
                     :change-on-select="true"
@@ -195,11 +188,34 @@
                     clearable
                   ></el-cascader>
                   </el-form-item>
-                  <el-form-item label="所属分类" style="width:60%">
+                  <el-form-item label="所属分类:" style="width:60%">
                      <el-input v-model="editForm.docLabelArrayList"  style="width:300px" placeholder="请选择文件类型"> 
                      </el-input> 
                   </el-form-item>
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
+                  <el-form-item label="文件标签:" style="width:100%;margin-top:15px">
+                      <el-tag
+                    :type="tag.type"
+                        :key="tag.tagName"
+                        v-for="tag in editForm.dynamicTags"
+                       @click="tipTag(tag)"
+                        style="margin-left:10px;cursor:pointer"
+                        @close="handleClose(tag)">
+                        {{tag.tagName}}
+                      </el-tag>
+                      <el-input
+                        class="input-new-tag"
+                        v-if="inputVisible"
+                        v-model="inputValue"
+                        ref="saveTagInput"
+                        size="small"
+                        @keyup.enter.native="handleInputConfirm"
+                        @blur="handleInputConfirm"
+                      >
+                      </el-input>
+                      <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+
+                  </el-form-item>
                   </el-form>
                   <span slot="footer" class="dialog-footer">
                     <el-button @click="dialogVisible2 = false">取 消</el-button>
@@ -209,17 +225,16 @@
                  <el-dialog
                   title="选择文本分类"
                   :visible.sync="dialogVisible3"
-                  width="30%"
-                  >
+                  width="30%">
                   <el-tree
                   ref="tree"
                   :data="docLabelsTree"
                   show-checkbox
                   check-strictly
-                  node-key="id"
+                  node-key="label"
                   default-expand-all
-                  :default-checked-keys="[5]"
-                  :props="defaultProps">
+                  :default-checked-keys="defaultKey"
+                  >
                 </el-tree>
                   <span slot="footer" class="dialog-footer">
                     <el-button @click="dialogVisible3 = false">取 消</el-button>
@@ -363,135 +378,199 @@ export default {
     pdf
   },
   created() {
-    var headers = {
-      Authorization: "Bearer SOME_TOKEN",
-      "x-ipp-device-uuid": "SOME_UUID",
-      "x-ipp-client": "SOME_ID",
-      "x-ipp-client-version": "SOME_VERSION"
-    };
-    var loadingTask = pdf.createLoadingTask({
-      url: this.src,
-      httpHeaders: headers
-    });
-    this.src = pdf.createLoadingTask(this.src);
+  
   },
-  computed:{
-     uploadsannex:function(){
+  computed: {
+    uploadsannex: function() {
       let url = "";
-      if(process.env.NODE_ENV === 'development'){
+      if (process.env.NODE_ENV === "development") {
         url = "/api/uploadannex";
-      }else{
+      } else {
         url = "/uploadannex";
       }
       return url;
     }
   },
   methods: {
-    confimupdate(){
-      this.editForm.tagArrayList = "非重要文件";
-       let url = "";
-      if(process.env.NODE_ENV === 'development'){
-        url = "/api/public/editDoc";
-      }else{
-        url = "/public/editDoc";
-      }
-      console.log(this.editForm);
-      // this.open3("编辑成功");
-      // this.
-      // postJsonRequest(url,this.editForm).then((result) => {
-      //   console.log(result);
-      // }).catch((err) => {
-        
-      // });
-      
-
-    },
-    confimType(){
-       let aKey = this.$refs.tree.getCheckedNodes();
-       let types = "";
-       for(let i = 0;i < aKey.length;i++){
-         if(i == aKey.length - 1){
-           types = types + aKey[i].label
-         }else{
-             types = types + aKey[i].label+",";
-
-         }
-        
-       }
-       this.editForm.docLabelArrayList = types
-       this.dialogVisible3 = false;
-
-    },
-    deleteAnnex(item){
+    tipTag(item){
       console.log(item);
-      this.$confirm("确认删除该附件吗?","提示").then((res) => {
-        if(res){
-            let url = "";
-      if(process.env.NODE_ENV === 'development'){
-        url = "/api/public/deleteAnnex";
+      if(item.type == 'danger'){
+        item.type = "normal";
       }else{
-        url = "/public/deleteAnnex";
+        item.type = "danger";
       }
-      postJsonRequest(url,item).then((result) => {
-        if(result.data.code != 200){
-          this.open6(result.data.msg)
-        }else{
-          this.open3(result.data.msg);
-          this.reload();
+    },
+    confimupdate() {
+      this.editForm.tagArrayList = "非重要文件";
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/editDocInfo";
+      } else {
+        url = "/public/editDocInfo";
+      }
+      let tagList = "";
+      for(let i = 0;i < this.editForm.dynamicTags.length;i++){
+        if(this.editForm.dynamicTags[i].type == "danger"){
+           if(i < this.editForm.dynamicTags.length -1){
+             tagList = tagList + this.editForm.dynamicTags[i].tagName + ","   
+           }else{
+             tagList = tagList + this.editForm.dynamicTags[i].tagName;
+          }
         }
-        
+      }
+      this.editForm.tagArrayList = tagList;
+      console.log(this.editForm);
+       let edit = {
+        docId: this.editForm.docId,
+        docName: this.editForm.docName,
+        docSavePath: this.editForm.docSavePath,
+        userId:this.editForm.userId,
+        departmentName:this.editForm.departmentName,
+        departmentId: this.editForm.departmentId,
+        tagList:this.editForm.tagArrayList,
+        suffixName: this.editForm.suffixName,
+       
+        docLabelList:this.editForm.docLabelArrayList,
+       
+      }
+      console.log(edit);
+      postJsonRequest(url,edit).then((result) => {
+        console.log(result);
       }).catch((err) => {
         
       });
-
-        }
-      }).catch((err) => {
-
-      })
-    
-      // if()
-
+      
     },
-    upannex(res){
+    confimType() {
+      let aKey = this.$refs.tree.getCheckedNodes();
+      let types = "";
+      for (let i = 0; i < aKey.length; i++) {
+        if (i == aKey.length - 1) {
+          types = types + aKey[i].label;
+        } else {
+          types = types + aKey[i].label + ",";
+        }
+      }
+      this.editForm.docLabelArrayList = types;
+      this.dialogVisible3 = false;
+    },
+    deleteAnnex(item) {
+      console.log(item);
+      this.$confirm("确认删除该附件吗?", "提示")
+        .then(res => {
+          if (res) {
+            let url = "";
+            if (process.env.NODE_ENV === "development") {
+              url = "/api/public/deleteAnnex";
+            } else {
+              url = "/public/deleteAnnex";
+            }
+            postJsonRequest(url, item)
+              .then(result => {
+                if (result.data.code != 200) {
+                  this.open6(result.data.msg);
+                } else {
+                  this.open3(result.data.msg);
+                  this.reload();
+                }
+              })
+              .catch(err => {});
+          }
+        })
+        .catch(err => {});
+
+      // if()
+    },
+    upannex(res) {
       // this.open3("添加附件成功!")
       console.log(res);
-      if(res.code!=200){
-        this.open6(res.msg)
-      }else{
-        this.open3(res.msg)
+      if (res.code != 200) {
+        this.open6(res.msg);
+      } else {
+        this.open3(res.msg);
       }
       this.reload();
     },
-    uploadAnneix(){
+    uploadAnneix() {
       this.$refs.uploadannex.submit();
       this.dialogVisible4 = false;
     },
-    addAnnex(item){
+    addAnnex(item) {
       console.log(item);
       this.args.filename = item.docName;
       this.dialogVisible4 = true;
-
     },
-      choosetp(){
-          this.dialogVisible3 = true;
-
-      },
-      openEditWindows(row){
-          console.log(row);
-          this.editForm.docId = row.docId;
-          this.editForm.filename = row.docName;
-          this.editForm.departmentId = row.departmentId;
-          if(row.docLabelArrayList != null){
-            let labels = "";
-            for(let i = 0;i < row.docLabelArrayList.length;i++){
-              labels = labels + row.docLabelArrayList[i].label
-            }
-            this.editForm.docLabelArrayList = labels;
+    choosetp() {
+      this.dialogVisible3 = true;
+    },
+    openEditWindows(row) {
+      console.log(row);
+      this.editForm.docId = row.docId;
+      this.editForm.docName = row.docName;
+      this.editForm.suffixName = row.suffixName;
+      this.editForm.docSavePath = row.docSavePath;
+      this.editForm.departmentName = row.departmentName;
+      this.editForm.departmentId = row.departmentId;
+      this.editForm.userId = row.userId;
+      if(row.tagArrayList != null){
+        let tags = [];
+          for(let i = 0;i < row.tagArrayList.length;i++){
+        let tagobj = {
+          isuse:1,
+          tagId:row.tagArrayList[i].tagId,
+          tagName:row.tagArrayList[i].tagName,
+          type:"danger"
+        }
+        tags.push(tagobj);
+      }
+      this.editForm.dynamicTags = tags;
+      }else{
+        this.editForm.dynamicTags = [];
+      }
+      
+      
+      if (row.docLabelArrayList != null) {
+        let labels = "";
+        for (let i = 0; i < row.docLabelArrayList.length; i++) {
+          if(i == row.docLabelArrayList.length - 1){
+             labels = labels + row.docLabelArrayList[i].label;
           }else{
-            this.editForm.docLabelArrayList = ""
+             labels = labels + row.docLabelArrayList[i].label + ",";
           }
-          this.dialogVisible2 = true;
-      },
+        }
+        this.editForm.docLabelArrayList = labels;
+      } else {
+        this.editForm.docLabelArrayList = "";
+      }
+
+      if(row.docLabelArrayList != null){
+        for(let i = 0;i < row.docLabelArrayList.length;i++){
+         this.defaultKey.push(row.docLabelArrayList[i].label);
+        }
+      }else{
+        this.defaultKey = [];
+      }
+      console.log(this.allTags);
+      console.log(row.tagArrayList);
+      let _this = this;
+      if(row.tagArrayList != null){
+        for(let i = 0;i < row.tagArrayList.length;i++){
+            for(let j = 0;j <this.allTags.length;j++){
+              if(row.tagArrayList[i].tagName === this.allTags[j].tagName){
+                _this.allTags[i].type = "danger";
+              }
+            }
+          }
+      }
+     
+  
+      console.log(this.allTags);
+      this.editForm.dynamicTags = this.allTags;
+      
+      // this.$refs.tree.setCheckedKeys([44])
+      console.log(this.$refs.tree)
+      this.dialogVisible2 = true;
+    },
     getPagePermissions() {
       let _this = this;
       let url = "";
@@ -502,34 +581,26 @@ export default {
       }
       postJsonRequest(url)
         .then(result => {
-          //  console.log(result)
-          //  console.log(result.data.data[0].pagePermission);
           console.log(result.data.data[0]);
           let str = result.data.data[0].pagePermission.split(";");
-          let perstr = result.data.data[0].groupPermission.split(",")
+          let perstr = result.data.data[0].groupPermission.split(",");
           let i = 0;
-          for(;i <perstr.length;i++){
-            if("下载" == perstr[i]){
+          for (; i < perstr.length; i++) {
+            if ("下载" == perstr[i]) {
               break;
             }
           }
-
-          if(i <= perstr.length - 1){
+          if (i <= perstr.length - 1) {
             this.isdownload = 1;
-          }else{
+          } else {
             this.isdownload = 0;
           }
           console.log(str);
           str.push("login");
           str.push("403");
-          str.push("测试")
-       
+          str.push("测试");
           console.log(str);
           localStorage.setItem("permissions", str);
-          //  console.log(typeof result.data.data[0].pagePermission)
-          //  console.log(result.data.data[0].pagePermission.splice(";"))
-          //  let permissions = result.data.data[0].pagePermission.splice(";")
-          //  console.log(permissions)
         })
         .catch(err => {});
     },
@@ -552,7 +623,7 @@ export default {
         message: msg
       });
     },
-      getallUserGroup() {
+    getallUserGroup() {
       let _this = this;
       let url = "";
       let name = localStorage.getItem("username");
@@ -564,13 +635,11 @@ export default {
       postJsonRequest(url)
         .then(result => {
           console.log(result.data.data);
-
-         
         })
         .catch(err => {});
     },
     batchdownload() {
-      if(this.isdownload == 0){
+      if (this.isdownload == 0) {
         this.open6("你没有此权限!");
         return;
       }
@@ -590,13 +659,13 @@ export default {
       this.dialogVisible1 = false;
     },
     singledownload() {
-       if(this.isdownload == 0){
+      if (this.isdownload == 0) {
         this.open6("你没有此权限!");
         return;
       }
       console.log("批量");
       console.log(this.url);
-      
+
       window.location.href = this.url;
       this.dialogVisible1 = false;
     },
@@ -611,39 +680,68 @@ export default {
       this.currentPage1 = 1;
     },
     perview(node) {
-      // this.$router.push("/test");
+      // this.$router.push("/test");s
+      console.log(node);
 
       this.src = "";
       console.log(node.suffixName);
       let data = {
         FilePath: node.docSavePath
       };
-      if(node.suffixName != ".docx" && node.suffixName!=".xls" && node.suffixName != ".doc" && node.suffixName != ".ppt" && node.suffixName != ".pptx" && node.suffixName != ".jpg" && node.suffixName != ".png"){
+      if (
+        node.suffixName != ".docx" &&
+        node.suffixName != ".xls" &&
+        node.suffixName != ".xlsx" &&
+        node.suffixName != ".doc" &&
+        node.suffixName != ".jpg" &&
+        node.suffixName != ".png" && 
+        node.suffixName != ".pdf"
+      ) {
         this.open6("该文件类型不支持预览!");
         return;
       }
-      let url = "";
+      let getnameUrl = "";
       if (process.env.NODE_ENV === "development") {
-        url = "/api/public/preViewFile";
+        getnameUrl = "/api/getFileNameAndFilePath";
       } else {
-        url = "/public/preViewFile";
+        getnameUrl = "/getFileNameAndFilePath";
       }
-      postRequest(url, data)
+      getRequest(getnameUrl, {
+        fileName: node.docName
+      })
+        .then(result => {})
+        .catch(err => {});
+      this.$confirm("确定要预览该文件吗?", "提示")
+        .then(result => {
+          if (result) {
+            let url = "";
+            if (process.env.NODE_ENV === "development") {
+              url = "/api/public/preViewFile";
+            } else {
+              url = "/public/preViewFile";
+            }
+              postRequest(url, data)
         .then(result => {
           console.log(result)
           if(result.data.code != 200){
             this.open6(result.data.msg);
           }else{
-            let url12 =
-            "/file/" +
-            result.data.data.substring(result.data.data.lastIndexOf("\\") + 1);
-            this.src = url12;
-            this.dialogVisible = true;
+            console.log("dasdaas")
+            let file_name = node.docName;
+            console.log(file_name);
+            this.open3("正在打开预览文档,请稍后");
+            setTimeout(() => {
+               window.open("http://localhost:8082/PDFShow/web/viewer.html?file=/pdfPreView?fileName="+file_name, "_blank");
+            }, 1500);
+           
           }
         })
         .catch(err => {});
-    
-      window.scrollTo(0, 0);
+
+          }
+        })
+        .catch(err => {});
+
     },
     getherf(row) {
       console.log(4444);
@@ -687,19 +785,20 @@ export default {
       this.isIndeterminate = false;
     },
     downLoadAnnex(item) {
-       if(this.isdownload == 0){
+      if (this.isdownload == 0) {
         this.open6("你没有此权限!");
         return;
       }
       console.log(item);
       let url = "";
       if (process.env.NODE_ENV === "development") {
-              url = "/api/getName";
-            } else {
-              url = "/getName";
-            }
+        url = "/api/getName";
+      } else {
+        url = "/getName";
+      }
       window.location.href =
-        url+"?name=" +
+        url +
+        "?name=" +
         item.annexName +
         "&token=" +
         localStorage.getItem("token");
@@ -730,46 +829,29 @@ export default {
       })
         .then(result => {
           if (result == "confirm") {
-            postJsonRequest(url,row).then((result) => {
-              console.log(result);
-              if(result.data.code != 200){
-                this.open6(result.data.msg);
-              }else{
-                this.open3(result.data.msg);
-                this.reload();
-            //        for (let i = 0; i < this.tableData.length; i++) {
-            //   if (this.tableData[i].docId == row.docId) {
-            //     this.tableData.splice(i, 1);
-            //   }
-            // }
-              }
-            }).catch((err) => {
-              
-            });
-            // this.$notify.success({
-            //   title: "提示",
-            //   message: "文件删除成功"
-            // });
-            // console.log(row);
-            // for (let i = 0; i < this.tableData.length; i++) {
-            //   if (this.tableData[i].docId == row.docId) {
-            //     this.tableData.splice(i, 1);
-            //   }
-            // }
+            postJsonRequest(url, row)
+              .then(result => {
+                console.log(result);
+                if (result.data.code != 200) {
+                  this.open6(result.data.msg);
+                } else {
+                  this.open3(result.data.msg);
+                  this.reload();
+                }
+              })
+              .catch(err => {});
           }
         })
         .catch(err => {});
     },
     handleOpen() {},
-    handleClose() {},
+    handleClose(item) {
+      this.editForm.dynamicTags.splice(this.dynamicTags.indexOf(item), 1);
+    },
     handleCurrentChange(val) {
       this.currentPage = val;
       this.getDocsBySearchParam();
     },
-    // handleClose(tag) {
-    //   this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-    // },
-
     showInput() {
       this.inputVisible = true;
       this.$nextTick(_ => {
@@ -795,27 +877,19 @@ export default {
 
     handleInputConfirm() {
       let inputValue = this.inputValue;
+      let obj = {
+        type:"danger",
+        tagName:inputValue,
+        isuse:"",
+        tagId:""
+      }
       if (inputValue) {
-        this.dynamicTags.push(inputValue);
+        this.editForm.dynamicTags.push(obj);
       }
       this.inputVisible = false;
       this.inputValue = "";
     },
-    // fitterDoc(type) {
-    //   this.checkList = [];
-    //   let item = this.items;
-    //   let newItem = [];
-    //   if (type == "") {
-    //     this.fitterItems = this.items;
-    //   } else {
-    //     for (let i = 0; i < item.length; i++) {
-    //       if (item[i].type == type) {
-    //         newItem.push(item[i]);
-    //       }
-    //     }
-    //     this.fitterItems = newItem;
-    //   }
-    // },
+
     dateTimeFormat(row, column, cellValue, index) {
       let date = cellValue;
       if (date == undefined) {
@@ -867,9 +941,9 @@ export default {
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
                 userId: item.userId,
-                url: url+"?name=" + item.docName,
-                tagArrayList:item.tagArrayList,
-                docLabelArrayList:item.docLabelArrayList
+                url: url + "?name=" + item.docName,
+                tagArrayList: item.tagArrayList,
+                docLabelArrayList: item.docLabelArrayList
               };
               table.push(tableobj);
               console.log("table:" + table);
@@ -927,7 +1001,6 @@ export default {
               table.push(tableobj);
             }
             this.tableData = table;
-
             this.total = result.data.data.total;
             this.loading = false;
           } else {
@@ -953,7 +1026,6 @@ export default {
             this.departments = result.data.data;
             console.log(JSON.stringify(this.departments));
           } else {
-            // this.loading = false;
             console.log(result.data.msg);
           }
         })
@@ -972,6 +1044,7 @@ export default {
       getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
+            console.log(result.data);
             this.docLabelsTree = result.data.data;
             console.log(this.docLabelsTree);
           } else {
@@ -1068,34 +1141,39 @@ export default {
   },
   data() {
     return {
+      defaultKey:[],
+      inputVisible: false,
+      inputValue: '',
       config: {
         token: localStorage.getItem("token")
       },
       args: {
         filename: ""
       },
-      isdownload:1,
-      loading:true,
-      src:"",
-      currentPage1:1,
-      pageCount:0,
-      url:"",
-      editForm:{
-        docId:"",
-        docName:"",
-        docSavePath:"",
-        userId:"",
-        departmentId:"",
-        tagList:"",
-        suffixName:"",
-        tagArrayList:"",
-        docLabelArrayList:""
+      isdownload: 1,
+      loading: true,
+      src: "",
+      currentPage1: 1,
+      pageCount: 0,
+      url: "",
+      editForm: {
+        docId: "",
+        docName: "",
+        docSavePath: "",
+        userId: "",
+        departmentName:"",
+        departmentId: "",
+        tagList: "",
+        suffixName: "",
+        tagArrayList: "",
+        docLabelArrayList: "",
+        dynamicTags:['标签一']
       },
       dialogVisible: false,
-      dialogVisible1:false,
-      dialogVisible2:false,
-      dialogVisible3:false,
-      dialogVisible4:false,
+      dialogVisible1: false,
+      dialogVisible2: false,
+      dialogVisible3: false,
+      dialogVisible4: false,
       departs: [],
       displayMode: "0", //展示模式0:列表模式1:图标模式
       dynamicTags: ["标签一", "标签二", "标签三"],
@@ -1115,14 +1193,7 @@ export default {
       fitterItems: [],
       checkList: [],
       allCheckList: [],
-      // selectDocumentInfo: {
-      //   id: "2",
-      //   fileName: "部门综测",
-      //   type: "xls",
-      //   tags: [],
-      //   userName: "",
-      //   time: "2019-05-08"
-      // },
+   
       checkAll: false,
       isIndeterminate: true,
       time: [],
@@ -1139,6 +1210,21 @@ export default {
 /* .el-tag + .el-tag {
   margin-left: 10px;
 } */
+ /* .el-tag + .el-tag {
+    margin-left: 10px;
+  } */
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
+  }
 .button-new-tag {
   margin-left: 10px;
   height: 32px;
