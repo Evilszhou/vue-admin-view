@@ -10,12 +10,12 @@
       </div>
       <div class="container">
         <div class="drag-box">
-          <div class="drag-box-item">
+          <div class="drag-box-item" style="margin-left:20px">
             <div class="item-title" style="width:200px">分类目录</div>
             <el-button
               type="primary"
-              size="mini"
-              style="display:flex;margin-left:240px;margin-top:-30px;height:25px;"
+              size="mini"            
+              style="display:flex;height:25px;float:right;margin-top:-20px;margin-right:5px"
               @click="dialogVisible = true"
             >增加分类</el-button>
             <el-tree
@@ -38,36 +38,38 @@
               :allow-drag="allowDrag"
             ></el-tree>
           </div>
-          <div class="drag-box-item">
-            <div class="item-title">可用标签</div>
-            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
-              <transition-group tag="div" id="doing" class="item-ul">
-                <el-tag
-                  class="name"
-                  v-for="tag in tags"
-                  :key="tag.name"
-                  size="mini"
-                  closable
-                  @close="updateTag(tag)"
-                  :type="tag.type"
-                >{{tag.name}}</el-tag>
-              </transition-group>
-            </draggable>
-          </div>
-          <div class="drag-box-item">
-            <div class="item-title">废弃标签</div>
-            <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
-              <transition-group tag="div" id="doing" class="item-ul">
-                <el-tag
-                  v-for="tag in tags1"
-                  :key="tag.name"
-                  size="mini"
-                  style="height:25px;margin-right:5px;margin-bottom:4px;"
-                  @click="updateTag(tag)"
-                  :type="tag.type"
-                >{{tag.name}}</el-tag>
-              </transition-group>
-            </draggable>
+          <div style="margin-left:100px;">
+            <div class="drag-box-item" style="max-width:900px;height:200px">
+              <div class="item-title">可用标签</div>
+              <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+                <transition-group tag="div" id="doing" class="item-ul">
+                  <el-tag
+                    class="name"
+                    v-for="tag in tags"
+                    :key="tag.name"
+                    size="mini"
+                    closable
+                    @close="updateTag(tag,0)"
+                    :type="tag.type"
+                  >{{tag.name}}</el-tag>
+                </transition-group>
+              </draggable>
+            </div>
+            <div class="drag-box-item" style="max-width:700px;height:200px;margin-top:30px">
+              <div class="item-title">废弃标签</div>
+              <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+                <transition-group tag="div" id="doing" class="item-ul">
+                  <el-tag
+                    v-for="tag in tags1"
+                    :key="tag.name"
+                    size="mini"
+                    style="height:25px;margin-right:5px;margin-bottom:4px;"
+                    @click="updateTag(tag,1)"
+                    :type="tag.type"
+                  >{{tag.name}}</el-tag>
+                </transition-group>
+              </draggable>
+            </div>
           </div>
         </div>
         <el-dialog title="新增分类" :visible.sync="dialogVisible" style="margin-top:100px" width="30%">
@@ -114,6 +116,7 @@
 <script>
 import draggable from "vuedraggable";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
+import { messages } from '../common/i18n';
 export default {
   inject: ["reload"],
   components: {
@@ -126,19 +129,19 @@ export default {
   },
   data() {
     return {
-      type:"",
-      docLabelsTree:[],
-      form:{
-        name:""
+      type: "",
+      docLabelsTree: [],
+      form: {
+        name: ""
       },
-      editform:{
-        name:"",
-        type:""
+      editform: {
+        name: "",
+        type: ""
       },
-      nodeValue:"",
+      nodeValue: "",
       dialogVisible: false,
-      dialogVisible1:false,
-      dialogVisible2:false,
+      dialogVisible1: false,
+      dialogVisible2: false,
       filterText: "",
       tags: [],
       tags1: [],
@@ -200,48 +203,6 @@ export default {
         group: "sortlist",
         ghostClass: "ghost-style"
       },
-      todo: [
-        {
-          id: 1,
-          content: "开发图表组件"
-        },
-        {
-          id: 2,
-          content: "开发拖拽组件"
-        },
-        {
-          id: 3,
-          content: "开发权限测试组件"
-        }
-      ],
-      doing: [
-        {
-          id: 1,
-          content: "开发登录注册页面"
-        },
-        {
-          id: 2,
-          content: "开发头部组件"
-        },
-        {
-          id: 3,
-          content: "开发表格相关组件"
-        },
-        {
-          id: 4,
-          content: "开发表单相关组件"
-        }
-      ],
-      done: [
-        {
-          id: 1,
-          content: "初始化项目，生成工程目录，完成相关配置"
-        },
-        {
-          id: 2,
-          content: "开发项目整体框架"
-        }
-      ]
     };
   },
 
@@ -254,11 +215,11 @@ export default {
         superId: this.nodeValue.superId
       };
       let url = "";
-        if (process.env.NODE_ENV === 'development') {
-                    url = "/api/public/updateLabels";
-                }else{
-                    url = "/public/updateLabels"
-                }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/updateLabels";
+      } else {
+        url = "/public/updateLabels";
+      }
 
       postJsonRequest("/api/public/updateLabels", node)
         .then(result => {
@@ -286,11 +247,11 @@ export default {
       };
       console.log(node1);
       let url = "";
-       if (process.env.NODE_ENV === 'development') {
-          url = "/api/public/updateLabels";
-       }else{
-          url = "/public/updateLabels"
-       }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/updateLabels";
+      } else {
+        url = "/public/updateLabels";
+      }
       postJsonRequest(url, node1)
         .then(result => {
           console.log(result);
@@ -318,11 +279,11 @@ export default {
         superId: 0
       };
       let url = "";
-       if (process.env.NODE_ENV === 'development') {
-            url = "/api/public/addLabels";
-       }else{
-            url = "/public/addLabels"
-       }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/addLabels";
+      } else {
+        url = "/public/addLabels";
+      }
       postJsonRequest(url, node)
         .then(result => {
           console.log(result);
@@ -367,11 +328,11 @@ export default {
     },
     getDocLabelsTree() {
       let url = "";
-       if (process.env.NODE_ENV === 'development') {
-            url = "/api/public/getDocLabelsTree";
-       }else{
-            url = "/public/getDocLabelsTree"
-       }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getDocLabelsTree";
+      } else {
+        url = "/public/getDocLabelsTree";
+      }
       getRequest(url)
         .then(result => {
           if (result.data.code === 200) {
@@ -392,11 +353,11 @@ export default {
     getAllTags() {
       let _this = this;
       let url = "";
-      if (process.env.NODE_ENV === 'development') {
-            url = "/api/public/getAllTags";
-       }else{
-            url = "/public/getAllTags"
-       }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/getAllTags";
+      } else {
+        url = "/public/getAllTags";
+      }
       postJsonRequest(url)
         .then(result => {
           for (let i = 0; i < result.data.data.length; i++) {
@@ -413,14 +374,20 @@ export default {
         })
         .catch(err => {});
     },
-    updateTag(item) {
+    updateTag(item,flag) {
       let url = "";
-      if(process.env.NODE_ENV === 'development'){
+      let message = "";
+      if (process.env.NODE_ENV === "development") {
         url = "/api/public/updateTag";
-      }else{
+      } else {
         url = "/public/updateTag";
       }
-      this.$confirm("是否更改标签状态", "提示", {
+      if(flag == 0){
+        message = "是否将标签改为废弃标签"
+      }else{
+        message = "是否将标签改为可用标签"
+      }
+      this.$confirm(message, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
@@ -458,32 +425,32 @@ export default {
       this.editform.name = this.nodeValue.label;
       this.dialogVisible2 = true;
     },
-      renderContent(h, { node, data, store }) {
-          return (
-              <span class="custom-tree-node">
-              <span>
-              <i class="el-icon-lx-tag" style="margin-right:5px" />
-              {node.label}
-      </span>
+    renderContent(h, { node, data, store }) {
+      return (
+        <span class="custom-tree-node">
           <span>
-          <i
-      class="el-icon-lx-roundadd"
-          on-click={() => this.getNode(node, data)}
-          style="margin-right:2px"
-              />
-              <i
-      class="el-icon-lx-edit"
-          style="margin-right:2px"
-          on-click={() => this.getEditNode(node, data)}
-          />
-          <i
-      class="el-icon-lx-roundclose"
-          on-click={() => this.remove(node, data)}
-          />
+            <i class="el-icon-lx-tag" style="margin-right:5px" />
+            {node.label}
           </span>
+          <span>
+            <i
+              class="el-icon-lx-roundadd"
+              on-click={() => this.getNode(node, data)}
+              style="margin-right:2px"
+            />
+            <i
+              class="el-icon-lx-edit"
+              style="margin-right:2px"
+              on-click={() => this.getEditNode(node, data)}
+            />
+            <i
+              class="el-icon-lx-roundclose"
+              on-click={() => this.remove(node, data)}
+            />
           </span>
+        </span>
       );
-      },
+    },
     move(item) {
       console.log(item);
       console.log(this.$refs.tree);
@@ -505,15 +472,15 @@ export default {
       this.data.push(newChild);
     },
     remove(node, data) {
-      console.log(node);
+      console.log(data);
       let url = "";
-      if(process.env.NODE_ENV === 'development'){
+      if (process.env.NODE_ENV === "development") {
         url = "/api/public/deleteLabels";
-      }else{
+      } else {
         url = "/public/deleteLabels";
       }
 
-      this.$confirm("确认要删除该标签吗?", "提示", {
+      this.$confirm("确认要删除该分类吗?该分类下包含"+data.docTotalQuantity+"个文件", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -568,11 +535,11 @@ export default {
       };
       let _this = this;
       let url = "";
-       if (process.env.NODE_ENV === 'development') {
-            url = "/api/public/dragLabel";
-       }else{
-            url = "/public/dragLabel"
-       }
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/public/dragLabel";
+      } else {
+        url = "/public/dragLabel";
+      }
 
       postRequest(url, data)
         .then(result => {

@@ -44,7 +44,7 @@
                         title:"文件管理"
                     },
                      {
-                        icon:"el-icon-lx-file",
+                        icon:"el-icon-lx-upload",
                         index:"upload",
                         title:"文件上传"
 
@@ -55,7 +55,7 @@
                         title:"标签管理"
                     },
                      {
-                        icon:'el-icon-lx-edit',
+                        icon:'el-icon-lx-group',
                         index:"department",
                         title:"机构管理"
                     },
@@ -70,7 +70,7 @@
                         title:"权限管理"
                     },
                     {
-                        icon:'el-icon-lx-edit',
+                        icon:'el-icon-lx-time',
                         index:"backup",
                         title:"备份管理"
                     },
