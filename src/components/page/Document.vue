@@ -176,7 +176,7 @@
               width="50%">
               <el-form :model="editForm" label-width="120px">
                   <el-form-item label="文件名:">
-                    <el-input v-model="editForm.filename" style="width:80%"></el-input>
+                    <el-input v-model="editForm.docName" style="width:80%"></el-input>
                   </el-form-item>
                   <el-form-item v-model="editForm.department" label="所属部门" >
                      <el-cascader
@@ -195,7 +195,6 @@
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
                   <el-form-item label="文件标签:" style="width:100%;margin-top:15px">
                       <el-tag
-                    
                     :type="tag.type"
                         :key="tag.tagName"
                         v-for="tag in editForm.dynamicTags"
@@ -405,11 +404,42 @@ export default {
       this.editForm.tagArrayList = "非重要文件";
       let url = "";
       if (process.env.NODE_ENV === "development") {
-        url = "/api/public/editDoc";
+        url = "/api/public/editDocInfo";
       } else {
-        url = "/public/editDoc";
+        url = "/public/editDocInfo";
       }
+      let tagList = "";
+      for(let i = 0;i < this.editForm.dynamicTags.length;i++){
+        if(this.editForm.dynamicTags[i].type == "danger"){
+           if(i < this.editForm.dynamicTags.length -1){
+             tagList = tagList + this.editForm.dynamicTags[i].tagName + ","   
+           }else{
+             tagList = tagList + this.editForm.dynamicTags[i].tagName;
+          }
+        }
+      }
+      this.editForm.tagArrayList = tagList;
       console.log(this.editForm);
+       let edit = {
+        docId: this.editForm.docId,
+        docName: this.editForm.docName,
+        docSavePath: this.editForm.docSavePath,
+        userId:this.editForm.userId,
+        departmentName:this.editForm.departmentName,
+        departmentId: this.editForm.departmentId,
+        tagList:this.editForm.tagArrayList,
+        suffixName: this.editForm.suffixName,
+       
+        docLabelList:this.editForm.docLabelArrayList,
+       
+      }
+      console.log(edit);
+      postJsonRequest(url,edit).then((result) => {
+        console.log(result);
+      }).catch((err) => {
+        
+      });
+      
     },
     confimType() {
       let aKey = this.$refs.tree.getCheckedNodes();
@@ -476,9 +506,29 @@ export default {
     openEditWindows(row) {
       console.log(row);
       this.editForm.docId = row.docId;
-      this.editForm.filename = row.docName;
+      this.editForm.docName = row.docName;
+      this.editForm.suffixName = row.suffixName;
+      this.editForm.docSavePath = row.docSavePath;
       this.editForm.departmentName = row.departmentName;
       this.editForm.departmentId = row.departmentId;
+      this.editForm.userId = row.userId;
+      if(row.tagArrayList != null){
+        let tags = [];
+          for(let i = 0;i < row.tagArrayList.length;i++){
+        let tagobj = {
+          isuse:1,
+          tagId:row.tagArrayList[i].tagId,
+          tagName:row.tagArrayList[i].tagName,
+          type:"danger"
+        }
+        tags.push(tagobj);
+      }
+      this.editForm.dynamicTags = tags;
+      }else{
+        this.editForm.dynamicTags = [];
+      }
+      
+      
       if (row.docLabelArrayList != null) {
         let labels = "";
         for (let i = 0; i < row.docLabelArrayList.length; i++) {
@@ -494,13 +544,12 @@ export default {
       }
 
       if(row.docLabelArrayList != null){
-           for(let i = 0;i < row.docLabelArrayList.length;i++){
-        this.defaultKey.push(row.docLabelArrayList[i].label);
+        for(let i = 0;i < row.docLabelArrayList.length;i++){
+         this.defaultKey.push(row.docLabelArrayList[i].label);
+        }
+      }else{
+        this.defaultKey = [];
       }
-
-      }
-
-     
       console.log(this.allTags);
       console.log(row.tagArrayList);
       let _this = this;
@@ -513,8 +562,8 @@ export default {
             }
           }
       }
- 
-
+     
+  
       console.log(this.allTags);
       this.editForm.dynamicTags = this.allTags;
       
