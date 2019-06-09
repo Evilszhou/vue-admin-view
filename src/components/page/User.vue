@@ -11,7 +11,7 @@
     <div class="container">
       <el-input v-model="input" placeholder="用户名" class="username"></el-input>
       <el-button type="danger" style="margin-left:10px" @click="dialogTableVisible = true">新增</el-button>
-      <el-button type="primary">查询</el-button>
+      <!-- <el-button type="primary">查询</el-button> -->
       <el-table
         v-loading="loading"
         element-loading-text="拼命加载中"
