@@ -1,6 +1,8 @@
 <template>
     <div class="container">
-      <el-button><a href="http://localhost:8082/index.html?name=http://localhost:8082/S1_方案概要.pdf" class="target"  target="_blank">测试 </a></el-button>
+      <el-button><a href="http://localhost:8082/PDFShow/web/viewer.html?file=http://localhost:8082/pdfPreView?fileName=S1_方案概要.pdf" 
+      class="target" target="_blank">测试 </a></el-button>
+      <el-button class="target" ref="target" @click="go">点我啊</el-button>
     </div>
 </template>
 <script>
@@ -82,19 +84,7 @@ export default {
     };
   },
   created(){
-      var headers = {
-        'Authorization': 'Bearer SOME_TOKEN',
-        'x-ipp-device-uuid': 'SOME_UUID',
-        'x-ipp-client': 'SOME_ID',
-        'x-ipp-client-version': 'SOME_VERSION'
-};
-var loadingTask = pdf.createLoadingTask({
-
-    url:this.src,
-    httpHeaders:headers
-
-});
-      this.src = pdf.createLoadingTask(this.src)
+     
   },
   mounted() {
       let  _this = this;
@@ -105,11 +95,33 @@ var loadingTask = pdf.createLoadingTask({
     // this.getTopDepartment();
   },
   methods: {
+      tap(){
+          let curWwpath = window.document.location.href;
+          let pathName = window.document.location.pathname;
+          let pos = curWwpath.indexOf(pathName); 
+          console.log(curWwpath,pathName,pos);
+          let str = "S1_方案概要.pdf";
+          window.open("localhost:8082/PDFShow/web/viewer.html/file=localhost:8082/previewPDF?file=" + str);
+      },
       go(){
-        let target = this.$refs.target;
-        target.setAttribute("href","http://localhost:8082/index.html");
-        target.click();
-        //   window.open(newpage.href,'_blank');
+
+        let file_name = "next.pdf";
+        getRequest("/api/getFileName",{
+            fileName:file_name
+        }).then((result) => {
+            
+        }).catch((err) => {
+            
+        });
+        this.$confirm("是否预览该文件?","提示").then((result) => {
+            if(result){
+                window.open("http://localhost:8082/PDFShow/web/viewer.html?file=/pdfPreView?fileName="+file_name);
+            }
+        }).catch((err) => {
+            
+        });
+        
+      
       },
       loadPdfHandler(){
           this.currentPage1 = 1;
