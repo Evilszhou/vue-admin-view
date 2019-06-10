@@ -162,7 +162,7 @@
                 :visible.sync="dialogVisible1"
                 width="30%"
                 >
-                <span>是否下载附件?</span>
+                <span>是否将附件一同打包下载?</span>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="singledownload">否</el-button>
                   <el-button type="primary" @click="batchdownload">是</el-button>
@@ -755,7 +755,13 @@ export default {
             console.log(file_name);
             this.open3("正在打开预览文档,请稍后");
             setTimeout(() => {
-               window.open("http://localhost:8082/PDFShow/web/viewer.html?file=/pdfPreView?fileName="+file_name, "_blank");
+              let url = "";
+              if(process.env.NODE_ENV === "development"){
+                url = "http://localhost:8082/"
+              }else{
+                url = "http://catoy.top:8082/"
+              }
+               window.open(url+"PDFShow/web/viewer.html?file=/pdfPreView?fileName="+file_name, "_blank");
             }, 1500);
            
           }
@@ -957,13 +963,14 @@ export default {
             let table = [];
             for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
+              console.log(item.docName.substring(0,item.docName.lastIndexOf(".")))
               let tableobj = {
                 annexes: item.annexes,
                 departmentId: item.departmentId,
                 departmentName: item.departmentName,
                 docId: item.docId,
                 docLabels: item.docLabels,
-                docName: item.docName,
+                docName: item.docName.substring(0,item.docName.lastIndexOf(".")),
                 docPostTime: item.docPostTime,
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
@@ -993,53 +1000,53 @@ export default {
 
       console.log(this.currentPage + "currentPage");
     },
-    getAllDocInfo() {
-      this.loading = true;
-      let url = "";
-      if (process.env.NODE_ENV === "development") {
-        url = "/api/public/getAllDocInfo";
-      } else {
-        url = "/public/getAllDocInfo";
-      }
-      getRequest(url, {
-        pageSize: this.pageSize,
-        currentPage: this.currentPage
-      })
-        .then(result => {
-          if (result.data.code === 200) {
-            // this.tableData = result.data.data.list;
-            console.log(result.data.data);
-            let table = [];
-            for (let i = 0; i < result.data.data.list.length; i++) {
-              let item = result.data.data.list[i];
-              let tableobj = {
-                annexes: item.annexes,
-                departmentId: item.departmentId,
-                departmentName: item.departmentName,
-                docId: item.docId,
-                docLabels: item.docLabels,
-                docName: item.docName,
-                docPostTime: item.docLabels,
-                docSavePath: item.docSavePath,
-                suffixName: item.suffixName,
-                userId: item.userId,
-                url: "/getName?name=" + item.docName + "&token"
-              };
-              table.push(tableobj);
-            }
-            this.tableData = table;
-            this.total = result.data.data.total;
-            this.loading = false;
-          } else {
-            this.loading = false;
-            console.log(result.data.msg);
-          }
-        })
-        .catch(e => {
-          this.loading = false;
-          console.log(e);
-        });
-    },
+    // getAllDocInfo() {
+    //   this.loading = true;
+    //   let url = "";
+    //   if (process.env.NODE_ENV === "development") {
+    //     url = "/api/public/getAllDocInfo";
+    //   } else {
+    //     url = "/public/getAllDocInfo";
+    //   }
+    //   getRequest(url, {
+    //     pageSize: this.pageSize,
+    //     currentPage: this.currentPage
+    //   })
+    //     .then(result => {
+    //       if (result.data.code === 200) {
+    //         // this.tableData = result.data.data.list;
+    //         console.log(result.data.data);
+    //         let table = [];
+    //         for (let i = 0; i < result.data.data.list.length; i++) {
+    //           let item = result.data.data.list[i];
+    //           let tableobj = {
+    //             annexes: item.annexes,
+    //             departmentId: item.departmentId,
+    //             departmentName: item.departmentName,
+    //             docId: item.docId,
+    //             docLabels: item.docLabels,
+    //             docName: item.docName.substring(0,item.docName.lastIndexOf(".")),
+    //             docPostTime: item.docLabels,
+    //             docSavePath: item.docSavePath,
+    //             suffixName: item.suffixName,
+    //             userId: item.userId,
+    //             url: "/getName?name=" + item.docName + "&token"
+    //           };
+    //           table.push(tableobj);
+    //         }
+    //         this.tableData = table;
+    //         this.total = result.data.data.total;
+    //         this.loading = false;
+    //       } else {
+    //         this.loading = false;
+    //         console.log(result.data.msg);
+    //       }
+    //     })
+    //     .catch(e => {
+    //       this.loading = false;
+    //       console.log(e);
+    //     });
+    // },
     getMyChildDepartments() {
       let url = "";
       if (process.env.NODE_ENV === "development") {
