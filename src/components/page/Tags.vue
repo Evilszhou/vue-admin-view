@@ -221,7 +221,7 @@ export default {
         url = "/public/updateLabels";
       }
 
-      postJsonRequest("/api/public/updateLabels", node)
+      postJsonRequest(url, node)
         .then(result => {
           if (result.data.code != 200) {
             this.$notify.error({

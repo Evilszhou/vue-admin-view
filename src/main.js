@@ -148,7 +148,7 @@ router.beforeEach((to, from, next) => {
     }
     let flag = arr.contains(to.meta.title);
     console.log(flag)
-    if(true){
+    if(flag == true){
         next();
     }else{
         next('/403')
