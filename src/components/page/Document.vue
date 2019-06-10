@@ -622,6 +622,7 @@ export default {
           str.push("login");
           str.push("403");
           str.push("测试");
+          str.push("备份管理")
           console.log(str);
           localStorage.setItem("permissions", str);
         })
