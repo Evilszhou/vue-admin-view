@@ -730,8 +730,9 @@ export default {
       } else {
         getnameUrl = "/getFileNameAndFilePath";
       }
+
       getRequest(getnameUrl, {
-        fileName: node.docName
+        fileName: node.docName+node.suffixName
       })
         .then(result => {})
         .catch(err => {});

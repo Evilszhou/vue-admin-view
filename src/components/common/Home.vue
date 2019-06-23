@@ -24,7 +24,7 @@
         data(){
             return {
                 tagsList: [],
-                collapse: false
+                collapse: true
             }
         },
         components:{
@@ -32,7 +32,7 @@
         },
         created(){
             bus.$on('collapse', msg => {
-                this.collapse = msg;
+                this.collapse = false;
             })
 
             // 只有在标签页列表里的页面才使用keep-alive，即关闭标签之后就不保存到内存中了。
