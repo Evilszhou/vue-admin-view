@@ -56,9 +56,12 @@
       </el-input>
       <el-button type="primary" style="margin-left:320px;margin-top:-32px;display: flex" @click="chooseType">选择类别</el-button>
     </el-form-item>
-    <el-form-item label="文件号:" :label-width="formLabelWidth">
+    <el-form-item label="文件编号:" :label-width="formLabelWidth">
       <el-input v-model="form.number" placeholder="请输入内容"></el-input>
     </el-form-item>
+         <el-form-item label="文件页数:" :label-width="formLabelWidth">
+           <el-input v-model="form.pageNum" placeholder="请输页数"></el-input>
+         </el-form-item>
     <el-form-item label="日期:" :label-width="formLabelWidth">
       <el-date-picker
       v-model="form.date"
@@ -222,7 +225,8 @@ export default {
         type: "",
         date: "",
         number: "",
-        tags: []
+        tags: [],
+        pageNum: ""
       },
       danger: "normal",
       dialogVisible: false,
@@ -241,7 +245,8 @@ export default {
         type: "",
         date: "",
         number: "",
-        tags: []
+        tags: [],
+        pageNum: ""
       },
       chooseTags: [],
       formLabelWidth: "120px",
@@ -481,7 +486,9 @@ export default {
       this.table.date = date;
       this.table.number = this.form.number;
       this.table.tags = names;
+      this.table.pageNum = this.form.pageNum;
       console.log(this.table);
+      console.log("this.table");
       this.$refs.upload.submit();
     },
     cancelCrop() {

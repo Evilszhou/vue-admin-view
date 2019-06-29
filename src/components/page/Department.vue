@@ -121,7 +121,8 @@ export default {
         departmentName: "",
         parent_id: 0,
         departmentIntroduction: "",
-        docTotalNum: 0
+        docTotalNum: 0,
+        docTotalPagenum: 0
       }
       // newDepartment: {
       //   departmentName: "",
@@ -542,6 +543,16 @@ export default {
         flex: 1,
         formatter: item => {
           return "<span>" + item.docTotalNum + "</span>";
+        }
+      },
+      {
+        title: "页数",
+        field: "docTotalPagenum",
+        width: 200,
+        align: "center",
+        flex: 1,
+        formatter: item => {
+          return "<span>" + item.docTotalPagenum + "</span>";
         }
       },
       {
