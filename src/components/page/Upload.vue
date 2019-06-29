@@ -548,6 +548,15 @@ export default {
 </script>
 
 <style scoped>
+.el-upload-list el-upload-list--text{
+  width: 100px !important;
+}
+.el-upload-list__item is-ready{
+  width: 100px !important;
+}
+.el-upload-list__item-name{
+  width: 100px !important;
+}
 .content-title {
   font-weight: 400;
   line-height: 50px;
