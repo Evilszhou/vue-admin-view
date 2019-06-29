@@ -10,7 +10,7 @@
       </div>
       <div class="container">
         <div class="drag-box">
-          <div class="drag-box-item" style="margin-left:20px">
+          <div class="drag-box-item" style="margin-left:20px;width:300px">
             <div class="item-title" style="width:200px">分类目录</div>
             <el-button
               type="primary"
@@ -39,9 +39,9 @@
             ></el-tree>
           </div>
           <div style="margin-left:100px;">
-            <div class="drag-box-item" style="max-width:900px;height:200px">
+            <div class="drag-box-item" style="max-width:900px;height:160px">
               <div class="item-title">可用标签</div>
-              <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+            
                 <transition-group tag="div" id="doing" class="item-ul">
                   <el-tag
                     class="name"
@@ -49,26 +49,43 @@
                     :key="tag.name"
                     size="mini"
                     closable
+                    style="cursor:pointer"
                     @close="updateTag(tag,0)"
                     :type="tag.type"
                   >{{tag.name}}</el-tag>
                 </transition-group>
-              </draggable>
+             
             </div>
-            <div class="drag-box-item" style="max-width:700px;height:200px;margin-top:30px">
+            <div class="drag-box-item" style="max-width:700px;height:160px;margin-top:20px;">
               <div class="item-title">废弃标签</div>
-              <draggable v-model="doing" @remove="removeHandle" :options="dragOptions">
+              
                 <transition-group tag="div" id="doing" class="item-ul">
                   <el-tag
                     v-for="tag in tags1"
                     :key="tag.name"
                     size="mini"
-                    style="height:25px;margin-right:5px;margin-bottom:4px;"
+                    style="height:25px;margin-right:5px;margin-bottom:4px;cursor:pointer"
                     @click="updateTag(tag,1)"
                     :type="tag.type"
                   >{{tag.name}}</el-tag>
                 </transition-group>
-              </draggable>
+            </div>
+             <div class="drag-box-item" style="max-width:700px;height:160px;margin-top:20px;">
+              <div class="item-title">文档来源管理
+                 <el-button type="primary" style="margin-left:400px;margin-top:-150px;" @click="createFileSoures">新增来源</el-button>
+              </div>
+             
+              
+                <transition-group tag="div" id="doing" class="item-ul">
+                  <el-tag
+                    v-for="tag in tags1"
+                    :key="tag.name"
+                    size="mini"
+                    style="height:25px;margin-right:5px;margin-bottom:4px;cursor:pointer"
+                    @click="updateTag(tag,1)"
+                    :type="tag.type"
+                  >{{tag.name}}</el-tag>
+                </transition-group>
             </div>
           </div>
         </div>
@@ -116,7 +133,7 @@
 <script>
 import draggable from "vuedraggable";
 import { postJsonRequest, postRequest, getRequest } from "../../main.js";
-import { messages } from '../common/i18n';
+import { messages } from "../common/i18n";
 export default {
   inject: ["reload"],
   components: {
@@ -202,11 +219,14 @@ export default {
         scroll: true,
         group: "sortlist",
         ghostClass: "ghost-style"
-      },
+      }
     };
   },
 
   methods: {
+    createFileSoures(){
+      console.log("543543345");
+    },
     confimUpdate() {
       let _this = this;
       let node = {
@@ -374,7 +394,7 @@ export default {
         })
         .catch(err => {});
     },
-    updateTag(item,flag) {
+    updateTag(item, flag) {
       let url = "";
       let message = "";
       if (process.env.NODE_ENV === "development") {
@@ -382,10 +402,10 @@ export default {
       } else {
         url = "/public/updateTag";
       }
-      if(flag == 0){
-        message = "是否将标签改为废弃标签"
-      }else{
-        message = "是否将标签改为可用标签"
+      if (flag == 0) {
+        message = "是否将标签改为废弃标签";
+      } else {
+        message = "是否将标签改为可用标签";
       }
       this.$confirm(message, "提示", {
         confirmButtonText: "确定",
@@ -480,11 +500,15 @@ export default {
         url = "/public/deleteLabels";
       }
 
-      this.$confirm("确认要删除该分类吗?该分类下包含"+data.docTotalQuantity+"个文件", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        "确认要删除该分类吗?该分类下包含" + data.docTotalQuantity + "个文件",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
         .then(result => {
           if (result == "confirm") {
             console.log("hh ");
