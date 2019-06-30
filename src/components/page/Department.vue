@@ -29,15 +29,16 @@
                     style="background:white"
                     :data="treeData"
                     :isdraggable="false"
-            ></dragTreeTable>
+            >
+            </dragTreeTable>
         </div>
-        <!-- 新增组织 -->
-        <el-dialog title="新增组织" :visible.sync="dialogTableVisible">
+        <!-- 新增机构 -->
+        <el-dialog title="新增机构" :visible.sync="dialogTableVisible">
             <el-form :model="department">
-                <el-form-item label="组织名" :label-width="formLabelWidth">
+                <el-form-item label="机构名称" :label-width="formLabelWidth">
                     <el-input v-model="department.departmentName" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="组织简介" :label-width="formLabelWidth">
+                <el-form-item label="机构简介" :label-width="formLabelWidth">
                     <el-input v-model="department.departmentIntroduction" autocomplete="off"></el-input>
                 </el-form-item>
 
@@ -530,28 +531,26 @@
                     type: "selection",
                     title: "机构名称",
                     field: "name",
-                    width: 200,
-                    align: "left",
+                    width: 150,
+                    align: "center",
                     formatter: item => {
-                        return "<span>" + item.name + "</span>";
+                        return "<span " + "title=" + item.name + ">" + item.name + "</span>";
                     }
                 },
                 {
-                    title: "机构描述",
-                    field: "introduction",
+                    title: "机构编码",
+                    field: "name",
                     width: 200,
                     align: "center",
-                    flex: 1,
                     formatter: item => {
-                        return "<span>" + item.instroduction + "</span>";
+                        return "<span>" + item.id + "</span>";
                     }
                 },
                 {
                     title: "文件数量",
                     field: "docTotalNum",
-                    width: 200,
+                    width: 10,
                     align: "center",
-                    flex: 1,
                     formatter: item => {
                         return "<span>" + item.docTotalNum + "</span>";
                     }
@@ -559,11 +558,20 @@
                 {
                     title: "页数",
                     field: "docTotalPagenum",
-                    width: 200,
+                    width: 10,
+                    align: "center",
+                    formatter: item => {
+                        return "<span>" + item.docTotalPagenum + "</span>";
+                    }
+                },
+                {
+                    title: "机构描述",
+                    field: "introduction",
+                    width: 300,
                     align: "center",
                     flex: 1,
                     formatter: item => {
-                        return "<span>" + item.docTotalPagenum + "</span>";
+                        return "<span " + "title=" + item.instroduction + ">" + item.instroduction + "</span>";
                     }
                 },
                 {
