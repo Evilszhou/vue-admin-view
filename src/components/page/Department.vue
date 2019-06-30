@@ -532,9 +532,9 @@
                     title: "机构名称",
                     field: "name",
                     width: 150,
-                    align: "center",
+                    align: "left",
                     formatter: item => {
-                        return "<span " + "title=" + item.name + ">" + item.name + "</span>";
+                        return "<span " + "style='margin-left: 40px' " + "title=" + item.name + ">" + item.name + "</span>";
                     }
                 },
                 {
@@ -544,6 +544,16 @@
                     align: "center",
                     formatter: item => {
                         return "<span>" + item.id + "</span>";
+                    }
+                },
+                {
+                    title: "机构描述",
+                    field: "introduction",
+                    width: 300,
+                    align: "center",
+                    flex: 1,
+                    formatter: item => {
+                        return "<span " + "title=" + item.instroduction + ">" + item.instroduction + "</span>";
                     }
                 },
                 {
@@ -562,16 +572,6 @@
                     align: "center",
                     formatter: item => {
                         return "<span>" + item.docTotalPagenum + "</span>";
-                    }
-                },
-                {
-                    title: "机构描述",
-                    field: "introduction",
-                    width: 300,
-                    align: "center",
-                    flex: 1,
-                    formatter: item => {
-                        return "<span " + "title=" + item.instroduction + ">" + item.instroduction + "</span>";
                     }
                 },
                 {
