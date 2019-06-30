@@ -16,21 +16,23 @@
             <div class="drag-box-item">
               <el-input class="el" placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
               <el-tree
+                      @node-click="nodeClick"
                 check-strictly
                 style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;  display: block;margin-top:10px"
                 ref="tree"
-                show-checkbox
                 class="mulu"
                 default-expand-all
                 :data="docLabelsTree"
                 node-key="id"
                 :filter-node-method="filterNode"
-                
               >
                 <span class="span-ellipsis" slot-scope="{ node }">
                   <span :title="node.label">{{ node.label }}</span>
                 </span>
               </el-tree>
+                <span
+                        @click="resetLabel"
+                        style="cursor:pointer;display:inline-block;padding-left:19px;font-size:10px;font-weight:500;color:#409EFF;">重置选中</span>
             </div>
           </el-col>
           <!-- 左侧菜单结束 -->
@@ -72,6 +74,11 @@
                 <el-col :span="3">
                   <el-button type="primary" @click="search">查询</el-button>
                 </el-col>
+                  <el-col :span="5" >
+                      <div style="width:100px;height: 29px;line-height: 29px;">
+                          <span style="color: #909399;font-size: 14px;">{{selectedLabel}}</span>
+                      </div>
+                  </el-col>
               </el-row>
             </div>
             <!-- 顶部条件搜索区结束 -->
@@ -393,7 +400,28 @@ export default {
     }
   },
   methods: {
- 
+      resetLabel(){
+          this.reload();
+      },
+      nodeClick(node){
+        this.clickNode = [];
+        this.getChildNodeList(node,this.clickNode);
+        this.clickNode.push(node);
+        console.log("clickNode")
+        console.log(this.clickNode)
+        this.search();
+      },
+      getChildNodeList(node,list){
+          this.selectedLabel = node.label;
+          if(node.children == null){
+              list.push(node);
+              return;
+          }
+          let children = node.children;
+          for(let i=0;i<children.length;i++){
+              this.getChildNodeList(children[i],list);
+          }
+      },
     canelUpdate(){
       console.log("haha");
       for(let i = 0;i < this.allTags.length;i++){
@@ -945,13 +973,14 @@ export default {
 
       postJsonRequest(url, {
         pageInfo: { pageSize: this.pageSize, currentPage: this.currentPage },
-        docLabels: this.$refs.tree.getCheckedNodes(),
+        docLabels: this.clickNode,
         tags: this.tags,
         departmentId: this.selectDepartmentId,
         docName: this.docSearchName,
         selectYear: moment(this.selectYear).format("YYYY")
       })
         .then(result => {
+            console.log(this.$refs.tree.getCheckedNodes())
           if (result.data.code === 200) {
             // this.tableData = result.data.data.list;
             let url = "";
@@ -1237,7 +1266,9 @@ export default {
       docSearchName: "",
       defaultOpeneds: ["1"],
       docLabels: [],
-      departments: []
+      departments: [],
+        clickNode: [],
+        selectedLabel: ""
     };
   }
 };
