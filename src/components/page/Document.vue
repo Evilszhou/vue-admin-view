@@ -108,15 +108,19 @@
                     </el-form>
                   </template>
                 </el-table-column>
-                <el-table-column prop="docName" label="文件名"></el-table-column>
+                <el-table-column prop="docName" label="文件名" @click="perview(scope.row)">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px;cursor: pointer" @click="perview(scope.row)">{{ scope.row.docName}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="fileSourceName" label="文件来源"></el-table-column>
                 <!--<el-table-column prop="docType" label="文件类型"></el-table-column>-->
-                <el-table-column prop="departmentName" label="所属部门"></el-table-column>
+                <el-table-column prop="departmentName" label="上传部门"></el-table-column>
                 <el-table-column
                   prop="docPostTime"
                   sortable
                   :formatter="dateTimeFormat"
-                  label="发文日期"
+                  label="形成日期"
                 ></el-table-column>
                 <el-table-column label="操作" width="300">
                   <template slot-scope="scope">
@@ -126,7 +130,7 @@
                       size="mini"
                       @click="openEditWindows(scope.row)"
                     >编辑</el-button>
-                    <el-button size="mini" @click="perview(scope.row)" type="normal">打印</el-button>
+                    <el-button size="mini" type="normal">打印</el-button>
                     <el-button size="mini" type="danger" @click="delDoc(scope.$index, scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -182,7 +186,7 @@
                   <el-form-item label="文件名:">
                     <el-input v-model="editForm.docName" style="width:80%"></el-input>
                   </el-form-item>
-                  <el-form-item v-model="editForm.department" label="所属部门" >
+                  <el-form-item v-model="editForm.department" label="上传部门" >
                      <el-cascader
                     :placeholder="editForm.departmentName"
                     :options="departments"
@@ -1035,7 +1039,8 @@ export default {
                 url: url + "?name=" + item.docName,
                 tagArrayList: item.tagArrayList,
                 docLabelArrayList: item.docLabelArrayList,
-                fileSourceName: item.fileSourceName
+                fileSourceName: item.fileSourceName,
+                fileSourceId: item.fileSourceId
               };
               table.push(tableobj);
               console.log("table:" + table);
