@@ -147,6 +147,7 @@ export default {
   data: function() {
     return {
       data: [
+        
         {
           superId: 0,
           children: [
@@ -282,6 +283,7 @@ export default {
   },
 
   methods: {
+
     getSouce(item) {
       console.log(item);
     },
