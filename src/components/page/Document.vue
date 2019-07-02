@@ -109,7 +109,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="docName" label="文件名"></el-table-column>
-                <el-table-column prop="docNumber" label="文件标号"></el-table-column>
+                <el-table-column prop="fileSourceName" label="文件来源"></el-table-column>
                 <!--<el-table-column prop="docType" label="文件类型"></el-table-column>-->
                 <el-table-column prop="departmentName" label="所属部门"></el-table-column>
                 <el-table-column
@@ -1007,7 +1007,8 @@ export default {
                 userId: item.userId,
                 url: url + "?name=" + item.docName,
                 tagArrayList: item.tagArrayList,
-                docLabelArrayList: item.docLabelArrayList
+                docLabelArrayList: item.docLabelArrayList,
+                fileSourceName: item.fileSourceName
               };
               table.push(tableobj);
               console.log("table:" + table);
