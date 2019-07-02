@@ -126,7 +126,7 @@
                       size="mini"
                       @click="openEditWindows(scope.row)"
                     >编辑</el-button>
-                    <el-button size="mini" @click="perview(scope.row)" type="normal">预览</el-button>
+                    <el-button size="mini" @click="perview(scope.row)" type="normal">打印</el-button>
                     <el-button size="mini" type="danger" @click="delDoc(scope.$index, scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
@@ -157,13 +157,11 @@
               :total="pageCount">
             </el-pagination>
                 <pdf :src="src" v-loading = "loading"  :page = "currentPage1" style="width:90%;height:30%;margin:0 auto;margin-top:20px" @loaded="loadPdfHandler" @num-pages = "pageCount = $event"></pdf>
-
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="dialogVisible = false">取 消</el-button>
                   <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
                 </span>
               </el-dialog>
-
               <el-dialog
                 title="提示"
                 :visible.sync="dialogVisible1"
@@ -175,8 +173,6 @@
                   <el-button type="primary" @click="batchdownload">是</el-button>
                 </span>
               </el-dialog>
-
-
               <el-dialog
               title="编辑"
               :visible.sync="dialogVisible2"
@@ -203,7 +199,7 @@
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
                   <el-form-item label="文件标签:" style="width:100%;margin-top:15px">
                       <el-tag
-                    :type="tag.type"
+                        :type="tag.type"
                         :key="tag.tagName"
                         v-for="tag in editForm.dynamicTags"
                        @click="tipTag(tag)"
@@ -222,10 +218,11 @@
                       >
                       </el-input>
                       <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-
                   </el-form-item>
+                  
                   </el-form>
                   <span slot="footer" class="dialog-footer">
+                    <el-button @click="reupload" type="danger">重新上传</el-button>
                     <el-button @click="canelUpdate">取 消</el-button>
                     <el-button type="primary" @click="confimupdate">确 定</el-button>
                   </span>
@@ -385,9 +382,7 @@ export default {
   components: {
     pdf
   },
-  created() {
-  
-  },
+  created() {},
   computed: {
     uploadsannex: function() {
       let url = "";
@@ -400,45 +395,50 @@ export default {
     }
   },
   methods: {
-      resetLabel(){
-          this.reload();
-      },
-      nodeClick(node){
-        this.clickNode = [];
-        this.getChildNodeList(node,this.clickNode);
-        this.clickNode.push(node);
-        console.log("clickNode")
-        console.log(this.clickNode)
-        this.search();
-      },
-      getChildNodeList(node,list){
-          this.selectedLabel = node.label;
-          if(node.children == null){
-              list.push(node);
-              return;
-          }
-          let children = node.children;
-          for(let i=0;i<children.length;i++){
-              this.getChildNodeList(children[i],list);
-          }
-      },
-    canelUpdate(){
+    reupload(){
+      console.log("重新上传");
+      console.log(this.editForm);
+      this.$router.push("/upload")
+    },
+    resetLabel() {
+      this.reload();
+    },
+    nodeClick(node) {
+      this.clickNode = [];
+      this.getChildNodeList(node, this.clickNode);
+      this.clickNode.push(node);
+      console.log("clickNode");
+      console.log(this.clickNode);
+      this.search();
+    },
+    getChildNodeList(node, list) {
+      this.selectedLabel = node.label;
+      if (node.children == null) {
+        list.push(node);
+        return;
+      }
+      let children = node.children;
+      for (let i = 0; i < children.length; i++) {
+        this.getChildNodeList(children[i], list);
+      }
+    },
+    canelUpdate() {
       console.log("haha");
-      for(let i = 0;i < this.allTags.length;i++){
+      for (let i = 0; i < this.allTags.length; i++) {
         this.allTags[i].type = "normal";
       }
       this.dialogVisible2 = false;
     },
-    tipTag(item){
+    tipTag(item) {
       console.log(item);
-      if(item.type == 'danger'){
+      if (item.type == "danger") {
         item.type = "normal";
-      }else{
+      } else {
         item.type = "danger";
       }
     },
     confimupdate() {
-      this.editForm.tagArrayList = "非重要文件";
+      // this.editForm.tagArrayList = "非重要文件";
       let url = "";
       if (process.env.NODE_ENV === "development") {
         url = "/api/public/editDoc";
@@ -446,47 +446,49 @@ export default {
         url = "/public/editDoc";
       }
       let tagList = "";
-      for(let i = 0;i < this.editForm.dynamicTags.length;i++){
-        if(this.editForm.dynamicTags[i].type == "danger"){
-           if(i < this.editForm.dynamicTags.length -1){
-             tagList = tagList + this.editForm.dynamicTags[i].tagName + ","   
-           }else{
-             tagList = tagList + this.editForm.dynamicTags[i].tagName;
+      for (let i = 0; i < this.editForm.dynamicTags.length; i++) {
+        if (this.editForm.dynamicTags[i].type == "danger") {
+          if (i < this.editForm.dynamicTags.length - 1) {
+            tagList = tagList + this.editForm.dynamicTags[i].tagName + ",";
+          } else {
+            tagList = tagList + this.editForm.dynamicTags[i].tagName;
           }
         }
       }
       this.editForm.tagArrayList = tagList;
       console.log(this.editForm);
-       let edit = {
+      let edit = {
         docId: this.editForm.docId,
         docName: this.editForm.docName,
         docSavePath: this.editForm.docSavePath,
-        userId:this.editForm.userId,
-        departmentName:this.editForm.departmentName,
+        userId: this.editForm.userId,
+        departmentName: this.editForm.departmentName,
         departmentId: this.editForm.departmentId,
-        tagList:this.editForm.tagArrayList,
+        tagList: this.editForm.tagArrayList,
         suffixName: this.editForm.suffixName,
-        docLabelList:this.editForm.docLabelArrayList,
-      }
+        docLabelList: this.editForm.docLabelArrayList
+      };
       console.log(edit);
       let _this = this;
 
-      postJsonRequest(url,edit).then((result) => {
-        console.log(result);
-        if(result.data.code == 200){
-         
-        }
-         for(let i = 0;i < _this.allTags.length;i++){
+      postJsonRequest(url, edit)
+        .then(result => {
+          console.log(result);
+          if (result.data.code == 200) {
+          }
+          for (let i = 0; i < _this.allTags.length; i++) {
+            _this.allTags[i].type = "normal";
+          }
+          // _this.dialogVisible2 = false;
+        })
+        .catch(err => {
+          for (let i = 0; i < _this.allTags.length; i++) {
             _this.allTags[i].type = "normal";
           }
           _this.dialogVisible2 = false;
-      }).catch((err) => {
-         for(let i = 0;i < _this.allTags.length;i++){
-            _this.allTags[i].type = "normal";
-          }
-          _this.dialogVisible2 = false;
-      });
-      
+        });
+      _this.dialogVisible2 = false;
+      this.reload();
     },
     confimType() {
       let aKey = this.$refs.tree.getCheckedNodes();
@@ -545,6 +547,7 @@ export default {
     addAnnex(item) {
       console.log(item);
       this.args.filename = item.docName;
+      this.args.suffixName = item.suffixName;
       this.dialogVisible4 = true;
     },
     choosetp() {
@@ -559,30 +562,29 @@ export default {
       this.editForm.departmentName = row.departmentName;
       this.editForm.departmentId = row.departmentId;
       this.editForm.userId = row.userId;
-      if(row.tagArrayList != null){
+      if (row.tagArrayList != null) {
         let tags = [];
-          for(let i = 0;i < row.tagArrayList.length;i++){
-        let tagobj = {
-          isuse:1,
-          tagId:row.tagArrayList[i].tagId,
-          tagName:row.tagArrayList[i].tagName,
-          type:"danger"
+        for (let i = 0; i < row.tagArrayList.length; i++) {
+          let tagobj = {
+            isuse: 1,
+            tagId: row.tagArrayList[i].tagId,
+            tagName: row.tagArrayList[i].tagName,
+            type: "danger"
+          };
+          tags.push(tagobj);
         }
-        tags.push(tagobj);
-      }
-      this.editForm.dynamicTags = tags;
-      }else{
+        this.editForm.dynamicTags = tags;
+      } else {
         this.editForm.dynamicTags = [];
       }
-      
-      
+
       if (row.docLabelArrayList != null) {
         let labels = "";
         for (let i = 0; i < row.docLabelArrayList.length; i++) {
-          if(i == row.docLabelArrayList.length - 1){
-             labels = labels + row.docLabelArrayList[i].label;
-          }else{
-             labels = labels + row.docLabelArrayList[i].label + ",";
+          if (i == row.docLabelArrayList.length - 1) {
+            labels = labels + row.docLabelArrayList[i].label;
+          } else {
+            labels = labels + row.docLabelArrayList[i].label + ",";
           }
         }
         this.editForm.docLabelArrayList = labels;
@@ -590,33 +592,51 @@ export default {
         this.editForm.docLabelArrayList = "";
       }
 
-      if(row.docLabelArrayList != null){
-        for(let i = 0;i < row.docLabelArrayList.length;i++){
-         this.defaultKey.push(row.docLabelArrayList[i].label);
+      if (row.docLabelArrayList != null) {
+        for (let i = 0; i < row.docLabelArrayList.length; i++) {
+          this.defaultKey.push(row.docLabelArrayList[i].label);
         }
-      }else{
+      } else {
         this.defaultKey = [];
       }
       console.log(this.allTags_1);
       console.log(row.tagArrayList);
       let _this = this;
-      if(row.tagArrayList != null){
-        for(let i = 0;i < row.tagArrayList.length;i++){
-            for(let j = 0;j <this.allTags_1.length;j++){
-              if(row.tagArrayList[i].tagName === this.allTags_1[j].tagName){
-                _this.allTags_1[i].type = "danger";
-              }
+      let nums = [];
+      if (row.tagArrayList != null) {
+        for (let i = 0; i < row.tagArrayList.length; i++) {
+          // console.log(row.tagArrayList[i].tagName)
+          for (let j = 0; j < this.allTags_1.length; j++) {
+            // console.log(row.tagArrayList[i].tagName == this.allTags_1[j].tagName)
+            if (row.tagArrayList[i].tagName == this.allTags_1[j].tagName) {
+              // this.allTags_1[i].type = "danger";
+              console.log(j);
+              nums.push(j);
             }
           }
+          //   for (let j = 0; j < this.allTags_1.length; j++) {
+          //     if (row.tagArrayList[i].tagName == _this.allTags_1[j].tagName) {
+          //       _this.allTags_1[i].type = "danger";
+          //     }
+          //   }
+        }
       }
-
-    
-      console.log("1")
-      console.log(this.allTags);
-      console.log("2")
-      console.log(this.allTags_1)
-      // this.allTags_1 = this.allTags;
+      console.log(nums);
+      for (let i = 0; i < this.allTags_1.length; i++) {
+        for (let j = 0; j < nums.length; j++) {
+          if (i == nums[j]) {
+            this.allTags_1[i].type = "danger";
+          }
+        }
+      }
       this.editForm.dynamicTags = this.allTags_1;
+
+      // console.log("1");
+      // console.log(this.allTags);
+      // console.log("2");
+      // console.log(this.allTags_1);
+      // // this.allTags_1 = this.allTags;
+      // this.editForm.dynamicTags = this.allTags_1;
 
       // this.$refs.tree.setCheckedKeys([44])
       // console.log(this.$refs.tree)
@@ -650,7 +670,7 @@ export default {
           str.push("login");
           str.push("403");
           str.push("测试");
-          str.push("备份管理")
+          str.push("备份管理");
           console.log(str);
           localStorage.setItem("permissions", str);
         })
@@ -746,7 +766,7 @@ export default {
         node.suffixName != ".xlsx" &&
         node.suffixName != ".doc" &&
         node.suffixName != ".jpg" &&
-        node.suffixName != ".png" && 
+        node.suffixName != ".png" &&
         node.suffixName != ".pdf"
       ) {
         this.open6("该文件类型不支持预览!");
@@ -760,7 +780,7 @@ export default {
       }
 
       getRequest(getnameUrl, {
-        fileName: node.docName+node.suffixName
+        fileName: node.docName + node.suffixName
       })
         .then(result => {})
         .catch(err => {});
@@ -773,34 +793,36 @@ export default {
             } else {
               url = "/public/preViewFile";
             }
-              postRequest(url, data)
-        .then(result => {
-          console.log(result)
-          if(result.data.code != 200){
-            this.open6(result.data.msg);
-          }else{
-            console.log("dasdaas")
-            let file_name = node.docName;
-            console.log(file_name);
-            this.open3("正在打开预览文档,请稍后");
-            setTimeout(() => {
-              let url = "";
-              if(process.env.NODE_ENV === "development"){
-                url = "http://localhost:8082/"
-              }else{
-                url = "http://catoy.top:8082/"
-              }
-               window.open(url+"PDFShow/web/viewer.html?file=/pdfPreView?fileName="+file_name, "_blank");
-            }, 1500);
-           
+            postRequest(url, data)
+              .then(result => {
+                console.log(result);
+                if (result.data.code != 200) {
+                  this.open6(result.data.msg);
+                } else {
+                  console.log("dasdaas");
+                  let file_name = node.docName;
+                  console.log(file_name);
+                  this.open3("正在打开预览文档,请稍后");
+                  setTimeout(() => {
+                    let url = "";
+                    if (process.env.NODE_ENV === "development") {
+                      url = "http://localhost:8082/";
+                    } else {
+                      url = "http://catoy.top:8082/";
+                    }
+                    window.open(
+                      url +
+                        "PDFShow/web/viewer.html?file=/pdfPreView?fileName=" +
+                        file_name,
+                      "_blank"
+                    );
+                  }, 1500);
+                }
+              })
+              .catch(err => {});
           }
         })
         .catch(err => {});
-
-          }
-        })
-        .catch(err => {});
-
     },
     getherf(row) {
       console.log(4444);
@@ -940,11 +962,11 @@ export default {
     handleInputConfirm() {
       let inputValue = this.inputValue;
       let obj = {
-        type:"danger",
-        tagName:inputValue,
-        isuse:"",
-        tagId:""
-      }
+        type: "danger",
+        tagName: inputValue,
+        isuse: "",
+        tagId: ""
+      };
       if (inputValue) {
         this.editForm.dynamicTags.push(obj);
       }
@@ -980,7 +1002,7 @@ export default {
         selectYear: moment(this.selectYear).format("YYYY")
       })
         .then(result => {
-            console.log(this.$refs.tree.getCheckedNodes())
+          console.log(this.$refs.tree.getCheckedNodes());
           if (result.data.code === 200) {
             // this.tableData = result.data.data.list;
             let url = "";
@@ -993,14 +1015,19 @@ export default {
             let table = [];
             for (let i = 0; i < result.data.data.list.length; i++) {
               let item = result.data.data.list[i];
-              console.log(item.docName.substring(0,item.docName.lastIndexOf(".")))
+              console.log(
+                item.docName.substring(0, item.docName.lastIndexOf("."))
+              );
               let tableobj = {
                 annexes: item.annexes,
                 departmentId: item.departmentId,
                 departmentName: item.departmentName,
                 docId: item.docId,
                 docLabels: item.docLabels,
-                docName: item.docName.substring(0,item.docName.lastIndexOf(".")),
+                docName: item.docName.substring(
+                  0,
+                  item.docName.lastIndexOf(".")
+                ),
                 docPostTime: item.docPostTime,
                 docSavePath: item.docSavePath,
                 suffixName: item.suffixName,
@@ -1031,53 +1058,6 @@ export default {
 
       console.log(this.currentPage + "currentPage");
     },
-    // getAllDocInfo() {
-    //   this.loading = true;
-    //   let url = "";
-    //   if (process.env.NODE_ENV === "development") {
-    //     url = "/api/public/getAllDocInfo";
-    //   } else {
-    //     url = "/public/getAllDocInfo";
-    //   }
-    //   getRequest(url, {
-    //     pageSize: this.pageSize,
-    //     currentPage: this.currentPage
-    //   })
-    //     .then(result => {
-    //       if (result.data.code === 200) {
-    //         // this.tableData = result.data.data.list;
-    //         console.log(result.data.data);
-    //         let table = [];
-    //         for (let i = 0; i < result.data.data.list.length; i++) {
-    //           let item = result.data.data.list[i];
-    //           let tableobj = {
-    //             annexes: item.annexes,
-    //             departmentId: item.departmentId,
-    //             departmentName: item.departmentName,
-    //             docId: item.docId,
-    //             docLabels: item.docLabels,
-    //             docName: item.docName.substring(0,item.docName.lastIndexOf(".")),
-    //             docPostTime: item.docLabels,
-    //             docSavePath: item.docSavePath,
-    //             suffixName: item.suffixName,
-    //             userId: item.userId,
-    //             url: "/getName?name=" + item.docName + "&token"
-    //           };
-    //           table.push(tableobj);
-    //         }
-    //         this.tableData = table;
-    //         this.total = result.data.data.total;
-    //         this.loading = false;
-    //       } else {
-    //         this.loading = false;
-    //         console.log(result.data.msg);
-    //       }
-    //     })
-    //     .catch(e => {
-    //       this.loading = false;
-    //       console.log(e);
-    //     });
-    // },
     getMyChildDepartments() {
       let url = "";
       if (process.env.NODE_ENV === "development") {
@@ -1172,13 +1152,6 @@ export default {
   },
 
   watch: {
-    // docSearchName(val) {
-    //   if (val != "") {
-    //     this.docSearchName = val;
-    //     console.log("docSearchName" + this.docSearchName);
-    //   }
-    // },
-
     filterText(val) {
       console.log(val);
       this.$refs.tree.filter(val);
@@ -1207,14 +1180,15 @@ export default {
   },
   data() {
     return {
-      defaultKey:[],
+      defaultKey: [],
       inputVisible: false,
-      inputValue: '',
+      inputValue: "",
       config: {
         token: localStorage.getItem("token")
       },
       args: {
-        filename: ""
+        filename: "",
+        suffixName: ""
       },
       isdownload: 1,
       loading: true,
@@ -1227,13 +1201,13 @@ export default {
         docName: "",
         docSavePath: "",
         userId: "",
-        departmentName:"",
+        departmentName: "",
         departmentId: "",
         tagList: "",
         suffixName: "",
         tagArrayList: "",
         docLabelArrayList: "",
-        dynamicTags:['标签一']
+        dynamicTags: ["标签一"]
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -1255,12 +1229,12 @@ export default {
       tableData: [],
       docLabelsTree: [],
       allTags: [],
-      allTags_1:[],
+      allTags_1: [],
       tags: [],
       fitterItems: [],
       checkList: [],
       allCheckList: [],
-   
+
       checkAll: false,
       isIndeterminate: true,
       time: [],
@@ -1268,8 +1242,8 @@ export default {
       defaultOpeneds: ["1"],
       docLabels: [],
       departments: [],
-        clickNode: [],
-        selectedLabel: ""
+      clickNode: [],
+      selectedLabel: ""
     };
   }
 };
@@ -1279,21 +1253,21 @@ export default {
 /* .el-tag + .el-tag {
   margin-left: 10px;
 } */
- /* .el-tag + .el-tag {
+/* .el-tag + .el-tag {
     margin-left: 10px;
   } */
-  .button-new-tag {
-    margin-left: 10px;
-    height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    width: 90px;
-    margin-left: 10px;
-    vertical-align: bottom;
-  }
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
 .button-new-tag {
   margin-left: 10px;
   height: 32px;

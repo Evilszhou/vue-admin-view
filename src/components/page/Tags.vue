@@ -78,13 +78,14 @@
               
                 <transition-group tag="div" id="doing" class="item-ul">
                   <el-tag
-                    v-for="tag in tags1"
-                    :key="tag.name"
+                    v-for="tag in tag2"
+                    :key="tag.source_name"
                     size="mini"
+                    closable
                     style="height:25px;margin-right:5px;margin-bottom:4px;cursor:pointer"
-                    @click="updateTag(tag,1)"
-                    :type="tag.type"
-                  >{{tag.name}}</el-tag>
+                    @close="deletesource(tag)"
+                    type="success"
+                  >{{tag.source_name}}</el-tag>
                 </transition-group>
             </div>
           </div>
@@ -125,6 +126,18 @@
             <el-button type="primary" @click="confimUpdate">确 定</el-button>
           </span>
         </el-dialog>
+
+         <el-dialog title="新增文件来源" :visible.sync="dialogVisible3" style="margin-top:100px" width="30%">
+          <el-form :model="form1" label-width="80px">
+            <el-form-item label="文件来源:">
+              <el-input v-model="form1.source_name"></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible3 = false">取 消</el-button>
+            <el-button type="primary" @click="addFileSoure">确 定</el-button>
+          </span>
+        </el-dialog>
       </div>
     </div>
   </section>
@@ -155,13 +168,18 @@ export default {
         name: "",
         type: ""
       },
+      form1: {
+        source_name: ""
+      },
       nodeValue: "",
       dialogVisible: false,
       dialogVisible1: false,
       dialogVisible2: false,
+      dialogVisible3: false,
       filterText: "",
       tags: [],
       tags1: [],
+      tag2: [],
       num: 1,
       label: "",
       data: [
@@ -224,8 +242,66 @@ export default {
   },
 
   methods: {
-    createFileSoures(){
+    deletesource(item) {
+      console.log(item);
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/deleteFileSource";
+      } else {
+        url = "/deleteFileSource";
+      }
+      postJsonRequest(url,item).then((result) => {
+        console.log(result);
+      }).catch((err) => {
+        
+      });
+      this.reload();
+
+    },
+    getAllFileSoure() {
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllFileSource";
+      } else {
+        url = "/getAllFileSource";
+      }
+
+      postJsonRequest(url)
+        .then(result => {
+          console.log(result);
+          if (result.data.code == 200) {
+            _this.tag2 = result.data.data;
+          }
+        })
+        .catch(err => {});
+    },
+    addFileSoure() {
+      let _this = this;
+      let url = "";
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/addFileSource";
+      } else {
+        url = "/addFileSource";
+      }
+      postJsonRequest(url, this.form1)
+        .then(result => {
+          console.log(result);
+          if (result.data.code != 200) {
+            this.open6(result.data.msg);
+          } else {
+            this.open3(result.data.msg);
+          }
+        })
+        .catch(err => {});
+      //  _this.relaod();
+      _this.dialogVisible3 = false;
+      _this.reload();
+    },
+    createFileSoures() {
       console.log("543543345");
+      this.dialogVisible3 = true;
     },
     confimUpdate() {
       let _this = this;
@@ -593,6 +669,7 @@ export default {
   mounted() {
     this.getAllTags();
     this.getDocLabelsTree();
+    this.getAllFileSoure();
   }
 };
 </script>
