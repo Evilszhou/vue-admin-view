@@ -201,6 +201,16 @@
                      </el-input> 
                   </el-form-item>
                   <el-button size="mini" style="margin-left:450px;margin-top:-50px;display:flex;height:32px" @click="choosetp">选择分类</el-button>
+                  <el-form-item label="文件来源:" style="width:100%;margin-top:15px">
+                     <el-select v-model="editForm.fileSourceName">
+                      <el-option
+                      style="width:300px"
+                      v-for="item in fileSources"
+                      :key="item.fileSourceId"
+                      :value="item.source_name"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
                   <el-form-item label="文件标签:" style="width:100%;margin-top:15px">
                       <el-tag
                         :type="tag.type"
@@ -399,6 +409,22 @@ export default {
     }
   },
   methods: {
+    getAllFileSources(){
+      let url = "";
+      let _this = this;
+      if (process.env.NODE_ENV === "development") {
+        url = "/api/getAllFileSource";
+      } else {
+        url = "/getAllFileSource";
+      }
+      postRequest(url).then((result) => {
+        console.log(result)
+        this.fileSources = result.data.data
+        console.log("---------------------------------------------------------------")
+      }).catch((err) => {
+        
+      });
+    },
     reupload(){
       console.log("重新上传");
       console.log(this.editForm);
@@ -470,7 +496,9 @@ export default {
         departmentId: this.editForm.departmentId,
         tagList: this.editForm.tagArrayList,
         suffixName: this.editForm.suffixName,
-        docLabelList: this.editForm.docLabelArrayList
+        docLabelList: this.editForm.docLabelArrayList,
+        // fileSourceId:this.editForm.fileSourceId,
+        fileSourceName:this.editForm.fileSourceName
       };
       console.log(edit);
       let _this = this;
@@ -566,6 +594,7 @@ export default {
       this.editForm.departmentName = row.departmentName;
       this.editForm.departmentId = row.departmentId;
       this.editForm.userId = row.userId;
+      this.editForm.fileSourceName = row.fileSourceName;
       if (row.tagArrayList != null) {
         let tags = [];
         for (let i = 0; i < row.tagArrayList.length; i++) {
@@ -634,16 +663,6 @@ export default {
         }
       }
       this.editForm.dynamicTags = this.allTags_1;
-
-      // console.log("1");
-      // console.log(this.allTags);
-      // console.log("2");
-      // console.log(this.allTags_1);
-      // // this.allTags_1 = this.allTags;
-      // this.editForm.dynamicTags = this.allTags_1;
-
-      // this.$refs.tree.setCheckedKeys([44])
-      // console.log(this.$refs.tree)
       this.dialogVisible2 = true;
     },
     getPagePermissions() {
@@ -1180,11 +1199,14 @@ export default {
     this.getMyChildDepartments();
     this.getDocsBySearchParam();
     this.getPagePermissions();
+    this.getAllFileSources();
     // this.getallUserGroup();
     // this.getAllDocInfo();
   },
   data() {
     return {
+      
+      fileSources:[],
       defaultKey: [],
       inputVisible: false,
       inputValue: "",
@@ -1212,7 +1234,8 @@ export default {
         suffixName: "",
         tagArrayList: "",
         docLabelArrayList: "",
-        dynamicTags: ["标签一"]
+        dynamicTags: ["标签一"],
+        fileSourceName:""
       },
       dialogVisible: false,
       dialogVisible1: false,
@@ -1239,7 +1262,6 @@ export default {
       fitterItems: [],
       checkList: [],
       allCheckList: [],
-
       checkAll: false,
       isIndeterminate: true,
       time: [],
